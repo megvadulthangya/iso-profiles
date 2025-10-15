@@ -1,26 +1,101 @@
 #!/bin/bash
-# --- BTRFS/.SNAPSHOTS LÉTREHOZÁS ---
+#!/bin/bash
 
-echo "Ellenőrzés: Snapper telepítése..."
-# Telepítjük a szükséges csomagokat, ha még nincsenek telepítve
+# --- BTRFS/.SNAPSHOTS LÉTREHOZÁS ÉS SNAPPPER TELEPÍTÉS ---
+
+# 1. Telepítés
+#echo "Ellenőrzés: Snapper és kapcsolódó csomagok telepítése..."
 #pacman -Sy --noconfirm snapper grub-btrfs snap-pac || { echo "Hiba: A szükséges csomagok telepítése sikertelen."; exit 1; }
 
-echo "Ellenőrzés: Btrfs gyökér subvolume (/)."
-# Ha a Btrfs root (/) nem Btrfs, a snapper create-config hibaüzenetet ad, de a biztonság kedvéért.
+# 2. Ellenőrzés
 if ! findmnt -M / -t btrfs > /dev/null; then
     echo "Hiba: A gyökér (/) nem Btrfs fájlrendszer. Kilépés."
     exit 1
 fi
 
-echo "Létrehozzuk a beágyazott subvolume-ot a Snapper számára: /.snapshots"
-# Létrehozzuk a beágyazott Btrfs subvolume-ot a / alatt (ez lesz a @/.snapshots)
-btrfs subvolume create /.snapshots || { echo "Hiba: A /.snapshots subvolume létrehozása sikertelen."; exit 1; }
+# 3. .snapshots subvolume létrehozása (ha még nem létezik)
+if btrfs subvolume list / | grep -q "\.snapshots"; then
+    echo "Figyelem: A /.snapshots subvolume már létezik. Kihagyjuk a létrehozást."
+else
+    echo "Létrehozzuk a beágyazott subvolume-ot a Snapper számára: /.snapshots"
+    btrfs subvolume create /.snapshots || { echo "Hiba: A /.snapshots subvolume létrehozása sikertelen."; exit 1; }
+fi
 
+# 4. Kimentjük a custom config fájlt
+CUSTOM_CONFIG_PATH="/tmp/snapper_custom_root_config"
+CONFIG_FILE="/etc/snapper/configs/root"
+
+# Kimentjük az általad megadott beállításokat egy temp fájlba a futtatáshoz
+cat <<EOF > "$CUSTOM_CONFIG_PATH"
+# subvolume to snapshot
+SUBVOLUME="/"
+# filesystem type
+FSTYPE="btrfs"
+# btrfs qgroup for space aware cleanup algorithms
+QGROUP=""
+# fraction or absolute size of the filesystems space the snapshots may use
+SPACE_LIMIT="0.5"
+# fraction or absolute size of the filesystems space that should be free
+FREE_LIMIT="0.2"
+# users and groups allowed to work with config
+ALLOW_USERS=""
+ALLOW_GROUPS=""
+# sync users and groups from ALLOW_USERS and ALLOW_GROUPS to .snapshots
+# directory
+SYNC_ACL="no"
+# start comparing pre- and post-snapshot in background after creating
+# post-snapshot
+BACKGROUND_COMPARISON="yes"
+# run daily number cleanup
+NUMBER_CLEANUP="yes"
+# limit for number cleanup
+NUMBER_MIN_AGE="1800"
+NUMBER_LIMIT="10"
+NUMBER_LIMIT_IMPORTANT="10"
+# create hourly snapshots
+TIMELINE_CREATE="no"
+# cleanup hourly snapshots after some time
+TIMELINE_CLEANUP="yes"
+# limits for timeline cleanup
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="10"
+TIMELINE_LIMIT_DAILY="10"
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="10"
+TIMELINE_LIMIT_QUARTERLY="0"
+TIMELINE_LIMIT_YEARLY="10"
+# cleanup empty pre-post-pairs
+EMPTY_PRE_POST_CLEANUP="yes"
+# limits for empty pre-post-pair cleanup
+EMPTY_PRE_POST_MIN_AGE="1800"
+EOF
+
+# --- SNAPPER KONFIGURÁCIÓ REGISZTRÁLÁSA ÉS VISSZAÁLLÍTÁSA ---
+
+echo "Regisztráljuk a 'root' konfigurációt a Snapper rendszerében..."
+# Futtatjuk a create-config-ot, hogy a Snapper regisztrálja a configot!
+snapper -c root create-config /
+
+# A create-config felülírta a custom config fájlodat, ezért visszatöltjük a mentettet.
+echo "Visszaállítjuk a custom konfigurációt..."
+cp "$CUSTOM_CONFIG_PATH" "$CONFIG_FILE"
+
+# Eltávolítjuk a temp fájlt
+rm "$CUSTOM_CONFIG_PATH"
+
+# --- ZÁRÓ LÉPÉSEK ---
 
 echo "A Snapper időzítő és tisztító szolgáltatások engedélyezése és indítása..."
+# A user beállítása a config fájlban
+CURRENT_USER=$(logname 2>/dev/null || whoami)
+sed -i "s|^ALLOW_USERS=\".*\"|ALLOW_USERS=\"$CURRENT_USER\"|" "$CONFIG_FILE"
+
+
 systemctl enable --now snapper-timeline.timer
 systemctl enable --now snapper-cleanup.timer
 
+echo "Snapper config kész! A Btrfs Assistant most már látja a 'root' konfigurációt. ✅"
+echo "Teszt: snapper -c root list"
 
 
 # ================================================================
