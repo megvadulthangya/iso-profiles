@@ -371,6 +371,39 @@ EOF
 chmod +x /usr/local/bin/safe-lock.sh
 echo "Lock script elhelyezve."
 
+# --- Mappa tisztítás ---
+echo "Régi AwesomeWM konfigurációs mappák eltávolítása..."
+
+# 1. Lekérjük az eredeti felhasználó home könyvtárát
+USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+
+if [ -z "$USER_HOME" ]; then
+    echo "Hiba: Nem található a(z) '$SUDO_USER' felhasználó home könyvtára."
+    exit 1
+fi
+
+# Törlés a felhasználó home könyvtárából
+if [ -d "$USER_HOME/.config/awesome/lain" ]; then
+    rm -rf "$USER_HOME/.config/awesome/lain"
+    echo "✅ $USER_HOME/.config/awesome/lain mappa törölve"
+fi
+
+if [ -d "$USER_HOME/.config/awesome/freedesktop" ]; then
+    rm -rf "$USER_HOME/.config/awesome/freedesktop"
+    echo "✅ $USER_HOME/.config/awesome/freedesktop mappa törölve"
+fi
+
+# Törlés az /etc/skel-ből
+if [ -d "/etc/skel/.config/awesome/lain" ]; then
+    rm -rf "/etc/skel/.config/awesome/lain"
+    echo "✅ /etc/skel/.config/awesome/lain mappa törölve"
+fi
+
+if [ -d "/etc/skel/.config/awesome/freedesktop" ]; then
+    rm -rf "/etc/skel/.config/awesome/freedesktop"
+    echo "✅ /etc/skel/.config/awesome/freedesktop mappa törölve"
+fi
+
 # --- AwesomeWM Copycats ---
 echo "AwesomeWM Copycats konfiguráció telepítése $USERNAME számára..."
 cd /tmp
@@ -420,7 +453,7 @@ if [ -d /tmp/awesome-copycats-manjaro ]; then
   
   # További .xz fájlok kezelése (ha vannak)
   for xz_file in /tmp/awesome-copycats-manjaro/*.xz; do
-    if [ -f "$xz_file" ]; then
+    if [ -f "$xz_file" ] && [ "$(basename "$xz_file")" != "Nordic-cursors.tar.xz" ] && [ "$(basename "$xz_file")" != "fish.cfg.tar.xz" ]; then
       filename=$(basename "$xz_file")
       echo "További .xz fájl található: $filename"
       # Itt adhatunk hozzá további kezelési logikát, ha szükséges
@@ -447,14 +480,6 @@ if [ -f "$USER_HOME/.config/awesome/rc.lua.template" ]; then
     fi
 else
     echo "rc.lua.template nem található a $USER_HOME/.config/awesome mappában!"
-fi
-
-# 1. Lekérjük az eredeti felhasználó home könyvtárát
-USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-
-if [ -z "$USER_HOME" ]; then
-    echo "Hiba: Nem található a(z) '$SUDO_USER' felhasználó home könyvtára."
-    exit 1
 fi
 
 # 2. Definiáljuk a célfájl elérési útját
