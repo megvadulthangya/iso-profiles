@@ -179,11 +179,6 @@ fastfetch
 mc
 inxi
 kdeconnect
-#>extra libreoffice-still
-#>extra microsoft-office-online-jak
-#>extra freeoffice
-#>extra onlyoffice-desktopeditors
-#>extra pv
 manjaro-hello
 manjaro-application-utility
 manjaro-settings-manager
@@ -201,7 +196,7 @@ evince
 ##>extra thunderbird
 #>extra vlc
 >extra viewnior
-#>extra xfburn
+>extra xfburn
 >extra yelp
 dmenu
 rofi
