@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Awesome WM Setup
+Comment=Starts Awesome WM configuration terminal (skips live environment)
+Exec=/bin/bash -c "sleep 10 && $HOME/awesome-setup-wrapper.sh"
+StartupNotify=false
+Terminal=false
+Categories=System;
+X-GNOME-Autostart-enabled=true
+#OnlyShowIn=XFCE;

@@ -1,0 +1,278 @@
+## Network
+avahi
+networkmanager
+networkmanager-openconnect
+networkmanager-openvpn
+networkmanager-vpnc
+nss-mdns # NSS support for mDNS (optdepend for avahi)
+ntp
+mobile-broadband-provider-info
+modemmanager
+openssh
+samba
+usb_modeswitch
+wavemon
+
+## Btrfs
+grub-btrfs
+btrfs-assistant
+btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
+##>extra timeshift-autosnap-manjaro
+
+## Libraries for Sound/Audio/Video
+alsa-firmware
+alsa-utils
+ffmpeg
+gst-libav
+gst-plugins-bad
+gst-plugins-base
+gst-plugins-good
+gst-plugins-ugly
+libdvdcss
+manjaro-alsa
+manjaro-gstreamer
+>extra manjaro-modem
+manjaro-pipewire
+mpd
+mpc
+mpv
+playerctl
+
+## Connect Packages
+android-tools
+android-udev
+gvfs
+gvfs-afc
+gvfs-gphoto2
+gvfs-mtp
+gvfs-nfs
+gvfs-smb
+mtpfs
+udiskie
+udisks2
+
+## Fonts
+ttf-dejavu
+# cantarell-fonts        # Installed as gnome-themes-standard dependency
+noto-fonts               # default font
+noto-fonts-cjk           # asian fonts - needed big package, ~76 mb compressed
+adobe-source-sans-pro-fonts
+# adobe-source-han-sans-jp-fonts
+# adobe-source-han-sans-kr-fonts
+# adobe-source-han-sans-cn-fonts
+terminus-font
+>extra ttf-inconsolata
+>extra ttf-indic-otf
+>extra ttf-liberation
+>extra ttf-droid
+ttf-roboto
+woff2-font-awesome
+ttf-firacode-nerd
+noto-fonts-emoji
+xorg-fonts-misc
+
+## Package management
+>extra apparmor
+#>extra gnome-software-snap
+pamac-gtk3
+>extra snapd
+>extra snapd-glib
+>extra pamac-snap-plugin
+>extra pamac-flatpak-plugin
+
+## Printing
+>extra manjaro-printer
+
+## Display manager
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+accountsservice  # Enhanced user accounts handling
+
+## XFCE Group
+##exo
+##garcon
+thunar
+thunar-volman
+tumbler
+##xfce4-appfinder
+##xfce4-panel
+##xfce4-power-manager --->lehet hogy kellhet...
+##xfce4-session
+##xfce4-settings
+xfce4-terminal
+##xfconf
+##xfdesktop
+##xfwm4
+
+## XFCE Extras
+blueman
+ffmpegthumbnailer  # tumbler - for video thumbnails
+freetype2          # tumbler - for font thumbnails
+gnome-keyring      # fix wlan segfault
+libgsf             # tumbler - for ODF thumbnails
+libopenraw         # tumbler - for RAW thumbnails
+# light-locker     # remove it for now as it might double-lock in certain cases
+##xfce4-screensaver
+network-manager-applet
+menulibre
+poppler-glib       # tumbler - for PDF thumbnails
+thunar-archive-plugin
+thunar-media-tags-plugin
+### >extra xfce4-artwork
+##xfce4-battery-plugin
+##xfce4-clipman-plugin
+##>extra xfce4-cpufreq-plugin
+##>extra xfce4-cpugraph-plugin
+### xfce4-datetime-plugin
+##>extra xfce4-dict
+##>extra xfce4-diskperf-plugin
+##>extra xfce4-fsguard-plugin
+##>extra xfce4-genmon-plugin
+##>extra xfce4-mailwatch-plugin
+##>extra xfce4-mount-plugin
+##>extra xfce4-mpc-plugin
+##>extra xfce4-netload-plugin
+##>extra xfce4-notes-plugin
+##xfce4-notifyd
+##xfce4-screenshooter
+##>extra xfce4-sensors-plugin
+##>extra xfce4-smartbookmark-plugin
+##>extra xfce4-systemload-plugin
+##xfce4-taskmanager
+##>extra xfce4-time-out-plugin
+##>extra xfce4-timer-plugin
+##>extra xfce4-verve-plugin
+##>extra xfce4-wavelan-plugin
+##>extra xfce4-weather-plugin
+##xfce4-whiskermenu-plugin
+##xfce4-xkb-plugin
+##xfce4-pulseaudio-plugin
+pavucontrol
+
+##Awesome-wm
+awesome
+## Themes
+>extra manjaro-wallpapers-18.0
+gnome-themes-standard
+grub-theme-manjaro
+matcha-gtk-theme
+xcursor-simpleandsoft
+xcursor-vanilla-dmz-aa
+plymouth
+plymouth-theme-manjaro
+
+## Applications
+bash-completion
+>extra catfish
+dmidecode # optional dependency inxi
+engrampa
+brave-browser
+# >extra flashplugin
+>extra galculator
+gcolor3
+gparted
+gufw
+>extra audacious
+btop
+fastfetch
+mc
+inxi
+kdeconnect
+#>extra libreoffice-still
+#>extra microsoft-office-online-jak
+#>extra freeoffice
+#>extra onlyoffice-desktopeditors
+#>extra pv
+manjaro-hello
+manjaro-application-utility
+manjaro-settings-manager
+manjaro-settings-manager-notifier
+>extra mlocate
+mousepad
+mugshot
+>basic parole # media player
+##>extra pidgin
+powertop
+##screenfetch
+evince
+>extra poppler-data  # CKJ support for pdf
+#>basic sylpheed # mail client
+##>extra thunderbird
+#>extra vlc
+>extra viewnior
+#>extra xfburn
+>extra yelp
+dmenu
+rofi
+flameshot
+picom
+scrot
+unclutter
+xorg-xbacklight
+arandr
+lxappearance
+kvantum
+polkit-gnome
+#lxqt-policykit
+xorg-xev
+xss-lock
+feh
+qt6ct
+geany
+fish
+starship
+bat
+eza
+jq
+fzf
+nano-syntax-highlighting
+
+# Optional dependencies engrampa
+p7zip  # 7Z and ARJ archive support
+unace  # ACE archive support
+unrar  # RAR archive support
+
+## Documentation
+#manjaro-documentation-en
+
+## Settings packages
+##>extra manjaro-xfce-settings
+##>basic manjaro-xfce-minimal-settings
+##manjaro-browser-settings
+
+## Xorg Input Drivers
+xf86-input-elographics
+xf86-input-evdev
+xf86-input-libinput
+xf86-input-void
+
+## Xorg Server and Graphics
+>multilib lib32-libva-intel-driver
+>multilib lib32-libva-mesa-driver
+libva-intel-driver
+libva-mesa-driver
+mesa-utils
+>multilib lib32-mesa-utils
+numlockx
+xdg-user-dirs
+xorg-server
+xorg-twm
+xorg-xinit
+xorg-xkill
+xorg-mkfontscale
+
+## Desktop Utils
+perl-file-mimeinfo
+xdg-desktop-portal-gtk
+xdg-utils
+#xdg-su
+##>extra timeshift
+snapper
+snap-pac
+#>extra kernel-alive
+
+## Misc
+xiccd # enable color profile settings
+#tlp
+zram-generator
