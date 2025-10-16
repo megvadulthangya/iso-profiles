@@ -213,6 +213,7 @@ polkit-gnome
 xorg-xev
 xss-lock
 feh
+qt5ct
 qt6ct
 geany
 fish
