@@ -84,7 +84,7 @@ run_once({
 -- are applied in the AwesomeWM session. It only starts the daemon if it's not already running.
         "xfsettingsd",
 --pamac updater desktop icon
-    "GDK_BACKEND=x11 pamac-tray",
+--    "GDK_BACKEND=x11 pamac-tray",
 -- Starts the LXQt PolicyKit authentication agent. This agent handles privilege requests, 
 -- providing the graphical password prompt for tasks requiring system administrator permissions.
 --	"lxqt-policykit-agent",
@@ -97,10 +97,10 @@ run_once({
 -- Starts the NetworkManager Applet. This is a GTK-based application that provides 
 -- a graphical icon in the system tray (systray) for monitoring network status, 
 -- managing connections (Wi-Fi, Wired, VPN), and configuring network settings.
-	"nm-applet",
+--	"nm-applet",
 -- This line would typically start 'picom', a standalone compositor used for managing
 -- shadows, transparency, and tearing (it provides the visual effects for the desktop).
-	"picom",
+--	"picom",
 -- Runs 'unclutter' to automatically hide the mouse cursor when it is not being moved
 -- (i.e., when you are actively typing or not using the mouse). The '-root' flag
 -- ensures it works across the entire root window.
@@ -113,16 +113,16 @@ run_once({
 --== Wallets (Credential Management) ==--
 -- Runs the pam_kwallet initialization script. This integrates KWallet with PAM (Pluggable Authentication Modules),
 -- allowing KWallet to automatically unlock when the user logs in, based on the login password.
-	"/usr/lib/pam_kwallet_init",
+--	"/usr/lib/pam_kwallet_init",
 -- Starts the KWallet D-Bus service itself. This service manages and stores sensitive user information (like passwords).
-	"kwalletd6",
+--	"kwalletd6",
 -- Starts the KWallet Manager application, which is the graphical interface for managing the wallets and stored credentials.
-	"kwalletmanager6",
+--	"kwalletmanager6",
 
 --== KDE Integration ==--
 -- Starts the KDE Connect daemon. This service allows for integration between the desktop and mobile devices (Android/iOS),
 -- providing features like notification sync, shared clipboard, and file transfer.
-	"kdeconnectd",
+--	"kdeconnectd",
 -- Starts the KDE Connect system tray indicator, providing a visual way to manage the connection and access its features
 	"kdeconnect-indicator",
 -- Starts Manjaro Hello
