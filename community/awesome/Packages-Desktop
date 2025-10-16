@@ -210,7 +210,7 @@ arandr
 lxappearance
 kvantum
 polkit-gnome
-#lxqt-policykit
+##lxqt-policykit
 xorg-xev
 xss-lock
 feh
