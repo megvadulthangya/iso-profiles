@@ -126,7 +126,7 @@ run_once({
 -- Starts the KDE Connect system tray indicator, providing a visual way to manage the connection and access its features
 	"kdeconnect-indicator",
 -- Starts Manjaro Hello
-	"/usr/bin/manjaro-hello",
+--	"/usr/bin/manjaro-hello",
 -- Start install script
 	"/bin/bash/ -c `sleep 10 && $HOME/awesome-setup-wrapper.sh`"
  }) -- comma-separated entries
