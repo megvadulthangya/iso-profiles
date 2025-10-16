@@ -636,8 +636,8 @@ standard_dialogs=default
 style=Fusion
 
 [Fonts]
-fixed="Cantarell,10,-1,5,50,0,0,0,0,0"
-general="Cantarell,10,-1,5,50,0,0,0,0,0"
+fixed="FiraCode Nerd Font,12,-1,5,50,0,0,0,0,0,Regular"
+general="FiraCode Nerd Font,12,-1,5,50,0,0,0,0,0,Regular"
 
 [Interface]
 activate_item_on_single_click=1
@@ -672,8 +672,8 @@ standard_dialogs=default
 style=kvantum
 
 [Fonts]
-fixed="DejaVu LGC Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
-general="DejaVu LGC Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+fixed="FiraCode Nerd Font,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular"
+general="FiraCode Nerd Font,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular"
 
 [Interface]
 activate_item_on_single_click=1
@@ -997,7 +997,7 @@ setup_config_file '<?xml version="1.1" encoding="UTF-8"?>
   <property name="Gtk" type="empty">
     <property name="CanChangeAccels" type="bool" value="false"/>
     <property name="ColorPalette" type="string" value="black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90"/>
-    <property name="FontName" type="string" value="Noto Sans 10"/>
+    <property name="FontName" type="string" value="FiraCode Nerd Font 12"/>
     <property name="MonospaceFontName" type="empty"/>
     <property name="IconSizes" type="string" value=""/>
     <property name="KeyThemeName" type="string" value=""/>
@@ -1082,7 +1082,7 @@ setup_config_file '<?xml version="1.0" encoding="UTF-8"?>
     <property name="snap_width" type="int" value="10"/>
     <property name="theme" type="string" value="Nordic-standard-buttons"/>
     <property name="title_alignment" type="string" value="center"/>
-    <property name="title_font" type="string" value="Noto Sans 10"/>
+    <property name="title_font" type="string" value="FiraCode Nerd Font 12"/>
     <property name="title_horizontal_offset" type="int" value="0"/>
     <property name="title_shadow_active" type="string" value="false"/>
     <property name="title_shadow_inactive" type="string" value="false"/>
