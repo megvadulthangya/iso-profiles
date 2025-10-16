@@ -223,6 +223,7 @@ bat
 eza
 jq
 fzf
+dex
 nano-syntax-highlighting
 
 # Optional dependencies engrampa
