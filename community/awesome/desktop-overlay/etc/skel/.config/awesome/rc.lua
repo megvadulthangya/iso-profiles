@@ -82,7 +82,7 @@ run_once({
 	"xset s " .. idle_seconds .. " " .. idle_seconds .. "; xss-lock -- /usr/local/bin/safe-lock.sh",
 -- Ensures GTK appearance settings (icons/themes for Thunar, mouse cursor, fonts) 
 -- are applied in the AwesomeWM session. It only starts the daemon if it's not already running.
-        "xfsettingsd",
+--        "xfsettingsd",
 --pamac updater desktop icon
 --    "GDK_BACKEND=x11 pamac-tray",
 -- Starts the LXQt PolicyKit authentication agent. This agent handles privilege requests, 
@@ -128,7 +128,7 @@ run_once({
 -- Starts Manjaro Hello
 --	"/usr/bin/manjaro-hello",
 -- Start install script
-	"/bin/bash/ -c `sleep 10 && $HOME/awesome-setup-wrapper.sh`"
+--	"/bin/bash/ -c `sleep 10 && $HOME/awesome-setup-wrapper.sh`"
  }) -- comma-separated entries
 
 -- This function implements the XDG autostart specification
