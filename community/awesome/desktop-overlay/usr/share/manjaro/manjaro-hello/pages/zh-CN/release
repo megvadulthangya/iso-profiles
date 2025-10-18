@@ -1,0 +1,35 @@
+<big>Manjaro 25.0</big>
+
+Since we released Yonada in December 2024 we worked hard to get the next release of Manjaro out there. We call it Zetar.
+
+The <big>GNOME edition</big> has received several updates to Gnome 48 series. This includes a lot of fixes and polish when <a href="https://release.gnome.org/48/">Gnome 48</a> originally was released in March 2025. You can find find release dates of each upcoming point-release here: <a href="https://release.gnome.org/calendar/">Release Calendar</a>. Weekly updates around GNOME can be found <a href="https://thisweek.gnome.org/">here</a>.
+
+Highlights of 48 release series are:
+
+GNOME 48 introduces stacking to the notification list. Notifications from the same app are grouped into stacks, each of which can be expanded to reveal individual messages. Stacking keeps the notification list organized and makes it easier to navigate. It also prevents the notification list from becoming too long.
+
+GNOME 48 includes a number of notable performance improvements. The most significant of these is the introduction of dynamic triple buffering. This change has undergone significant review and testing over a period of five years and improves the perceived smoothness of changes on screen, with fewer skipped frames and more fluid animations. This has been achieved by enhancing the concurrency capabilities of Mutter, the GNOME display manager, and is particularly effective at handling sudden bursts of activity.
+
+GNOME 48 includes a new option which enhances the lifespan of the device’s battery. When enabled, battery charge is limited to 80% while the device is plugged in. Maintaining the battery charge level at this reduced level keeps the battery working better for longer.
+
+GNOME 48 is an important milestone for HDR support in GNOME, with the initial introduction of system level HDR support. This means that, if you have an HDR display, it is now possible to have HDR output shown from apps which support it. Currently the number of apps which support HDR is limited. However, work to extend HDR support is ongoing, and the availability of this feature is expected to increase in the future.
+
+The <big>Plasma edition</big> comes with the latest <a href="https://kde.org/announcements/plasma/6/6.3.4//">Plasma 6.3 series</a>, <a href="https://kde.org/announcements/frameworks/6/6.12.0/">Frameworks 6.12</a> and <a href="https://kde.org/announcements/gear/24.12.3/">KDE Gear 24.12</a>. It brings exciting new improvements to your desktop.
+
+One year on Plasma’s developers have worked on fine-tuning, squashing bugs and adding features to Plasma 6 — turning it into the best desktop environment for everyone!
+
+The most important news regarding graphics is a huge overhaul of how fractional scaling works. In Plasma 6.3, KWin makes a stronger effort to snap things to the screen’s pixel grid, greatly reducing blurriness and visual gaps everywhere and producing sharper and crisper images. In the color department, screen colors are more accurate when using the Night Light feature both with and without ICC profiles, and KWin offers the option to choose screen color accuracy — although this can sometimes affect system performance.
+
+System Monitor monitors CPU usage more accurately, and consumes vastly fewer CPU resources while doing it! Info Center also provides more information, exposing data about all of your GPUs as well as your batteries’ cycle counts. Monitoring printers is equally easy, as each printer’s print queue is shown directly in the widget. The widget also shows a little spinner on any printers that are currently printing, so you can see at a glance which ones are in use. Plasma 6.3 makes things easy without ditching flexibility. If you prefer using a mouse with your laptop, you can now configure its built-in touchpad to switch off automatically, so it doesn’t interfere with your typing. Also, if you set up your machine as a network hotspot, Plasma generates a random password for the network so you don’t have to think one up.
+
+Finally, what would Plasma be without customization? Panels can now be cloned! You can also use scripting to change your panels’ opacity levels and what screen they appear on.
+
+With our <big>XFCE edition</big>, we have now Xfce 4.18. Here some highlights: A new file highlighting feature (accessed from the file properties dialog) in Thunar file manager lets you set a custom colour background and a custom foreground text colour – an effective way to call attention to specific file(s) in a directory laden with similar-looking mime types. On the subject of finding files, Thunar includes recursive search.
+
+The panel picks up a pair of new preferences. First, panel length is now configured in pixels rather than percentages, as before. Second, there’s a new “keep panel above windows” option. This allows maximised app windows to fill the area behind the panel rather than maximise its bottom or top edge to sit flush against it.
+
+Control Centre groups all of the desktop’s various modules for managing the system into one easy-to-use window. New options are present in many of these. For example you can disable header bars in dialogs from the Appearance module; show or hide a ‘delete’ option in file context menus from Desktop; and pick a default multi-monitor behaviour before you attach an additional screen – dead handy, that.
+
+Kernel 6.12 is used for this release, such as the latest drivers available to date. With 6.6 LTS and 6.1 LTS we offer additional support for older hardware as needed.
+
+We hope you enjoy this release and let us know what you think of Zetar.
