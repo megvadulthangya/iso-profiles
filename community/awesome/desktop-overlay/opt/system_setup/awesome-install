@@ -1462,6 +1462,9 @@ rm -f "/opt/system_setup/awesome-setup-wrapper.sh"
 rm -f "/opt/system_setup/awesome-setup.sh"
 #rm -f "/etc/skel/awesome-install"
 rm -f "/etc/skel/.config/autostart/awesome-setup.desktop"
+rm -rf "/root/.config/awesome"
+rm -rf "/root/.config/darktable"
+rm -f "/root/.config/autostart/awesome-setup.desktop"
 
 echo
 echo "💨 FÜSTÖLGŐ NYOMOK ELTÁVOLÍTASA..."
