@@ -1,122 +1,147 @@
 #!/bin/bash
-# --- SNAPPER HELYEHOZÁS MANJARO-HOZ ---
+# --- SNAPPPER BEÁLLÍTÁS MANJARO-HOZ (root + home támogatással) ---
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
-   echo "Hiba: Ezt a szkriptet root-ként kell futtatni (sudo használatával)" 
+   echo "Hiba: Ezt a szkriptet root-ként kell futtatni (sudo használatával)"
    exit 1
 fi
 
-# 2. Snapper és snap-pac eltávolítása
-echo "Régi csomagok eltávolítása..."
+echo "=== Snapper telepítés és konfiguráció indul ==="
+
+# 2. Régi csomagok eltávolítása
+echo "[1/9] Régi snapper és snap-pac eltávolítása..."
 pacman -R --noconfirm snap-pac snapper 2>/dev/null || true
 
-# 3. Szükséges könyvtárak létrehozása
-echo "Konfigurációs könyvtárak létrehozása..."
+# 3. Könyvtárak létrehozása
+echo "[2/9] Konfigurációs könyvtárak létrehozása..."
 mkdir -p /etc/snapper/configs
 mkdir -p /etc/conf.d
 
-# 4. Konfigurációs fájlok létrehozása
-echo "Konfigurációs fájlok létrehozása..."
-
-# /etc/conf.d/snapper
+# 4. /etc/conf.d/snapper fájl
+echo "[3/9] /etc/conf.d/snapper létrehozása..."
 cat > /etc/conf.d/snapper << 'EOF'
-SNAPPER_CONFIGS="root"
+SNAPPER_CONFIGS="root home"
 EOF
 
-# /etc/snapper/configs/root
+# 5. Root konfiguráció létrehozása
+echo "[4/9] Root konfiguráció létrehozása..."
 cat > /etc/snapper/configs/root << 'EOF'
-# subvolume to snapshot
 SUBVOLUME="/"
-# filesystem type
 FSTYPE="btrfs"
-# btrfs qgroup for space aware cleanup algorithms
 QGROUP=""
-# fraction or absolute size of the filesystems space the snapshots may use
 SPACE_LIMIT="0.5"
-# fraction or absolute size of the filesystems space that should be free
 FREE_LIMIT="0.2"
-# users and groups allowed to work with config
 ALLOW_USERS=""
 ALLOW_GROUPS=""
-# sync users and groups from ALLOW_USERS and ALLOW_GROUPS to .snapshots
-# directory
 SYNC_ACL="no"
-# start comparing pre- and post-snapshot in background after creating
-# post-snapshot
 BACKGROUND_COMPARISON="yes"
-# run daily number cleanup
 NUMBER_CLEANUP="yes"
-# limit for number cleanup
 NUMBER_MIN_AGE="1800"
 NUMBER_LIMIT="10"
 NUMBER_LIMIT_IMPORTANT="10"
-# create hourly snapshots
-TIMELINE_CREATE="no"
-# cleanup hourly snapshots after some time
+TIMELINE_CREATE="yes"
 TIMELINE_CLEANUP="yes"
-# limits for timeline cleanup
 TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="10"
-TIMELINE_LIMIT_DAILY="10"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="10"
-TIMELINE_LIMIT_QUARTERLY="0"
-TIMELINE_LIMIT_YEARLY="10"
-# cleanup empty pre-post-pairs
+TIMELINE_LIMIT_HOURLY="6"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_MONTHLY="6"
 EMPTY_PRE_POST_CLEANUP="yes"
-# limits for empty pre-post-pair cleanup
 EMPTY_PRE_POST_MIN_AGE="1800"
 EOF
 
-echo "✓ Konfigurációs fájlok létrehozva"
+# 6. Home konfiguráció létrehozása
+echo "[5/9] Home konfiguráció létrehozása..."
 
-# 5. Snapper újratelepítése
-echo "Snapper újratelepítése..."
-pacman -S --noconfirm snapper
+# Ellenőrizzük, hogy a @home subvolume létezik-e
+if ! btrfs subvolume list / | grep -q "@home"; then
+    echo "⚠ Figyelmeztetés: Nem található @home subvolume! Ellenőrizd a btrfs subvolume list kimenetét!"
+fi
 
-# 6. Snap-pac újratelepítése (opcionális, de ajánlott)
-echo "Snap-pac újratelepítése..."
-pacman -S --noconfirm snap-pac
+# /home/.snapshots létrehozása, ha hiányzik
+if [ ! -d /home/.snapshots ]; then
+    echo "/home/.snapshots subvolume létrehozása..."
+    btrfs subvolume create /home/.snapshots
+fi
 
-# 7. .snapshots könyvtár ellenőrzése
+cat > /etc/snapper/configs/home << 'EOF'
+SUBVOLUME="/home"
+FSTYPE="btrfs"
+QGROUP=""
+SPACE_LIMIT="0.3"
+FREE_LIMIT="0.1"
+ALLOW_USERS=""
+ALLOW_GROUPS=""
+SYNC_ACL="no"
+BACKGROUND_COMPARISON="yes"
+NUMBER_CLEANUP="yes"
+NUMBER_MIN_AGE="1800"
+NUMBER_LIMIT="5"
+NUMBER_LIMIT_IMPORTANT="5"
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="5"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_MONTHLY="3"
+EMPTY_PRE_POST_CLEANUP="yes"
+EMPTY_PRE_POST_MIN_AGE="1800"
+EOF
+
+# 7. Snapper és snap-pac telepítése
+echo "[6/9] Snapper és snap-pac telepítése..."
+pacman -S --noconfirm snapper snap-pac
+
+# 8. .snapshots subvolume ellenőrzése és létrehozása a root alatt
+echo "[7/9] /.snapshots ellenőrzése..."
 SNAPSHOTS_DIR="/.snapshots"
 if ! btrfs subvolume list / | grep -q "\.snapshots"; then
-    echo ".snapshots subvolume létrehozása..."
+    echo ".snapshots subvolume létrehozása a gyökérben..."
     btrfs subvolume create "$SNAPSHOTS_DIR"
 fi
 
-# Jogosultságok beállítása - opcionális: ha szeretnéd, hogy a felhasználó is hozzáférjen
-#USER_GROUP=$(id -gn $USER)
-#chown :$$USER_GROUP "$SNAPSHOTS_DIR" 2>/dev/null || true
-#chmod 755 "$SNAPSHOTS_DIR"
-
-# 8. Szolgáltatások indítása
-echo "Szolgáltatások indítása..."
+# 9. Szolgáltatások engedélyezése és indítása
+echo "[8/9] Snapper szolgáltatások indítása..."
 systemctl enable --now snapperd
 systemctl enable --now snapper-timeline.timer
 systemctl enable --now snapper-cleanup.timer
 systemctl restart snapperd
 
-# 9. Végső ellenőrzés
-echo "Végső ellenőrzés..."
+# 10. Teszt snapshot készítése és ellenőrzés
+echo "[9/9] Teszt snapshot készítése..."
 sleep 2
 
-echo "1. Konfigurációs fájlok:"
-ls -la /etc/snapper/configs/
-
-echo "2. Snapper konfigurációk:"
-snapper list-configs
-
-echo "3. Teszt snapshot:"
-if snapper -c root create --description "telepites_utani_teszt" 2>/dev/null; then
-    echo "✓ Snapper működik!"
-    snapper -c root list
+echo "→ Root teszt snapshot:"
+if snapper -c root create --description "telepites_utani_teszt_root" 2>/dev/null; then
+    echo "✓ Root snapshot sikeres!"
 else
-    echo "⚠ Snapshot nem készült, de a konfiguráció valószínűleg rendben van"
+    echo "⚠ Root snapshot nem készült!"
 fi
 
-echo "✅ KÉSZ! Most a Btrfs Assistantnak már látnia kell a konfigurációt."
+echo "→ Home teszt snapshot:"
+if snapper -c home create --description "telepites_utani_teszt_home" 2>/dev/null; then
+    echo "✓ Home snapshot sikeres!"
+else
+    echo "⚠ Home snapshot nem készült!"
+fi
+
+# 11. Összegzés
+echo
+echo "=== KONFIGURÁCIÓK ==="
+snapper list-configs || echo "⚠ Nem található konfiguráció!"
+
+echo
+echo "=== Root snapshot lista ==="
+snapper -c root list | tail -n 5 2>/dev/null || true
+
+echo
+echo "=== Home snapshot lista ==="
+snapper -c home list | tail -n 5 2>/dev/null || true
+
+echo
+echo "✅ KÉSZ! A Snapper mostantól a root és a home subvolume-okat is menti."
+echo "Nézd meg a Btrfs Assistant-ban: mindkét config meg fog jelenni!"
+
 
 
 
