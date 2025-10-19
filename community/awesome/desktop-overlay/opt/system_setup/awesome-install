@@ -1,32 +1,31 @@
 #!/bin/bash
-#!/bin/bash
+# --- SNAPPER HELYEHOZÁS MANJARO-HOZ ---
 
-# --- BTRFS/.SNAPSHOTS LÉTREHOZÁS ÉS SNAPPPER TELEPÍTÉS ---
-
-# 1. Telepítés
-#echo "Ellenőrzés: Snapper és kapcsolódó csomagok telepítése..."
-#pacman -Sy --noconfirm snapper grub-btrfs snap-pac || { echo "Hiba: A szükséges csomagok telepítése sikertelen."; exit 1; }
-
-# 2. Ellenőrzés
-if ! findmnt -M / -t btrfs > /dev/null; then
-    echo "Hiba: A gyökér (/) nem Btrfs fájlrendszer. Kilépés."
-    exit 1
+# 1. Root jogosultság ellenőrzése
+if [[ $EUID -ne 0 ]]; then
+   echo "Hiba: Ezt a szkriptet root-ként kell futtatni (sudo használatával)" 
+   exit 1
 fi
 
-# 3. .snapshots subvolume létrehozása (ha még nem létezik)
-if btrfs subvolume list / | grep -q "\.snapshots"; then
-    echo "Figyelem: A /.snapshots subvolume már létezik. Kihagyjuk a létrehozást."
-else
-    echo "Létrehozzuk a beágyazott subvolume-ot a Snapper számára: /.snapshots"
-    btrfs subvolume create /.snapshots || { echo "Hiba: A /.snapshots subvolume létrehozása sikertelen."; exit 1; }
-fi
+# 2. Snapper és snap-pac eltávolítása
+echo "Régi csomagok eltávolítása..."
+pacman -R --noconfirm snap-pac snapper 2>/dev/null || true
 
-# 4. Kimentjük a custom config fájlt
-CUSTOM_CONFIG_PATH="/tmp/snapper_custom_root_config"
-CONFIG_FILE="/etc/snapper/configs/root"
+# 3. Szükséges könyvtárak létrehozása
+echo "Konfigurációs könyvtárak létrehozása..."
+mkdir -p /etc/snapper/configs
+mkdir -p /etc/conf.d
 
-# Kimentjük az általad megadott beállításokat egy temp fájlba a futtatáshoz
-cat <<EOF > "$CUSTOM_CONFIG_PATH"
+# 4. Konfigurációs fájlok létrehozása
+echo "Konfigurációs fájlok létrehozása..."
+
+# /etc/conf.d/snapper
+cat > /etc/conf.d/snapper << 'EOF'
+SNAPPER_CONFIGS="root"
+EOF
+
+# /etc/snapper/configs/root
+cat > /etc/snapper/configs/root << 'EOF'
 # subvolume to snapshot
 SUBVOLUME="/"
 # filesystem type
@@ -70,32 +69,115 @@ EMPTY_PRE_POST_CLEANUP="yes"
 EMPTY_PRE_POST_MIN_AGE="1800"
 EOF
 
-# --- SNAPPER KONFIGURÁCIÓ REGISZTRÁLÁSA ÉS VISSZAÁLLÍTÁSA ---
+echo "✓ Konfigurációs fájlok létrehozva"
 
-echo "Regisztráljuk a 'root' konfigurációt a Snapper rendszerében..."
-# Futtatjuk a create-config-ot, hogy a Snapper regisztrálja a configot!
-snapper -c root create-config /
+# 5. Snapper újratelepítése
+echo "Snapper újratelepítése..."
+pacman -S --noconfirm snapper
 
-# A create-config felülírta a custom config fájlodat, ezért visszatöltjük a mentettet.
-echo "Visszaállítjuk a custom konfigurációt..."
-cp "$CUSTOM_CONFIG_PATH" "$CONFIG_FILE"
+# 6. Snap-pac újratelepítése (opcionális, de ajánlott)
+echo "Snap-pac újratelepítése..."
+pacman -S --noconfirm snap-pac
 
-# Eltávolítjuk a temp fájlt
-rm "$CUSTOM_CONFIG_PATH"
+# 7. .snapshots könyvtár ellenőrzése
+SNAPSHOTS_DIR="/.snapshots"
+if ! btrfs subvolume list / | grep -q "\.snapshots"; then
+    echo ".snapshots subvolume létrehozása..."
+    btrfs subvolume create "$SNAPSHOTS_DIR"
+fi
 
-# --- ZÁRÓ LÉPÉSEK ---
+# Jogosultságok beállítása - opcionális: ha szeretnéd, hogy a felhasználó is hozzáférjen
+#USER_GROUP=$(id -gn $USER)
+#chown :$$USER_GROUP "$SNAPSHOTS_DIR" 2>/dev/null || true
+#chmod 755 "$SNAPSHOTS_DIR"
 
-echo "A Snapper időzítő és tisztító szolgáltatások engedélyezése és indítása..."
-# A user beállítása a config fájlban
-CURRENT_USER=$(logname 2>/dev/null || whoami)
-sed -i "s|^ALLOW_USERS=\".*\"|ALLOW_USERS=\"$CURRENT_USER\"|" "$CONFIG_FILE"
-
-
+# 8. Szolgáltatások indítása
+echo "Szolgáltatások indítása..."
+systemctl enable --now snapperd
 systemctl enable --now snapper-timeline.timer
 systemctl enable --now snapper-cleanup.timer
+systemctl restart snapperd
 
-echo "Snapper config kész! A Btrfs Assistant most már látja a 'root' konfigurációt. ✅"
-echo "Teszt: snapper -c root list"
+# 9. Végső ellenőrzés
+echo "Végső ellenőrzés..."
+sleep 2
+
+echo "1. Konfigurációs fájlok:"
+ls -la /etc/snapper/configs/
+
+echo "2. Snapper konfigurációk:"
+snapper list-configs
+
+echo "3. Teszt snapshot:"
+if snapper -c root create --description "telepites_utani_teszt" 2>/dev/null; then
+    echo "✓ Snapper működik!"
+    snapper -c root list
+else
+    echo "⚠ Snapshot nem készült, de a konfiguráció valószínűleg rendben van"
+fi
+
+echo "✅ KÉSZ! Most a Btrfs Assistantnak már látnia kell a konfigurációt."
+
+
+
+
+
+
+
+
+
+set -e
+
+echo "[+] Garuda-stílusú BTRFS karbantartás konfigurálása..."
+
+if [ "$EUID" -ne 0 ]; then
+  echo "[-] Kérlek rootként futtasd (sudo-val)!"
+  exit 1
+fi
+
+mkdir -p /etc/systemd/system/timers.target.wants
+mkdir -p /etc/systemd/system/btrfs-scrub.timer.d
+mkdir -p /etc/systemd/system/btrfs-balance.timer.d
+mkdir -p /etc/systemd/system/btrfs-trim.timer.d
+
+# === SCRUB: hetente ===
+cat > /etc/systemd/system/btrfs-scrub.timer.d/override.conf <<'EOF'
+[Timer]
+OnCalendar=weekly
+AccuracySec=1h
+Persistent=true
+EOF
+
+# === BALANCE: havonta ===
+cat > /etc/systemd/system/btrfs-balance.timer.d/override.conf <<'EOF'
+[Timer]
+OnCalendar=monthly
+AccuracySec=12h
+Persistent=true
+EOF
+
+# === TRIM: hetente ===
+cat > /etc/systemd/system/btrfs-trim.timer.d/override.conf <<'EOF'
+[Timer]
+OnCalendar=weekly
+AccuracySec=6h
+Persistent=true
+EOF
+
+# === Symlinkek létrehozása, ha nem léteznek ===
+ln -sf /usr/lib/systemd/system/btrfs-scrub.timer /etc/systemd/system/timers.target.wants/btrfs-scrub.timer
+ln -sf /usr/lib/systemd/system/btrfs-balance.timer /etc/systemd/system/timers.target.wants/btrfs-balance.timer
+ln -sf /usr/lib/systemd/system/btrfs-trim.timer /etc/systemd/system/timers.target.wants/btrfs-trim.timer
+
+# === Daemon reload + enable ===
+systemctl daemon-reload
+systemctl enable --now btrfs-scrub.timer
+systemctl enable --now btrfs-balance.timer
+systemctl enable --now btrfs-trim.timer
+
+echo
+echo "[✔] Garuda-stílusú BTRFS időzítések aktívak."
+echo "[i] Ellenőrzéshez futtasd: systemctl list-timers | grep btrfs"
 
 
 # ================================================================
@@ -371,6 +453,42 @@ EOF
 chmod +x /usr/local/bin/safe-lock.sh
 echo "Lock script elhelyezve."
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --- Cleanup: Törlés /root-ban ---
+echo "Törlés /root-ban lévő AwesomeWM telepítési fájlok és mappák..."
+
+# Törlendő elemek listája
+root_items=(
+  "/root/autostart/awesome-setup.desktop"
+  "/root/awesome"
+  "/root/darktable" 
+  "/root/awesome-install"
+  "/root/awesome-setup-wrapper.sh"
+  "/root/awesome-setup.sh"
+)
+
+for item in "${root_items[@]}"; do
+  if [ -e "$item" ]; then
+    rm -rf "$item"
+    echo "✅ $item törölve"
+  else
+    echo "ℹ️  $item nem létezik, kihagyva"
+  fi
+done
+
 # --- Mappa tisztítás ---
 echo "Régi AwesomeWM konfigurációs mappák eltávolítása..."
 
@@ -402,6 +520,33 @@ fi
 if [ -d "/etc/skel/.config/awesome/freedesktop" ]; then
     rm -rf "/etc/skel/.config/awesome/freedesktop"
     echo "✅ /etc/skel/.config/awesome/freedesktop mappa törölve"
+fi
+
+# --- Szimbolikus linkek létrehozása ---
+echo "Szimbolikus linkek létrehozása a freedesktop és lain mappákhoz..."
+
+# Felhasználó home könyvtár
+sudo -u "$USERNAME" -H mkdir -p "$USER_HOME/.config/awesome"
+if [ ! -L "$USER_HOME/.config/awesome/freedesktop" ]; then
+    sudo -u "$USERNAME" -H ln -s /usr/share/lua/5.3/freedesktop "$USER_HOME/.config/awesome/freedesktop"
+    echo "✅ Link létrehozva: $USER_HOME/.config/awesome/freedesktop -> /usr/share/lua/5.3/freedesktop"
+fi
+
+if [ ! -L "$USER_HOME/.config/awesome/lain" ]; then
+    sudo -u "$USERNAME" -H ln -s /usr/share/lua/5.3/lain "$USER_HOME/.config/awesome/lain"
+    echo "✅ Link létrehozva: $USER_HOME/.config/awesome/lain -> /usr/share/lua/5.3/lain"
+fi
+
+# /etc/skel
+mkdir -p "/etc/skel/.config/awesome"
+if [ ! -L "/etc/skel/.config/awesome/freedesktop" ]; then
+    ln -s /usr/share/lua/5.3/freedesktop "/etc/skel/.config/awesome/freedesktop"
+    echo "✅ Link létrehozva: /etc/skel/.config/awesome/freedesktop -> /usr/share/lua/5.3/freedesktop"
+fi
+
+if [ ! -L "/etc/skel/.config/awesome/lain" ]; then
+    ln -s /usr/share/lua/5.3/lain "/etc/skel/.config/awesome/lain"
+    echo "✅ Link létrehozva: /etc/skel/.config/awesome/lain -> /usr/share/lua/5.3/lain"
 fi
 
 # --- AwesomeWM Copycats ---
@@ -445,12 +590,6 @@ if [ -d /tmp/awesome-copycats-manjaro ]; then
     echo "✅ Themes mappa sikeresen másolva."
   fi
   
-  # rc.lua.template másolása
-  if [ -f "/tmp/awesome-copycats-manjaro/rc.lua.template" ]; then
-    sudo -u "$USERNAME" -H cp "/tmp/awesome-copycats-manjaro/rc.lua.template" "$USER_HOME/.config/awesome/"
-    echo "✅ rc.lua.template sikeresen másolva."
-  fi
-  
   # További .xz fájlok kezelése (ha vannak)
   for xz_file in /tmp/awesome-copycats-manjaro/*.xz; do
     if [ -f "$xz_file" ] && [ "$(basename "$xz_file")" != "Nordic-cursors.tar.xz" ] && [ "$(basename "$xz_file")" != "fish.cfg.tar.xz" ]; then
@@ -466,35 +605,23 @@ else
   echo "HIBA: Nem sikerült klónozni a repót!"
 fi
 
-# --- rc.lua kezelés ---
-if [ -f "$USER_HOME/.config/awesome/rc.lua.template" ]; then
-    if [ -f "$USER_HOME/.config/awesome/rc.lua" ]; then
-        backup_file="$USER_HOME/.config/awesome/rc.lua.backup-$(date +%Y%m%d%H%M%S)"
-        sudo -u "$USERNAME" -H cp "$USER_HOME/.config/awesome/rc.lua" "$backup_file"
-        echo "Biztonsági mentés készült: $backup_file"
-        sudo -u "$USERNAME" -H cp "$USER_HOME/.config/awesome/rc.lua.template" "$USER_HOME/.config/awesome/rc.lua"
-        echo "rc.lua felülírva a sablonnal."
-    else
-        sudo -u "$USERNAME" -H cp "$USER_HOME/.config/awesome/rc.lua.template" "$USER_HOME/.config/awesome/rc.lua"
-        echo "rc.lua létrehozva a sablonból."
-    fi
-else
-    echo "rc.lua.template nem található a $USER_HOME/.config/awesome mappában!"
-fi
+echo "✅ A cleanup és új konfiguráció telepítése befejeződött."
 
-# 2. Definiáljuk a célfájl elérési útját
-AWESOME_CONFIG_PATH="${USER_HOME}/.config/awesome/rc.lua"
 
-echo "A célkonfigurációs fájl: ${AWESOME_CONFIG_PATH}"
 
-# 3. Ellenőrizzük, hogy a fájl létezik-e, mielőtt módosítanánk
-if [ -f "$AWESOME_CONFIG_PATH" ]; then
-    sed -i "s|__USER_HOME__|${USER_HOME}|g" "$AWESOME_CONFIG_PATH"
-    echo "✅ Az rc.lua fájl sikeresen frissítve a(z) '${USER_HOME}' elérési úttal."
-else
-    echo "Hiba: A(z) ${AWESOME_CONFIG_PATH} fájl nem található!"
-    exit 1
-fi
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 echo "=== i3lock-fancy javítása (convert → magick convert) ==="
 if [ -f /usr/bin/i3lock-fancy ]; then
@@ -1331,9 +1458,9 @@ echo "🔹 Autostart fájl törlése..."
 rm -f "$USER_HOME/.config/autostart/awesome-setup.desktop"
 
 echo "🔹 SKEL mappa takarítása..."
-rm -f "/etc/skel/awesome-setup-wrapper.sh"
-rm -f "/etc/skel/awesome-setup.sh"
-rm -f "/etc/skel/awesome-install"
+rm -f "/opt/system_setup/awesome-setup-wrapper.sh"
+rm -f "/opt/system_setup/awesome-setup.sh"
+#rm -f "/etc/skel/awesome-install"
 rm -f "/etc/skel/.config/autostart/awesome-setup.desktop"
 
 echo

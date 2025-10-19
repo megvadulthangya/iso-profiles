@@ -35,7 +35,13 @@ if detect_live_environment; then
 fi
 
 # 4️⃣ If everything is fine, launch setup terminal
+#xfce4-terminal \
+#    --title="Awesome WM Setup" \
+#    --geometry=80x25 \
+#    -e "/bin/bash -c '/opt/system_setup/awesome-setup.sh; bash'"
+
 xfce4-terminal \
     --title="Awesome WM Setup" \
     --geometry=80x25 \
-    -e "/bin/bash -c '$HOME/awesome-setup.sh; bash'"
+    --working-directory="/opt/system_setup" \
+    -e "/bin/bash -c './awesome-setup.sh; bash'"
