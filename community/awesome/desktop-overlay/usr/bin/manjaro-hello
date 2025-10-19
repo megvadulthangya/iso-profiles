@@ -12,6 +12,7 @@ import os
 import subprocess
 import sys
 import webbrowser
+import threading  # Hozzáadva a szálkezeléshez
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf, Gdk, GLib
@@ -132,6 +133,9 @@ class Hello(Gtk.Window):
         Gtk.Window.__init__(self, title="Manjaro Hello", border_width=6)
         self.app = "manjaro-hello"
         screen = Gdk.Screen.get_default()
+        
+        # Új: telepítés állapotának nyomon követése
+        self.installation_running = False
 
         self.dev = "--dev" in sys.argv
         if self.dev:
@@ -396,28 +400,67 @@ class Hello(Gtk.Window):
     # NEW METHOD: Handle Install XLibre button click
     def on_install_xlibre_clicked(self, widget):
         """Event for Install XLibre button."""
+        # Ha már fut a telepítés, ne csináljunk semmit
+        if self.installation_running:
+            logging.info("XLibre installation is already running, ignoring click")
+            return
+            
         try:
+            # Jelöljük, hogy fut a telepítés
+            self.installation_running = True
             # Letiltjuk a gombot a futás alatt
             widget.set_sensitive(False)
-            # Futtatjuk a scriptet
-            process = subprocess.Popen(["/usr/local/bin/xl-wrapper.sh"])
-            # Várunk 3 másodpercet, majd újra engedélyezzük a gombot
-            GLib.timeout_add(3000, lambda: widget.set_sensitive(True))
+            
+            # Futtatjuk a scriptet és várjuk a befejeződését
+            def run_script():
+                try:
+                    result = subprocess.run(["/usr/local/bin/xl-wrapper.sh"], 
+                                          check=True, 
+                                          capture_output=True, 
+                                          text=True)
+                    logging.info(f"XLibre installer finished with return code: {result.returncode}")
+                except subprocess.CalledProcessError as e:
+                    logging.error(f"XLibre installer failed with error: {e}")
+                    if e.stderr:
+                        logging.error(f"Stderr: {e.stderr}")
+                    # Hiba esetén a fő szálban jelenítsük meg a hibát
+                    GLib.idle_add(self.show_error_dialog, f"Installation failed: {e.stderr if e.stderr else str(e)}")
+                except Exception as e:
+                    logging.error(f"Error running xl-wrapper.sh: {e}")
+                    # Hiba esetén a fő szálban jelenítsük meg a hibát
+                    GLib.idle_add(self.show_error_dialog, str(e))
+                finally:
+                    # Visszaállítjuk a gomb érzékenységét a fő szálban
+                    GLib.idle_add(widget.set_sensitive, True)
+                    GLib.idle_add(self.set_installation_running, False)
+            
+            # Futtatjuk egy külön szálban, hogy ne blokkolja a GUI-t
+            thread = threading.Thread(target=run_script)
+            thread.daemon = True
+            thread.start()
+            
         except Exception as e:
-            logging.error(f"Error running xl-wrapper.sh: {e}")
-            # Hiba esetén is engedélyezzük a gombot
+            logging.error(f"Error starting xl-wrapper.sh thread: {e}")
             widget.set_sensitive(True)
-            # Hibaüzenet megjelenítése
-            dialog = Gtk.MessageDialog(
-                transient_for=self.window,
-                flags=0,
-                message_type=Gtk.MessageType.ERROR,
-                buttons=Gtk.ButtonsType.OK,
-                text="Error installing XLibre"
-            )
-            dialog.format_secondary_text(str(e))
-            dialog.run()
-            dialog.destroy()
+            self.installation_running = False
+            self.show_error_dialog(e)
+
+    def set_installation_running(self, status):
+        """Segédfüggvény a telepítés állapotának beállításához."""
+        self.installation_running = status
+
+    def show_error_dialog(self, error_message):
+        """Hibadialógus megjelenítése."""
+        dialog = Gtk.MessageDialog(
+            transient_for=self.window,
+            flags=0,
+            message_type=Gtk.MessageType.ERROR,
+            buttons=Gtk.ButtonsType.OK,
+            text="XLibre Installation Error"
+        )
+        dialog.format_secondary_text(str(error_message))
+        dialog.run()
+        dialog.destroy()
 
     # Handlers
     def on_languages_changed(self, combobox):
