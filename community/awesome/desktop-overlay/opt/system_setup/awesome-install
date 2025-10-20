@@ -92,16 +92,25 @@ pacman -S --noconfirm snapper
 echo "Snap-pac újratelepítése..."
 pacman -S --noconfirm snap-pac
 
-# 9. /.snapshots ellenőrzése
+# 9. /.snapshots JAVÍTOTT ellenőrzése
 SNAPSHOTS_DIR="/.snapshots"
-if ! btrfs subvolume list / | grep -q "\.snapshots"; then
+if [ ! -d "$SNAPSHOTS_DIR" ]; then
     echo ".snapshots subvolume létrehozása..."
     btrfs subvolume create "$SNAPSHOTS_DIR"
+    echo "✓ /.snapshots subvolume létrehozva"
+else
+    echo "✓ /.snapshots subvolume már létezik"
+fi
+
+# Dupla perjel ellenőrzése és javítása (ha szükséges)
+if [[ "$SNAPSHOTS_DIR" == "//"* ]]; then
+    SNAPSHOTS_DIR="${SNAPSHOTS_DIR#/}"
+    echo "Figyelmeztetés: Dupla perjel javítva: $SNAPSHOTS_DIR"
 fi
 
 # Jogosultságok beállítása - opcionális: ha szeretnéd, hogy a felhasználó is hozzáférjen
 #USER_GROUP=$(id -gn $USER)
-#chown :$$USER_GROUP "$SNAPSHOTS_DIR" 2>/dev/null || true
+#chown :$USER_GROUP "$SNAPSHOTS_DIR" 2>/dev/null || true
 #chmod 755 "$SNAPSHOTS_DIR"
 
 # 10. Szolgáltatások indítása (de timeline timer nélkül)
@@ -132,12 +141,6 @@ else
 fi
 
 echo "✅ KÉSZ! A Snapper most takarékos módban működik (kézi + pacman snapshotok)."
-
-
-
-
-
-
 
 
 
