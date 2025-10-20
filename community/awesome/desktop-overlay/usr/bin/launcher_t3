@@ -1,0 +1,5 @@
+#!/bin/bash
+# Indítja a gabi felhasználó launcher_t3 programját.
+
+# Közvetlen hivatkozás a cél scriptre, /root feloldásával.
+"$HOME/.config/rofi/launchers/type-3/launcher.sh" "$@"
