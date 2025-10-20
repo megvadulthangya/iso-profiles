@@ -1,0 +1,71 @@
+! ================================
+! CURSOR AND BASIC X SETTINGS
+! ================================
+
+! Cursor theme and size
+Xcursor.theme: Nordic-cursors
+!Xcursor.size: 24
+
+! ================================
+! FONT RENDERING SETTINGS
+! ================================
+
+! Font anti-aliasing and hinting
+Xft.antialias: 1
+Xft.hinting: 1
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+Xft.lcdfilter: lcddefault
+
+! DPI settings for proper scaling
+Xft.dpi: 96
+! Ha nagyobb felbontású monitorod van, állítsd be a megfelelő DPI-t:
+! Xft.dpi: 192
+
+! ================================
+! TERMINAL AND APPLICATION SETTINGS  
+! ================================
+
+! Alacritty terminal font (ha használod)
+! alacritty*font: Monospace-12
+
+! URxvt terminal settings (ha használod)
+! URxvt*font: xft:Monospace:size=12
+! URxvt*boldFont: xft:Monospace:bold:size=12
+! URxvt*scrollBar: false
+
+! XTerm settings
+! xterm*faceName: Monospace
+! xterm*faceSize: 12
+
+! ================================
+! GTK THEME OVERRIDES
+! ================================
+
+! GTK theme settings (néhány alkalmazás figyel erre)
+! gtk-theme-name: "Arc-Dark"
+! gtk-font-name: "Sans,10"
+
+! ================================
+! KEYBOARD AND INPUT SETTINGS
+! ================================
+
+! Keyboard repeat rate
+! XTerm*VT100*translations: #override \! n\
+!     <Key>BackSpace: string(0x7F)
+
+! ================================
+! WINDOW MANAGER INTEGRATION
+! ================================
+
+! Basic window behavior
+! XTerm*saveLines: 1000
+! XTerm*jumpScroll: true
+
+! ================================
+! MOUSE SETTINGS
+! ================================
+
+! Additional mouse settings
+! XTerm*VT100*pointerColor: red
+! XTerm*VT100*pointerColorBackground: white
