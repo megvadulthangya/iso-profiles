@@ -40,9 +40,8 @@ theme.nord14 = "#A3BE8C"  -- green
 theme.nord15 = "#B48EAD"  -- purple
 
 -- Theme colors
-theme.fg_normal                                 = theme.nord3  -- Változtatva: nord4-ről nord3-ra (sötétebb szürke inaktív ablakoknak)
-theme.fg_focus                                  = theme.nord6  -- Aktív ablak szövege fehér marad
-theme.fg_minimize                               = theme.nord3  -- Minimalizált ablakok szövege is sötétebb szürke
+theme.fg_normal                                 = theme.nord4
+theme.fg_focus                                  = theme.nord6
 theme.bg_normal                                 = theme.nord0
 theme.bg_focus                                  = theme.nord1
 theme.fg_urgent                                 = theme.nord0
@@ -52,20 +51,6 @@ theme.border_normal                             = theme.nord0
 theme.border_focus                              = theme.nord8
 theme.taglist_fg_focus                          = theme.nord8
 theme.taglist_bg_focus                          = theme.nord1
-theme.taglist_fg_occupied                       = theme.nord4  -- Foglalt tag-ek világosabb szürkével
-theme.taglist_fg_empty                          = theme.nord3  -- Üres tag-ek sötétebb szürkével
-theme.taglist_fg_urgent                         = theme.nord11 -- Sürgős tag-ek pirossal
-
--- Tasklist colors - itt tudod beállítani a taskbaron lévő ablakok szövegszínét
-theme.tasklist_fg_normal                        = theme.nord3   -- Inaktív ablakok szövege a taskbaren
-theme.tasklist_fg_focus                         = theme.nord6   -- Aktív ablak szövege a taskbaren
-theme.tasklist_fg_urgent                        = theme.nord11  -- Sürgős ablakok szövege
-theme.tasklist_bg_normal                        = theme.nord0
-theme.tasklist_bg_focus                         = theme.nord1
-
-
-
-
 theme.menu_height                               = dpi(20)
 theme.menu_width                                = dpi(250)
 theme.ocol                                      = "<span color='" .. theme.fg_normal .. "'>"
