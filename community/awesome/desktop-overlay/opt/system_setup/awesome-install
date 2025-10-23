@@ -313,7 +313,7 @@ install_aur() {
 
 # --- Repo csomagok ---
 REPO_PKGS=(
-  dmenu rofi flameshot picom scrot unclutter xorg-xbacklight alsa-utils mpd mpc playerctl xorg-fonts-misc ttf-roboto woff2-font-awesome arandr lxappearance lxqt-policykit xorg-xev terminus-font xss-lock wavemon network-manager-applet feh qt6ct geany ttf-firacode-nerd fish starship bat eza jq fzf nano-syntax-highlighting noto-fonts-emoji
+  dmenu rofi flameshot picom scrot unclutter xorg-xbacklight alsa-utils mpd mpc playerctl xorg-fonts-misc ttf-roboto woff2-font-awesome arandr lxappearance xorg-xev terminus-font xss-lock wavemon network-manager-applet feh qt6ct geany ttf-firacode-nerd fish starship bat eza jq fzf nano-syntax-highlighting noto-fonts-emoji
 )
 
 echo "Repo csomagok telepítése..."
@@ -1309,6 +1309,23 @@ if [ -d "$USER_HOME/.config/fish" ]; then
     mkdir -p /etc/skel/.config
     cp -r "$USER_HOME/.config/fish" /etc/skel/.config/
 fi
+
+
+echo "==> Engedélyezem a udisks2 szolgáltatást..."
+systemctl enable udisks2.service
+
+echo "==> Indítom a udisks2 szolgáltatást..."
+systemctl start udisks2.service
+
+echo "==> Ellenőrzés..."
+STATUS=$(systemctl is-enabled udisks2.service)
+if [ "$STATUS" = "enabled" ]; then
+    echo "✅ udisks2 automatikus indítása engedélyezve"
+else
+    echo "⚠️  Nem sikerült engedélyezni a szolgáltatást!"
+fi
+
+systemctl status udisks2.service --no-pager
 
 
 # --- MPD felhasználói szolgáltatás indítása ---
