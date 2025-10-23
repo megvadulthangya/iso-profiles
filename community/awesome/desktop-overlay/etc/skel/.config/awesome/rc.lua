@@ -937,5 +937,6 @@ tag.connect_signal("property::selected", backham)
 --==Aesthetics (Wallpaper)==--
 -- This lines would set the desktop background using the 'feh' utility, picking a random image
 --awful.spawn.with_shell("feh --randomize --bg-fill ~/.wallpapers/*")
-awful.spawn.with_shell("feh --randomize --bg-fill /usr/share/backgrounds/*")
-awful.spawn.with_shell("feh --randomize --bg-fill /usr/share/wallpapers/*")
+--awful.spawn.with_shell("feh --randomize --bg-fill /usr/share/backgrounds/*")
+--awful.spawn.with_shell("feh --randomize --bg-fill /usr/share/wallpapers/*")
+awful.spawn.with_shell("feh --randomize --bg-fill /usr/share/backgrounds/nordic-wallpapers-git*")
