@@ -1024,9 +1024,9 @@ setup_config_file() {
 }
 
 # --- Geany color scheme ---
-echo "Geany color scheme beállítása..."
-setup_config_file '[geany]
-color_scheme=nord.conf' "$USER_HOME/.config/geany/geany.conf"
+#echo "Geany color scheme beállítása..."
+#setup_config_file '[geany]
+#color_scheme=nord.conf' "$USER_HOME/.config/geany/geany.conf"
 
 # --- Zsh beállítások ---
 echo "Zsh beállítása..."
@@ -1310,10 +1310,17 @@ if [ -d "$USER_HOME/.config/fish" ]; then
     cp -r "$USER_HOME/.config/fish" /etc/skel/.config/
 fi
 
+
 # --- MPD felhasználói szolgáltatás indítása ---
 echo "MPD felhasználói szolgáltatás indítása..."
-sudo -u $SUDO_USER systemctl --user enable --now mpd
-echo "✅ MPD felhasználói szolgáltatás indítva"
+if [ -n "$SUDO_USER" ]; then
+    USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    sudo -u "$SUDO_USER" DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "$SUDO_USER")/bus systemctl --user enable --now mpd
+    echo "✅ MPD felhasználói szolgáltatás indítva"
+else
+    echo "⚠️  MPD szolgáltatás indítása kihagyva (nincs SUDO_USER)"
+fi
+
 
 echo "=== 💣 Mission Impossibru - Dual-Stage Edition w/ Logging ==="
 
