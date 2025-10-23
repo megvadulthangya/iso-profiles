@@ -1310,7 +1310,10 @@ if [ -d "$USER_HOME/.config/fish" ]; then
     cp -r "$USER_HOME/.config/fish" /etc/skel/.config/
 fi
 
-
+# --- MPD felhasználói szolgáltatás indítása ---
+echo "MPD felhasználói szolgáltatás indítása..."
+sudo -u $SUDO_USER systemctl --user enable --now mpd
+echo "✅ MPD felhasználói szolgáltatás indítva"
 
 echo "=== 💣 Mission Impossibru - Dual-Stage Edition w/ Logging ==="
 
