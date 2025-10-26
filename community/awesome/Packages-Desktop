@@ -179,7 +179,7 @@ btop
 fastfetch
 mc
 inxi
-kdeconnect
+##kdeconnect
 manjaro-hello
 manjaro-application-utility
 manjaro-settings-manager
