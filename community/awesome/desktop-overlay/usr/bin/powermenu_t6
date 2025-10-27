@@ -1,5 +1,5 @@
 #!/bin/bash
-# Indítja a gabi felhasználó powermenu_t6 programját.
+# Indítja az aktuàlis felhasználó powermenu_t6 programját.
 
 # Közvetlen hivatkozás a cél scriptre, /root feloldásával.
 "$HOME/.config/rofi/powermenu/type-6/powermenu.sh" "$@"
