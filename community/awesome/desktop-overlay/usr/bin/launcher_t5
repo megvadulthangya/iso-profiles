@@ -1,5 +1,5 @@
 #!/bin/bash
-# Indítja a gabi felhasználó launcher_t5 programját.
+# Indítja az aktuàlis felhasználó launcher_t5 programját.
 
 # Közvetlen hivatkozás a cél scriptre, /root feloldásával.
 "$HOME/.config/rofi/launchers/type-5/launcher.sh" "$@"
