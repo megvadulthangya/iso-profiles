@@ -1,5 +1,5 @@
 #!/bin/bash
-# Indítja a gabi felhasználó launcher_t4 programját.
+# Indítja az aktuàlis felhasználó launcher_t4 programját.
 
 # Közvetlen hivatkozás a cél scriptre, /root feloldásával.
 "$HOME/.config/rofi/launchers/type-4/launcher.sh" "$@"
