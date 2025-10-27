@@ -1354,79 +1354,17 @@ USER_SCRIPT_NAME="mission_user_firstlogin.sh"
 echo "👤 Aktuális felhasználó: $USERNAME"
 echo "🏠 Home: $USER_HOME"
 
-# === SYMLINK LÉTREHOZÁS (rootként) ===
-mkdir -p "$TARGET_DIR"
-chown "$USERNAME:$USERNAME" "$TARGET_DIR"
-chmod 755 "$TARGET_DIR"
-
+# === ROFI/SCRIPTS MAPPÁNAK TÖRLÉSE (rootként) ===
 if [ -d "$SOURCE_DIR" ]; then
-for item in "$SOURCE_DIR"/*; do
-[ -e "$item" ] || continue
-ln -sf "$item" "$TARGET_DIR/$(basename "$item")"
-chown "$USERNAME:$USERNAME" "$TARGET_DIR/$(basename "$item")"
-echo "✅ $(basename "$item") symlink kész"
-done
-fi
-
-# === FELHASZNÁLÓI SCRIPT A SKELBE LOGGAL ===
-USER_SCRIPT_PATH="$SKEL_DIR/$USER_SCRIPT_NAME"
-cat > "$USER_SCRIPT_PATH" << 'EOF'
-#!/usr/bin/env bash
-set -e
-
-USER_HOME="$HOME"
-SOURCE_DIR="$USER_HOME/.config/rofi/scripts"
-TARGET_DIR="$USER_HOME/.local/bin"
-PROFILE_FILE="$USER_HOME/.bash_profile"
-LOG_FILE="$HOME/.mission_impossibru.log"
-
-echo "💫 Első bejelentkezés: Mission Impossibru user script indul..." | tee -a "$LOG_FILE"
-echo "⏱ $(date)" >> "$LOG_FILE"
-
-mkdir -p "$TARGET_DIR"
-
-if [ -d "$SOURCE_DIR" ]; then
-for item in "$SOURCE_DIR"/*; do
-[ -e "$item" ] || continue
-ln -sf "$item" "$TARGET_DIR/$(basename "$item")"
-echo "✅ $(basename "$item") symlink létrehozva" | tee -a "$LOG_FILE"
-done
+    rm -rf "$SOURCE_DIR"
+    echo "✅ $SOURCE_DIR mappa és tartalma törölve"
 else
-echo "⚠  Nem található: $SOURCE_DIR" | tee -a "$LOG_FILE"
-fi
-
-# Takarítás
-sed -i "/mission_user_firstlogin.sh/d" "$PROFILE_FILE" 2>/dev/null || true
-rm -f "$USER_HOME/mission_user_firstlogin.sh"
-echo "🧹 Mission Impossibru user script lefutott, takarítás kész." | tee -a "$LOG_FILE"
-echo "----------------------------------------" >> "$LOG_FILE"
-EOF
-
-# === Root chmod, hogy az új user futtathassa ===
-chmod +x "$USER_SCRIPT_PATH"
-echo "✅ Felhasználói script futtatható: $USER_SCRIPT_PATH"
-
-# === /etc/skel/.bash_profile módosítása ===
-PROFILE_FILE="$SKEL_DIR/.bash_profile"
-RUN_CMD='bash "$HOME/mission_user_firstlogin.sh"'
-
-if [ -f "$PROFILE_FILE" ]; then
-if ! grep -q "$USER_SCRIPT_NAME" "$PROFILE_FILE"; then
-echo "$RUN_CMD" >> "$PROFILE_FILE"
-echo "✅ Hozzáadva a /etc/skel/.bash_profile-hoz"
-else
-echo "ℹ Már benne van a bejegyzés"
-fi
-else
-echo "$RUN_CMD" > "$PROFILE_FILE"
-echo "✅ Új /etc/skel/.bash_profile létrehozva"
+    echo "ℹ A $SOURCE_DIR mappa nem létezik, nincs mit törölni"
 fi
 
 
 echo ""
-echo "🎉 Mission Impossibru - CLEAN SKEL EDITION w/ Logging beállítva!"
-echo "   ✅ Első login script: $USER_SCRIPT_NAME"
-echo "   ✅ /etc/skel készen áll"
+echo "🎉 Mission Impossibru - CLEAN SKEL EDITION beállítva!"
 echo "   ✅ Logolás bekapcsolva: ~/.mission_impossibru.log"
 
 
@@ -1448,7 +1386,6 @@ echo "✅ Rofi szkriptek szimbolikus linkjei létrehozva"
 echo "✅ Emoji font telepítve (noto-fonts-emoji)"
 echo ""
 echo "ℹ️  Fontos:"
-echo "   - Az /etc/skel mappa MOST MÁR TELJESEN be lett állítva"
 echo "   - Minden új felhasználó automatikusan megkapja a Nordic témát"
 echo "   - A jelenlegi felhasználó is megkapta az összes beállítást"
 echo "   - A fontok most már rendszerszintűek (/usr/share/fonts/truetype/custom/)"
