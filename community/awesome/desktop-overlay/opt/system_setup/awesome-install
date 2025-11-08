@@ -1,5 +1,6 @@
 #!/bin/bash
 # --- SNAPPER TELEPÍTÉS ÉS TAKARÉKOS KONFIGURÁCIÓ (root + home) MANJARO-HOZ ---
+# BTRFS karbantartás btrfsmaintenance csomaggal
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
@@ -108,18 +109,57 @@ if [[ "$SNAPSHOTS_DIR" == "//"* ]]; then
     echo "Figyelmeztetés: Dupla perjel javítva: $SNAPSHOTS_DIR"
 fi
 
-# Jogosultságok beállítása - opcionális: ha szeretnéd, hogy a felhasználó is hozzáférjen
-#USER_GROUP=$(id -gn $USER)
-#chown :$USER_GROUP "$SNAPSHOTS_DIR" 2>/dev/null || true
-#chmod 755 "$SNAPSHOTS_DIR"
-
 # 10. Szolgáltatások indítása (de timeline timer nélkül)
 echo "Szolgáltatások indítása..."
 systemctl enable --now snapperd
 systemctl disable --now snapper-timeline.timer 2>/dev/null || true
 systemctl enable --now snapper-cleanup.timer
 
-# 11. Teszt és ellenőrzés
+# 11. BTRFS MAINTENANCE - EGYSZERŰBB MEGOLDÁS
+echo "[+] BTRFS karbantartás konfigurálása btrfsmaintenance csomaggal..."
+
+# btrfsmaintenance csomag telepítése
+pacman -S --noconfirm btrfsmaintenance
+
+# Konfigurációs fájl létrehozása
+cat > /etc/default/btrfsmaintenance << 'EOF'
+# BTRFS karbantartási beállítások
+BTRFS_LOG_OUTPUT="stdout"
+
+# Defrag beállítások
+BTRFS_DEFRAG_PATHS="auto"
+BTRFS_DEFRAG_PERIOD="weekly"
+BTRFS_DEFRAG_MIN_SIZE="+1M"
+
+# Balance beállítások
+BTRFS_BALANCE_MOUNTPOINTS="auto"
+BTRFS_BALANCE_PERIOD="monthly"
+BTRFS_BALANCE_DUSAGE="5 10"
+BTRFS_BALANCE_MUSAGE="5"
+
+# Scrub beállítások
+BTRFS_SCRUB_MOUNTPOINTS="auto"
+BTRFS_SCRUB_PERIOD="weekly"
+BTRFS_SCRUB_PRIORITY="idle"
+BTRFS_SCRUB_READ_ONLY="false"
+
+# Trim beállítások
+BTRFS_TRIM_PERIOD="weekly"
+BTRFS_TRIM_MOUNTPOINTS="auto"
+
+# Egyéb beállítások
+BTRFS_ALLOW_CONCURRENCY="false"
+EOF
+
+# Szolgáltatások aktiválása
+systemctl enable --now btrfs-scrub@.timer
+systemctl enable --now btrfs-balance@.timer  
+systemctl enable --now btrfs-trim@.timer
+systemctl enable --now btrfs-defrag@.timer
+
+echo "[✔] BTRFS karbantartás aktív btrfsmaintenance konfigurációval."
+
+# 12. Teszt és ellenőrzés
 echo "Végső ellenőrzés..."
 sleep 2
 
@@ -140,64 +180,13 @@ else
     echo "⚠ Home snapshot nem készült (ellenőrizd a jogosultságokat)."
 fi
 
-echo "✅ KÉSZ! A Snapper most takarékos módban működik (kézi + pacman snapshotok)."
-
-
-
-
-
-set -e
-
-echo "[+] Garuda-stílusú BTRFS karbantartás konfigurálása..."
-
-if [ "$EUID" -ne 0 ]; then
-  echo "[-] Kérlek rootként futtasd (sudo-val)!"
-  exit 1
-fi
-
-mkdir -p /etc/systemd/system/timers.target.wants
-mkdir -p /etc/systemd/system/btrfs-scrub.timer.d
-mkdir -p /etc/systemd/system/btrfs-balance.timer.d
-mkdir -p /etc/systemd/system/btrfs-trim.timer.d
-
-# === SCRUB: hetente ===
-cat > /etc/systemd/system/btrfs-scrub.timer.d/override.conf <<'EOF'
-[Timer]
-OnCalendar=weekly
-AccuracySec=1h
-Persistent=true
-EOF
-
-# === BALANCE: havonta ===
-cat > /etc/systemd/system/btrfs-balance.timer.d/override.conf <<'EOF'
-[Timer]
-OnCalendar=monthly
-AccuracySec=12h
-Persistent=true
-EOF
-
-# === TRIM: hetente ===
-cat > /etc/systemd/system/btrfs-trim.timer.d/override.conf <<'EOF'
-[Timer]
-OnCalendar=weekly
-AccuracySec=6h
-Persistent=true
-EOF
-
-# === Symlinkek létrehozása, ha nem léteznek ===
-ln -sf /usr/lib/systemd/system/btrfs-scrub.timer /etc/systemd/system/timers.target.wants/btrfs-scrub.timer
-ln -sf /usr/lib/systemd/system/btrfs-balance.timer /etc/systemd/system/timers.target.wants/btrfs-balance.timer
-ln -sf /usr/lib/systemd/system/btrfs-trim.timer /etc/systemd/system/timers.target.wants/btrfs-trim.timer
-
-# === Daemon reload + enable ===
-systemctl daemon-reload
-systemctl enable --now btrfs-scrub.timer
-systemctl enable --now btrfs-balance.timer
-systemctl enable --now btrfs-trim.timer
+echo "BTRFS timer-ek állapota:"
+systemctl list-timers | grep btrfs
 
 echo
-echo "[✔] Garuda-stílusú BTRFS időzítések aktívak."
-echo "[i] Ellenőrzéshez futtasd: systemctl list-timers | grep btrfs"
+echo "✅ KÉSZ! A Snapper most takarékos módban működik (kézi + pacman snapshotok)."
+echo "✅ BTRFS karbantartás aktív btrfsmaintenance konfigurációval."
+echo "📝 Beállítások módosíthatók: /etc/default/btrfsmaintenance"
 
 
 # ================================================================
