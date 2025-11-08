@@ -1,6 +1,6 @@
 #!/bin/bash
 # --- SNAPPER TELEPÍTÉS ÉS TAKARÉKOS KONFIGURÁCIÓ (root + home) MANJARO-HOZ ---
-# BTRFS karbantartás btrfsmaintenance csomaggal
+# BTRFS karbantartás meglévő btrfsmaintenance csomaggal
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
@@ -115,11 +115,14 @@ systemctl enable --now snapperd
 systemctl disable --now snapper-timeline.timer 2>/dev/null || true
 systemctl enable --now snapper-cleanup.timer
 
-# 11. BTRFS MAINTENANCE - EGYSZERŰBB MEGOLDÁS
-echo "[+] BTRFS karbantartás konfigurálása btrfsmaintenance csomaggal..."
+# 11. BTRFS MAINTENANCE - MEGLÉVŐ CSOMAG KONFIGURÁCIÓJA
+echo "[+] BTRFS karbantartás konfigurálása meglévő btrfsmaintenance csomaggal..."
 
-# btrfsmaintenance csomag telepítése
-pacman -S --noconfirm btrfsmaintenance
+# Ellenőrizzük, hogy telepítve van-e a btrfsmaintenance
+if ! command -v btrfsmaintenance-refresh &> /dev/null; then
+    echo "⚠ A btrfsmaintenance nincs telepítve, de a konfigurációt létrehozzuk"
+    echo "   Telepítsd: pacman -S btrfsmaintenance"
+fi
 
 # Konfigurációs fájl létrehozása
 cat > /etc/default/btrfsmaintenance << 'EOF'
@@ -151,13 +154,13 @@ BTRFS_TRIM_MOUNTPOINTS="auto"
 BTRFS_ALLOW_CONCURRENCY="false"
 EOF
 
-# Szolgáltatások aktiválása
-systemctl enable --now btrfs-scrub@.timer
-systemctl enable --now btrfs-balance@.timer  
-systemctl enable --now btrfs-trim@.timer
-systemctl enable --now btrfs-defrag@.timer
-
-echo "[✔] BTRFS karbantartás aktív btrfsmaintenance konfigurációval."
+# Konfiguráció frissítése (ha telepítve van a btrfsmaintenance)
+if command -v btrfsmaintenance-refresh &> /dev/null; then
+    systemctl restart btrfsmaintenance-refresh
+    echo "✓ BTRFS karbantartás konfigurálva és frissítve"
+else
+    echo "✓ BTRFS karbantartás konfigurálva (aktiváld a btrfsmaintenance telepítésével)"
+fi
 
 # 12. Teszt és ellenőrzés
 echo "Végső ellenőrzés..."
@@ -181,12 +184,15 @@ else
 fi
 
 echo "BTRFS timer-ek állapota:"
-systemctl list-timers | grep btrfs
+systemctl list-timers | grep btrfs || echo "⚠ Nincsenek aktív BTRFS timer-ek (telepítsd: pacman -S btrfsmaintenance)"
 
 echo
 echo "✅ KÉSZ! A Snapper most takarékos módban működik (kézi + pacman snapshotok)."
-echo "✅ BTRFS karbantartás aktív btrfsmaintenance konfigurációval."
+echo "✅ BTRFS karbantartás konfigurálva."
 echo "📝 Beállítások módosíthatók: /etc/default/btrfsmaintenance"
+if ! command -v btrfsmaintenance-refresh &> /dev/null; then
+    echo "💡 BTRFS karbantartás aktiválásához: pacman -S btrfsmaintenance"
+fi
 
 
 # ================================================================
