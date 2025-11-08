@@ -275,3 +275,4 @@ snap-pac
 xiccd # enable color profile settings
 #tlp
 zram-generator
+libinput-gestures
