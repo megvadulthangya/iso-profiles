@@ -15,9 +15,9 @@ wavemon
 
 ## Btrfs
 grub-btrfs
-btrfs-assistant
+##btrfs-assistant
 btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
-##>extra timeshift-autosnap-manjaro
+>extra timeshift-autosnap-manjaro
 
 ## Libraries for Sound/Audio/Video
 alsa-firmware
@@ -266,9 +266,9 @@ perl-file-mimeinfo
 xdg-desktop-portal-gtk
 xdg-utils
 #xdg-su
-##>extra timeshift
-snapper
-snap-pac
+>extra timeshift
+##snapper
+##snap-pac
 #>extra kernel-alive
 
 ## Misc
