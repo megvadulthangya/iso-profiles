@@ -1,6 +1,6 @@
 #!/bin/bash
-# --- SNAPPER TELEPÍTÉS ÉS TAKARÉKOS KONFIGURÁCIÓ (root + home) MANJARO-HOZ ---
-# BTRFS karbantartás meglévő btrfsmaintenance csomaggal
+# --- TIMESHIFT BEÁLLÍTÁS SNAPPER HELYETT ---
+# Csak konfiguráció, telepítés nélkül
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
@@ -8,123 +8,61 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# 2. Snapper és snap-pac eltávolítása
-echo "Régi csomagok eltávolítása..."
-pacman -R --noconfirm snap-pac snapper 2>/dev/null || true
+# 2. Snapper konfigurációk eltávolítása (ha léteznek)
+echo "Snapper konfigurációk eltávolítása..."
+rm -f /etc/conf.d/snapper
+rm -f /etc/snapper/configs/root
+rm -f /etc/snapper/configs/home
+echo "✓ Régi Snapper konfigurációk eltávolítva"
 
-# 3. Könyvtárak létrehozása
-echo "Konfigurációs könyvtárak létrehozása..."
-mkdir -p /etc/snapper/configs
-mkdir -p /etc/conf.d
+# 3. Timeshift konfiguráció létrehozása
+echo "Timeshift konfigurálása..."
 
-# 4. /etc/conf.d/snapper
-cat > /etc/conf.d/snapper << 'EOF'
-SNAPPER_CONFIGS="root home"
+# Timeshift konfigurációs könyvtár létrehozása
+mkdir -p /etc/timeshift
+
+# Fő konfiguráció létrehozása
+cat > /etc/timeshift.json << 'EOF'
+{
+  "backup_device_uuid": "auto",
+  "parent_device_uuid": "",
+  "do_first_run": "false",
+  "backup_level": "1",
+  "schedule_monthly": "false",
+  "schedule_weekly": "false",
+  "schedule_daily": "false",
+  "schedule_hourly": "false",
+  "schedule_boot": "false",
+  "count_monthly": "0",
+  "count_weekly": "0",
+  "count_daily": "0",
+  "count_hourly": "0",
+  "count_boot": "0",
+  "snapshot_size": "0",
+  "snapshot_count": "0",
+  "date_format": "%Y-%m-%d %H:%M:%S",
+  "exclude": [
+    "/root/***",
+    "/opt/***",
+    "/var/***",
+    "/srv/***",
+    "/tmp/***",
+    "/var/log/***",
+    "/var/tmp/***",
+    "/var/cache/***",
+    "/.snapshots/***",
+    "/timeshift-btrfs/***"
+  ],
+  "exclude-apps": [
+  ]
+}
 EOF
 
-# 5. ROOT konfiguráció
-cat > /etc/snapper/configs/root << 'EOF'
-SUBVOLUME="/"
-FSTYPE="btrfs"
-QGROUP=""
-SPACE_LIMIT="0.5"
-FREE_LIMIT="0.2"
-ALLOW_USERS=""
-ALLOW_GROUPS=""
-SYNC_ACL="no"
-BACKGROUND_COMPARISON="yes"
-NUMBER_CLEANUP="yes"
-NUMBER_MIN_AGE="1800"
-NUMBER_LIMIT="10"
-NUMBER_LIMIT_IMPORTANT="10"
-TIMELINE_CREATE="no"
-TIMELINE_CLEANUP="yes"
-TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="10"
-TIMELINE_LIMIT_DAILY="10"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="10"
-TIMELINE_LIMIT_QUARTERLY="0"
-TIMELINE_LIMIT_YEARLY="10"
-EMPTY_PRE_POST_CLEANUP="yes"
-EMPTY_PRE_POST_MIN_AGE="1800"
-EOF
+echo "✓ Timeshift konfiguráció létrehozva: /etc/timeshift.json"
 
-# 6. HOME konfiguráció
-if [ ! -d /home/.snapshots ]; then
-    echo "/home/.snapshots subvolume létrehozása..."
-    btrfs subvolume create /home/.snapshots
-fi
+# 4. BTRFS maintenance konfiguráció (csak fájl létrehozása)
+echo "BTRFS karbantartás konfigurációjának létrehozása..."
 
-cat > /etc/snapper/configs/home << 'EOF'
-SUBVOLUME="/home"
-FSTYPE="btrfs"
-QGROUP=""
-SPACE_LIMIT="0.5"
-FREE_LIMIT="0.2"
-ALLOW_USERS=""
-ALLOW_GROUPS=""
-SYNC_ACL="no"
-BACKGROUND_COMPARISON="yes"
-NUMBER_CLEANUP="yes"
-NUMBER_MIN_AGE="1800"
-NUMBER_LIMIT="10"
-NUMBER_LIMIT_IMPORTANT="10"
-TIMELINE_CREATE="no"
-TIMELINE_CLEANUP="yes"
-TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="10"
-TIMELINE_LIMIT_DAILY="10"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="10"
-TIMELINE_LIMIT_QUARTERLY="0"
-TIMELINE_LIMIT_YEARLY="10"
-EMPTY_PRE_POST_CLEANUP="yes"
-EMPTY_PRE_POST_MIN_AGE="1800"
-EOF
-
-echo "✓ Root és Home konfigurációk létrehozva"
-
-# 7. Snapper újratelepítése
-echo "Snapper újratelepítése..."
-pacman -S --noconfirm snapper
-
-# 8. Snap-pac újratelepítése (pacman hook-okhoz)
-echo "Snap-pac újratelepítése..."
-pacman -S --noconfirm snap-pac
-
-# 9. /.snapshots JAVÍTOTT ellenőrzése
-SNAPSHOTS_DIR="/.snapshots"
-if [ ! -d "$SNAPSHOTS_DIR" ]; then
-    echo ".snapshots subvolume létrehozása..."
-    btrfs subvolume create "$SNAPSHOTS_DIR"
-    echo "✓ /.snapshots subvolume létrehozva"
-else
-    echo "✓ /.snapshots subvolume már létezik"
-fi
-
-# Dupla perjel ellenőrzése és javítása (ha szükséges)
-if [[ "$SNAPSHOTS_DIR" == "//"* ]]; then
-    SNAPSHOTS_DIR="${SNAPSHOTS_DIR#/}"
-    echo "Figyelmeztetés: Dupla perjel javítva: $SNAPSHOTS_DIR"
-fi
-
-# 10. Szolgáltatások indítása (de timeline timer nélkül)
-echo "Szolgáltatások indítása..."
-systemctl enable --now snapperd
-systemctl disable --now snapper-timeline.timer 2>/dev/null || true
-systemctl enable --now snapper-cleanup.timer
-
-# 11. BTRFS MAINTENANCE - MEGLÉVŐ CSOMAG KONFIGURÁCIÓJA
-echo "[+] BTRFS karbantartás konfigurálása meglévő btrfsmaintenance csomaggal..."
-
-# Ellenőrizzük, hogy telepítve van-e a btrfsmaintenance
-if ! command -v btrfsmaintenance-refresh &> /dev/null; then
-    echo "⚠ A btrfsmaintenance nincs telepítve, de a konfigurációt létrehozzuk"
-    echo "   Telepítsd: pacman -S btrfsmaintenance"
-fi
-
-# Konfigurációs fájl létrehozása
 cat > /etc/default/btrfsmaintenance << 'EOF'
 # BTRFS karbantartási beállítások
 BTRFS_LOG_OUTPUT="stdout"
@@ -154,46 +92,20 @@ BTRFS_TRIM_MOUNTPOINTS="auto"
 BTRFS_ALLOW_CONCURRENCY="false"
 EOF
 
-# Konfiguráció frissítése (ha telepítve van a btrfsmaintenance)
-if command -v btrfsmaintenance-refresh &> /dev/null; then
-    systemctl restart btrfsmaintenance-refresh
-    echo "✓ BTRFS karbantartás konfigurálva és frissítve"
-else
-    echo "✓ BTRFS karbantartás konfigurálva (aktiváld a btrfsmaintenance telepítésével)"
-fi
+echo "✓ BTRFS karbantartás konfigurálva: /etc/default/btrfsmaintenance"
 
-# 12. Teszt és ellenőrzés
+# 5. Végső ellenőrzés
 echo "Végső ellenőrzés..."
-sleep 2
-
-echo "Konfigurációk listája:"
-snapper list-configs
-
-echo "Teszt snapshot létrehozása ROOT alatt..."
-if snapper -c root create --description "teszt_root" 2>/dev/null; then
-    echo "✓ Root snapshot létrejött."
-else
-    echo "⚠ Root snapshot nem készült (ellenőrizd a jogosultságokat)."
-fi
-
-echo "Teszt snapshot létrehozása HOME alatt..."
-if snapper -c home create --description "teszt_home" 2>/dev/null; then
-    echo "✓ Home snapshot létrejött."
-else
-    echo "⚠ Home snapshot nem készült (ellenőrizd a jogosultságokat)."
-fi
-
-echo "BTRFS timer-ek állapota:"
-systemctl list-timers | grep btrfs || echo "⚠ Nincsenek aktív BTRFS timer-ek (telepítsd: pacman -S btrfsmaintenance)"
+echo "Létrehozott konfigurációs fájlok:"
+ls -la /etc/timeshift.json /etc/default/btrfsmaintenance 2>/dev/null || echo "⚠ Egyes fájlok nem léteznek"
 
 echo
-echo "✅ KÉSZ! A Snapper most takarékos módban működik (kézi + pacman snapshotok)."
-echo "✅ BTRFS karbantartás konfigurálva."
-echo "📝 Beállítások módosíthatók: /etc/default/btrfsmaintenance"
-if ! command -v btrfsmaintenance-refresh &> /dev/null; then
-    echo "💡 BTRFS karbantartás aktiválásához: pacman -S btrfsmaintenance"
-fi
-
+echo "✅ KÉSZ! Konfigurációk beállítva:"
+echo "   - Timeshift: /etc/timeshift.json"
+echo "   - BTRFS karbantartás: /etc/default/btrfsmaintenance"
+echo "   - Nincsenek időzített mentések"
+echo "   - Home könyvtár automatikusan benne van a mentésekben"
+echo "   - Semmi nem lett telepítve"
 
 # ================================================================
 #                EGYESÍTETT TELEPÍTŐ ÉS KONFIGURÁLÓ SCRIPT
