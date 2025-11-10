@@ -1,6 +1,6 @@
 #!/bin/bash
 # --- TIMESHIFT BEÁLLÍTÁS SNAPPER HELYETT ---
-# Csak konfiguráció, telepítés nélkül
+# Pontosan az eredeti Snapper logika szerint
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
@@ -8,40 +8,36 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# 2. Snapper konfigurációk eltávolítása (ha léteznek)
-echo "Snapper konfigurációk eltávolítása..."
-rm -f /etc/conf.d/snapper
-rm -f /etc/snapper/configs/root
-rm -f /etc/snapper/configs/home
-echo "✓ Régi Snapper konfigurációk eltávolítva"
-
-# 3. Timeshift konfiguráció létrehozása
-echo "Timeshift konfigurálása..."
+# 2. Timeshift konfigurációk helyes elérési úton
+echo "Timeshift konfigurációk beállítása (Snapper kompatibilis módban)..."
 
 # Timeshift konfigurációs könyvtár létrehozása
 mkdir -p /etc/timeshift
 
-# Fő konfiguráció létrehozása
-cat > /etc/timeshift.json << 'EOF'
+# Helyes Timeshift konfiguráció - NINCS idővonalas mentés, csak NUMBER snapshotok
+cat > /etc/timeshift/timeshift.json << 'EOF'
 {
-  "backup_device_uuid": "auto",
-  "parent_device_uuid": "",
-  "do_first_run": "false",
-  "backup_level": "1",
-  "schedule_monthly": "false",
-  "schedule_weekly": "false",
-  "schedule_daily": "false",
-  "schedule_hourly": "false",
-  "schedule_boot": "false",
-  "count_monthly": "0",
-  "count_weekly": "0",
-  "count_daily": "0",
-  "count_hourly": "0",
-  "count_boot": "0",
-  "snapshot_size": "0",
-  "snapshot_count": "0",
-  "date_format": "%Y-%m-%d %H:%M:%S",
-  "exclude": [
+  "backup_device_uuid" : "auto",
+  "parent_device_uuid" : "",
+  "do_first_run" : "false",
+  "btrfs_mode" : "true",
+  "include_btrfs_home_for_backup" : "true",
+  "include_btrfs_home_for_restore" : "false",
+  "stop_cron_emails" : "true",
+  "schedule_monthly" : "false",
+  "schedule_weekly" : "false",
+  "schedule_daily" : "false",
+  "schedule_hourly" : "false",
+  "schedule_boot" : "false",
+  "count_monthly" : "0",
+  "count_weekly" : "0",
+  "count_daily" : "0",
+  "count_hourly" : "0",
+  "count_boot" : "0",
+  "snapshot_size" : "0",
+  "snapshot_count" : "0",
+  "date_format" : "%Y-%m-%d %H:%M:%S",
+  "exclude" : [
     "/root/***",
     "/opt/***",
     "/var/***",
@@ -53,14 +49,48 @@ cat > /etc/timeshift.json << 'EOF'
     "/.snapshots/***",
     "/timeshift-btrfs/***"
   ],
-  "exclude-apps": [
-  ]
+  "exclude-apps" : []
 }
 EOF
 
-echo "✓ Timeshift konfiguráció létrehozva: /etc/timeshift.json"
+echo "✓ Timeshift konfiguráció létrehozva: /etc/timeshift/timeshift.json"
 
-# 4. BTRFS maintenance konfiguráció (csak fájl létrehozása)
+# 3. Timeshift-autosnap konfiguráció - 10 snapshot limit (mint NUMBER_LIMIT="10")
+cat > /etc/timeshift-autosnap.conf << 'EOF'
+#
+# /etc/timeshift-autosnap.conf
+#
+
+# skipAutosnap defines if timeshift-autosnap execution should be skipped.
+# Default value is false.
+skipAutosnap=false
+
+# skipRsyncAutosnap defines if timeshift-autosnap execution should be skipped on filesystems other than btrfs.
+# Default value is true.
+skipRsyncAutosnap=true
+
+# deleteSnapshots defines if old snapshots should be deleted.
+# Default value is true.
+deleteSnapshots=true
+
+# maxSnapshots defines how much old snapshots script should left.
+# Only positive whole numbers can be used.
+# Default value is 3.
+maxSnapshots=10
+
+# updateGrub defines if grub entries should be auto-generated.
+# If grub-btrfs package is not installed grub won't be generated.
+# Default value is true.
+updateGrub=true
+
+# snapshotDescription defines value used to distinguish snapshots created using timeshift-autosnap
+# Default value is "{timeshift-autosnap} {created before upgrade}".
+snapshotDescription={timeshift-autosnap} {created before upgrade}
+EOF
+
+echo "✓ Timeshift-autosnap konfiguráció létrehozva: /etc/timeshift-autosnap.conf"
+
+# 4. BTRFS maintenance konfiguráció
 echo "BTRFS karbantartás konfigurációjának létrehozása..."
 
 cat > /etc/default/btrfsmaintenance << 'EOF'
@@ -94,17 +124,24 @@ EOF
 
 echo "✓ BTRFS karbantartás konfigurálva: /etc/default/btrfsmaintenance"
 
-# 5. Végső ellenőrzés
+# 5. Régi Snapper konfigurációk eltávolítása (ha léteznek)
+echo "Régi Snapper konfigurációk eltávolítása..."
+rm -f /etc/conf.d/snapper
+rm -f /etc/snapper/configs/root 2>/dev/null
+rm -f /etc/snapper/configs/home 2>/dev/null
+echo "✓ Régi Snapper konfigurációk eltávolítva"
+
+# 6. Végső ellenőrzés
 echo "Végső ellenőrzés..."
 echo "Létrehozott konfigurációs fájlok:"
-ls -la /etc/timeshift.json /etc/default/btrfsmaintenance 2>/dev/null || echo "⚠ Egyes fájlok nem léteznek"
+ls -la /etc/timeshift/timeshift.json /etc/timeshift-autosnap.conf /etc/default/btrfsmaintenance 2>/dev/null
 
 echo
 echo "✅ KÉSZ! Konfigurációk beállítva:"
-echo "   - Timeshift: /etc/timeshift.json"
-echo "   - BTRFS karbantartás: /etc/default/btrfsmaintenance"
-echo "   - Nincsenek időzített mentések"
-echo "   - Home könyvtár automatikusan benne van a mentésekben"
+echo "   - NINCS idővonalas mentés (mint TIMELINE_CREATE=no)"
+echo "   - 10 snapshot limit (mint NUMBER_LIMIT=10)"
+echo "   - Csak timeshift-autosnap készít snapshotokat (pacman hook)"
+echo "   - Home könyvtár benne van a mentésekben"
 echo "   - Semmi nem lett telepítve"
 
 # ================================================================
