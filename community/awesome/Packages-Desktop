@@ -15,7 +15,7 @@ wavemon
 
 ## Btrfs
 grub-btrfs
-##btrfs-assistant
+btrfs-assistant
 btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
 >extra timeshift-autosnap-manjaro
 
