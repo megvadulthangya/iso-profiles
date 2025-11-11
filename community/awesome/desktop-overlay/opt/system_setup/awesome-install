@@ -1,6 +1,6 @@
 #!/bin/bash
 # --- TIMESHIFT BEÁLLÍTÁS SNAPPER HELYETT ---
-# Pontosan az eredeti Snapper logika szerint
+# Pontosan az eredeti garuda logika szerint
 
 # 1. Root jogosultság ellenőrzése
 if [[ $EUID -ne 0 ]]; then
@@ -9,7 +9,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # 2. Timeshift konfigurációk helyes elérési úton
-echo "Timeshift konfigurációk beállítása (Snapper kompatibilis módban)..."
+echo "Timeshift konfigurációk beállítása ..."
 
 # Timeshift konfigurációs könyvtár létrehozása
 mkdir -p /etc/timeshift
@@ -124,14 +124,7 @@ EOF
 
 echo "✓ BTRFS karbantartás konfigurálva: /etc/default/btrfsmaintenance"
 
-# 5. Régi Snapper konfigurációk eltávolítása (ha léteznek)
-echo "Régi Snapper konfigurációk eltávolítása..."
-rm -f /etc/conf.d/snapper
-rm -f /etc/snapper/configs/root 2>/dev/null
-rm -f /etc/snapper/configs/home 2>/dev/null
-echo "✓ Régi Snapper konfigurációk eltávolítva"
-
-# 6. Végső ellenőrzés
+# 5. Végső ellenőrzés
 echo "Végső ellenőrzés..."
 echo "Létrehozott konfigurációs fájlok:"
 ls -la /etc/timeshift/timeshift.json /etc/timeshift-autosnap.conf /etc/default/btrfsmaintenance 2>/dev/null
@@ -142,7 +135,7 @@ echo "   - NINCS idővonalas mentés (mint TIMELINE_CREATE=no)"
 echo "   - 10 snapshot limit (mint NUMBER_LIMIT=10)"
 echo "   - Csak timeshift-autosnap készít snapshotokat (pacman hook)"
 echo "   - Home könyvtár benne van a mentésekben"
-echo "   - Semmi nem lett telepítve"
+
 
 # ================================================================
 #                EGYESÍTETT TELEPÍTŐ ÉS KONFIGURÁLÓ SCRIPT
