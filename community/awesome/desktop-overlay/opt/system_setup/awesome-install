@@ -163,6 +163,15 @@ if [ "$(id -u)" -ne "0" ]; then
   exit 1
 fi
 
+# === MIRROROK BEÁLLÍTÁSA ===
+if command -v pacman-mirrors &> /dev/null; then
+    echo "Leggyorsabb mirrorok beállítása..."
+    pacman-mirrors --fasttrack
+    echo "✅ Mirrorok beállítva"
+else
+    echo "⚠️ pacman-mirrors nem található (nem Manjaro?)"
+fi
+
 # Felhasználó és home könyvtár meghatározása
 if [ -n "${SUDO_USER:-}" ]; then
     USERNAME="$SUDO_USER"
@@ -250,7 +259,7 @@ install_aur() {
 
 # --- Repo csomagok ---
 REPO_PKGS=(
-  dmenu rofi flameshot picom scrot unclutter xorg-xbacklight alsa-utils mpd mpc playerctl xorg-fonts-misc ttf-roboto woff2-font-awesome arandr lxappearance xorg-xev terminus-font xss-lock wavemon network-manager-applet feh qt6ct geany ttf-firacode-nerd fish starship bat eza jq fzf nano-syntax-highlighting noto-fonts-emoji
+  dmenu rofi flameshot picom scrot unclutter xorg-xbacklight alsa-utils mpd mpc playerctl xorg-fonts-misc ttf-roboto woff2-font-awesome arandr lxappearance xorg-xev terminus-font xss-lock wavemon network-manager-applet feh qt6ct geany ttf-firacode-nerd fish starship bat eza jq fzf nano-syntax-highlighting noto-fonts-emoji ugrep expac meld tldr openbsd-netcat
 )
 
 echo "Repo csomagok telepítése..."
