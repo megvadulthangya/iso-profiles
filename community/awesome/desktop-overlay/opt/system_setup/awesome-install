@@ -312,7 +312,7 @@ if [ -n "$SUDO_USER" ]; then
         echo "[INFO] Rofi témák letöltése a GitHubról...";
         cd /tmp;
         rm -rf rofi;
-        git clone --depth=1 -b my-awesome-config https://github.com/megvadulthangya/Awesome-rofi.git rofi;
+        git clone --depth=1 -b my-awesome-config https://github.com/megvadulthangya/awesome-rofi.git rofi;
         cd rofi;
         echo "[INFO] Betűtípusok telepítése...";
         FONT_DIR="$HOME/.local/share/fonts";
