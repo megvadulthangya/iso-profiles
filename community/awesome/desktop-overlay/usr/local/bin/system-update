@@ -1,0 +1,177 @@
+#!/bin/bash
+
+# Környezeti változók beállítása
+CURRENT_USER=$(whoami)
+CURRENT_HOME=$(eval echo ~$CURRENT_USER)
+
+# Log mappa létrehozása
+LOG_DIR="$CURRENT_HOME/logs"
+mkdir -p "$LOG_DIR"
+
+# Dátumozott log fájl neve
+LOG_FILE="$LOG_DIR/system-update_$(date +%Y-%m-%d_%H-%M-%S).log"
+
+echo "=== Rendszerfrissítés indítva: $(date) ===" >> "$LOG_FILE"
+echo "Felhasználó: $CURRENT_USER" >> "$LOG_FILE"
+echo "HOME: $CURRENT_HOME" >> "$LOG_FILE"
+echo "===========================================" >> "$LOG_FILE"
+
+# Kernel verzió ellenőrzése frissítés előtt
+CURRENT_KERNEL=$(uname -r)
+echo "Kernel verzió frissítés előtt: $CURRENT_KERNEL" >> "$LOG_FILE"
+
+# 1. Pamac konfiguráció javítása
+echo "1. Pamac konfiguráció ellenőrzése..." >> "$LOG_FILE"
+PAMAC_CONF="/etc/pamac.conf"
+if [ -f "$PAMAC_CONF" ]; then
+    sudo sed -i 's/^#EnableAUR/EnableAUR/' "$PAMAC_CONF" 2>/dev/null
+    sudo sed -i 's/^#CheckAURUpdates/CheckAURUpdates/' "$PAMAC_CONF" 2>/dev/null
+    echo "✓ Pamac konfiguráció frissítve" >> "$LOG_FILE"
+else
+    echo "ℹ Pamac konfigurációs fájl nem található" >> "$LOG_FILE"
+fi
+
+# 2. Yay telepítése, ha nincs
+echo "" >> "$LOG_FILE"
+echo "2. Yay telepítés ellenőrzése..." >> "$LOG_FILE"
+if ! command -v yay &> /dev/null; then
+    echo "Yay nem található, telepítés..." >> "$LOG_FILE"
+
+    # Szükséges csomagok telepítése
+    sudo pacman -S --needed --noconfirm base-devel git >> "$LOG_FILE" 2>&1
+
+    # Yay letöltése és telepítése
+    cd /tmp
+    git clone https://aur.archlinux.org/yay.git >> "$LOG_FILE" 2>&1
+    cd yay
+    makepkg -si --noconfirm >> "$LOG_FILE" 2>&1
+
+    if command -v yay &> /dev/null; then
+        echo "✓ Yay sikeresen telepítve" >> "$LOG_FILE"
+    else
+        echo "✗ Yay telepítése sikertelen" >> "$LOG_FILE"
+        exit 1
+    fi
+else
+    echo "✓ Yay már telepítve van" >> "$LOG_FILE"
+fi
+
+# 3. Hivatalos csomaglisták frissítése
+echo "" >> "$LOG_FILE"
+echo "3. Hivatalos csomaglisták frissítése..." >> "$LOG_FILE"
+if sudo pacman -Sy --noconfirm >> "$LOG_FILE" 2>&1; then
+    echo "✓ Hivatalos csomaglisták frissítve" >> "$LOG_FILE"
+else
+    echo "✗ Hiba a csomaglisták frissítésében" >> "$LOG_FILE"
+fi
+
+# 4. Hivatalos csomagok frissítése
+echo "" >> "$LOG_FILE"
+echo "4. Hivatalos csomagok frissítése..." >> "$LOG_FILE"
+if sudo pacman -Su --noconfirm >> "$LOG_FILE" 2>&1; then
+    echo "✓ Hivatalos csomagok frissítve" >> "$LOG_FILE"
+else
+    echo "✗ Hiba a hivatalos csomagok frissítésében" >> "$LOG_FILE"
+fi
+
+# 5. AUR csomagok frissítése yay-val
+echo "" >> "$LOG_FILE"
+echo "5. AUR csomagok frissítése..." >> "$LOG_FILE"
+if yay -Syu --aur --noconfirm >> "$LOG_FILE" 2>&1; then
+    echo "✓ AUR csomagok frissítve" >> "$LOG_FILE"
+else
+    echo "✗ Hiba az AUR csomagok frissítésében" >> "$LOG_FILE"
+fi
+
+# 6. Takarítás
+echo "" >> "$LOG_FILE"
+echo "6. Takarítás..." >> "$LOG_FILE"
+
+# Pacman cache takarítás
+sudo pacman -Sc --noconfirm >> "$LOG_FILE" 2>&1
+echo "✓ Pacman cache takarítva" >> "$LOG_FILE"
+
+# Yay cache takarítás
+yay -Yc --noconfirm >> "$LOG_FILE" 2>&1
+echo "✓ Yay cache takarítva" >> "$LOG_FILE"
+
+# 7. Kernel frissítés ellenőrzése és újraindítási service beállítása
+echo "" >> "$LOG_FILE"
+echo "7. Kernel frissítés ellenőrzése..." >> "$LOG_FILE"
+NEW_KERNEL=$(uname -r)
+echo "Kernel verzió frissítés után: $NEW_KERNEL" >> "$LOG_FILE"
+
+if [ "$CURRENT_KERNEL" != "$NEW_KERNEL" ]; then
+    echo "✓ Kernel frissült ($CURRENT_KERNEL -> $NEW_KERNEL)" >> "$LOG_FILE"
+    echo "Újraindítási service beállítása..." >> "$LOG_FILE"
+    
+    # Systemd service fájl létrehozása
+    sudo tee /etc/systemd/system/kernel-reboot.service > /dev/null << EOF
+[Unit]
+Description=Reboot after kernel update
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl reboot
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Systemd timer fájl létrehozása
+    sudo tee /etc/systemd/system/kernel-reboot.timer > /dev/null << EOF
+[Unit]
+Description=Reboot system after kernel update at 2:15 AM
+Requires=kernel-reboot.service
+
+[Timer]
+OnCalendar=*-*-* 02:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+    # Service és timer aktiválása
+    sudo systemctl daemon-reload >> "$LOG_FILE" 2>&1
+    sudo systemctl enable kernel-reboot.timer >> "$LOG_FILE" 2>&1
+    sudo systemctl start kernel-reboot.timer >> "$LOG_FILE" 2>&1
+    
+    echo "✓ Újraindítás beállítva: éjjel 02:15-kor" >> "$LOG_FILE"
+    echo "✓ Az új kernel: $NEW_KERNEL" >> "$LOG_FILE"
+else
+    echo "ℹ Kernel nem frissült, újraindítás nem szükséges" >> "$LOG_FILE"
+    
+    # Timer letiltása, ha már fut
+    if sudo systemctl is-active kernel-reboot.timer > /dev/null 2>&1; then
+        sudo systemctl stop kernel-reboot.timer >> "$LOG_FILE" 2>&1
+        sudo systemctl disable kernel-reboot.timer >> "$LOG_FILE" 2>&1
+        echo "✓ Korábbi újraindítási timer letiltva" >> "$LOG_FILE"
+    fi
+fi
+
+# 8. Régi log fájlok törlése (30 napnál régebbiek)
+echo "" >> "$LOG_FILE"
+echo "8. Régi log fájlok tisztítása..." >> "$LOG_FILE"
+find "$LOG_DIR" -name "system-update_*.log" -type f -mtime +30 -delete >> "$LOG_FILE" 2>&1
+echo "✓ Régi log fájlok törlése kész" >> "$LOG_FILE"
+
+# Befejezés
+echo "" >> "$LOG_FILE"
+echo "===========================================" >> "$LOG_FILE"
+echo "Frissítés sikeresen befejezve: $(date)" >> "$LOG_FILE"
+
+# Timer státusz információk
+if [ "$CURRENT_KERNEL" != "$NEW_KERNEL" ]; then
+    echo "ÚJRAINDÍTÁS BEÁLLÍTVA: éjjel 02:15-kor" >> "$LOG_FILE"
+    echo "Következő újraindítás:" >> "$LOG_FILE"
+    sudo systemctl list-timers kernel-reboot.timer --no-pager >> "$LOG_FILE" 2>&1
+fi
+
+# Legutóbbi log szimbolikus linkje
+LATEST_LOG="$LOG_DIR/latest_update.log"
+ln -sf "$LOG_FILE" "$LATEST_LOG"
+
+echo "Log fájl: $LOG_FILE" >> "$LATEST_LOG"

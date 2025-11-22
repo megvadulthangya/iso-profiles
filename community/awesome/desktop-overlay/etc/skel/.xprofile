@@ -1,0 +1,6 @@
+export QT_QPA_PLATFORMTHEME="qt6ct"
+# Monitor setup
+if [ -f "$HOME/.screenlayout/layout.sh" ]; then
+    # Mivel ez az X session indításakor fut, a DISPLAY már elérhető
+    bash "$HOME/.screenlayout/layout.sh" &
+fi
