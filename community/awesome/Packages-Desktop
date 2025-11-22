@@ -12,6 +12,7 @@ openssh
 samba
 usb_modeswitch
 wavemon
+openbsd-netcat
 
 ## Btrfs
 grub-btrfs
@@ -50,6 +51,7 @@ gvfs-smb
 mtpfs
 udiskie
 udisks2
+gsconnect
 
 ## Fonts
 ttf-dejavu
@@ -70,6 +72,8 @@ woff2-font-awesome
 ttf-firacode-nerd
 noto-fonts-emoji
 xorg-fonts-misc
+ttf-font-awesome-5
+tamzen-font
 
 ## Package management
 >extra apparmor
@@ -119,6 +123,7 @@ menulibre
 poppler-glib       # tumbler - for PDF thumbnails
 thunar-archive-plugin
 thunar-media-tags-plugin
+raw-thumbnailer
 ### >extra xfce4-artwork
 ##xfce4-battery-plugin
 ##xfce4-clipman-plugin
@@ -151,7 +156,9 @@ thunar-media-tags-plugin
 pavucontrol
 
 ##Awesome-wm
-awesome
+awesome-git
+awesome-freedesktop-git
+lain-git
 ## Themes
 >extra manjaro-wallpapers-18.0
 gnome-themes-standard
@@ -161,6 +168,16 @@ xcursor-simpleandsoft
 xcursor-vanilla-dmz-aa
 plymouth
 plymouth-theme-manjaro
+nordic-theme
+nordic-darker-theme
+nordic-darker-standard-buttons-theme
+nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme
+nordic-bluish-accent-theme
+nordic-bluish-accent-standard-buttons-theme
+geany-nord-theme
+nordzy-icon-theme
+nordic-backgrounds
 
 ## Applications
 bash-completion
@@ -226,6 +243,18 @@ jq
 fzf
 dex
 nano-syntax-highlighting
+grayjay-bin
+tilix-git
+i3lock-fancy-git
+betterlockscreen
+oh-my-posh-bin
+fish-done
+find-the-command
+p7zip-gui
+ugrep
+expac
+meld
+tldr
 
 # Optional dependencies engrampa
 p7zip  # 7Z and ARJ archive support
