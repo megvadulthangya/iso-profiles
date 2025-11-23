@@ -98,6 +98,7 @@ accountsservice  # Enhanced user accounts handling
 ##garcon
 thunar
 thunar-volman
+gtkhash-thunar
 tumbler
 ##xfce4-appfinder
 ##xfce4-panel
