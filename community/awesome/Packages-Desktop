@@ -102,10 +102,10 @@ gtkhash-thunar
 tumbler
 ##xfce4-appfinder
 ##xfce4-panel
-##xfce4-power-manager --->lehet hogy kellhet...
+xfce4-power-manager
 ##xfce4-session
 ##xfce4-settings
-xfce4-terminal
+##xfce4-terminal
 ##xfconf
 ##xfdesktop
 ##xfwm4
@@ -163,12 +163,12 @@ awesome-copycats-manjaro
 awesome-rofi
 lain-git
 ## Themes
->extra manjaro-wallpapers-18.0
-gnome-themes-standard
+##>extra manjaro-wallpapers-18.0
+##gnome-themes-standard
 grub-theme-manjaro
-matcha-gtk-theme
-xcursor-simpleandsoft
-xcursor-vanilla-dmz-aa
+##matcha-gtk-theme
+##xcursor-simpleandsoft
+##xcursor-vanilla-dmz-aa
 plymouth
 plymouth-theme-manjaro
 nordic-theme
@@ -201,13 +201,13 @@ mc
 inxi
 ##kdeconnect
 manjaro-hello
-manjaro-application-utility
+##manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
 >extra mlocate
 mousepad
 mugshot
->basic parole # media player
+##>basic parole # media player
 ##>extra pidgin
 powertop
 ##screenfetch
