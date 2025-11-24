@@ -1,17 +1,35 @@
 #!/bin/bash
 # /usr/local/bin/manjaro-first-run.sh
 
-# Naplózás indítása
-exec > >(tee -a /var/log/manjaro-first-run.log) 2>&1
-echo "--> ELSŐ INDÍTÁS SZKRIPT KEZDÉSE: $(date)"
+# --- LOGOLÁS BEÁLLÍTÁSA (Így látni fogod a /var/log/manjaro-first-run.log fájlban) ---
+LOG_FILE="/var/log/manjaro-first-run.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
 
-# --- 1. Timeshift beállítása (UUID detektálás) ---
+echo "=========================================="
+echo "   MANJARO FIRST RUN SETUP STARTING...    "
+echo "   Dátum: $(date)"
+echo "=========================================="
+
+# 1. Root jogosultság ellenőrzése (bár service-ként ez alap)
+if [[ $EUID -ne 0 ]]; then
+   echo "❌ HIBA: Nem rootként fut!"
+   exit 1
+fi
+
+# 2. UUID Detektálás (Kritikus a Timeshiftnek)
+echo "--> Root partíció UUID keresése..."
 ROOT_UUID=$(findmnt / -n -o UUID)
-echo "--> Root UUID: $ROOT_UUID"
 
-if [[ -n "$ROOT_UUID" ]]; then
+if [[ -z "$ROOT_UUID" ]]; then
+    echo "❌ HIBA: Nem sikerült azonosítani a root UUID-t! A Timeshift beállítás megszakad."
+    # Nem lépünk ki, hátha a többi sikerül, de ez kritikus hiba
+else
+    echo "✅ Root UUID azonosítva: $ROOT_UUID"
+    
+    echo "--> 3. Timeshift json generálása..."
     mkdir -p /etc/timeshift
-    # JSON létrehozása a helyes UUID-val
+    
+    # Itt az EREDETI konfigurációdat használjuk, de beillesztjük a $ROOT_UUID-t!
     cat > /etc/timeshift/timeshift.json << EOF
 {
   "backup_device_uuid" : "$ROOT_UUID",
@@ -35,35 +53,88 @@ if [[ -n "$ROOT_UUID" ]]; then
   "snapshot_count" : "0",
   "date_format" : "%Y-%m-%d %H:%M:%S",
   "exclude" : [
-    "/root/***", "/opt/***", "/var/***", "/srv/***", "/tmp/***",
-    "/var/log/***", "/var/tmp/***", "/var/cache/***",
-    "/home/*/.cache/***", "/home/*/.local/share/Trash/***"
+    "/root/***",
+    "/opt/***",
+    "/var/***",
+    "/srv/***",
+    "/tmp/***",
+    "/var/log/***",
+    "/var/tmp/***",
+    "/var/cache/***",
+    "/home/*/.cache/***",
+    "/home/*/.local/share/Trash/***"
   ],
   "exclude-apps" : []
 }
 EOF
-    echo "--> Timeshift JSON létrehozva."
+    echo "✅ Timeshift JSON létrehozva."
     
-    # Timeshift inicializálása (subvolume structure)
+    # Timeshift inicializálás
+    echo "--> Timeshift subvolume check..."
     timeshift --check
-else
-    echo "HIBA: Nem sikerült az UUID-t lekérni."
 fi
 
-# --- 2. Mirrorok frissítése ---
-# Csak akkor, ha van net, de megpróbáljuk
+# 4. Timeshift-autosnap konfiguráció (Az eredeti scriptből)
+echo "--> 4. Timeshift-autosnap beállítása..."
+cat > /etc/timeshift-autosnap.conf << 'EOF'
+skipAutosnap=false
+skipRsyncAutosnap=true
+deleteSnapshots=true
+maxSnapshots=10
+updateGrub=true
+snapshotDescription={timeshift-autosnap} {created before upgrade}
+EOF
+echo "✅ Timeshift-autosnap konfigurálva (Limit: 10)."
+
+# 5. BTRFS Maintenance (Az eredeti scriptből)
+echo "--> 5. BTRFS Maintenance beállítása..."
+cat > /etc/default/btrfsmaintenance << 'EOF'
+BTRFS_LOG_OUTPUT="stdout"
+BTRFS_DEFRAG_PATHS="auto"
+BTRFS_DEFRAG_PERIOD="weekly"
+BTRFS_DEFRAG_MIN_SIZE="+1M"
+BTRFS_BALANCE_MOUNTPOINTS="auto"
+BTRFS_BALANCE_PERIOD="monthly"
+BTRFS_BALANCE_DUSAGE="5 10"
+BTRFS_BALANCE_MUSAGE="5"
+BTRFS_SCRUB_MOUNTPOINTS="auto"
+BTRFS_SCRUB_PERIOD="weekly"
+BTRFS_SCRUB_PRIORITY="idle"
+BTRFS_SCRUB_READ_ONLY="false"
+BTRFS_TRIM_PERIOD="weekly"
+BTRFS_TRIM_MOUNTPOINTS="auto"
+BTRFS_ALLOW_CONCURRENCY="false"
+EOF
+echo "✅ BTRFS Maintenance konfigurálva."
+
+# 6. Mirrorok frissítése
+echo "--> 6. Mirrorok frissítése..."
 if command -v pacman-mirrors &> /dev/null; then
-    echo "--> Mirrorok frissítése..."
     pacman-mirrors --fasttrack 5 && pacman -Syy
+    echo "✅ Mirrorok frissítve."
+else
+    echo "⚠️ pacman-mirrors nem található."
 fi
 
-# --- 3. Szolgáltatások biztosítása ---
+# 7. Szolgáltatások újraindítása az új konfigokkal
+echo "--> 7. Szolgáltatások engedélyezése és újraindítása..."
+systemctl daemon-reload
+
+# BTRFS Maintenance szolgáltatások aktiválása
 systemctl enable --now btrfs-scrub.timer
 systemctl enable --now btrfs-trim.timer
+systemctl enable --now btrfs-balance.timer
+
+# udisks2
 systemctl enable --now udisks2.service
 
-echo "--> BEFEJEZVE."
+echo "=========================================="
+echo "✅ TELEPÍTÉS UTÁNI BEÁLLÍTÁSOK KÉSZEN!"
+echo "=========================================="
 
-# --- 4. ÖNGYILKOS MECHANIZMUS ---
-# Ez a legfontosabb sor: letiltja a szolgáltatást, hogy többet soha ne fusson le.
+# 8. ÖNGYILKOS MECHANIZMUS
+# Letiltjuk a szolgáltatást, hogy többet ne fusson le
+echo "--> Szolgáltatás letiltása a következő bootra..."
 systemctl disable manjaro-first-run.service
+
+exit 0
