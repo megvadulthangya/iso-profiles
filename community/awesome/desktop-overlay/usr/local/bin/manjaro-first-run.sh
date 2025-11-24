@@ -107,11 +107,14 @@ BTRFS_ALLOW_CONCURRENCY="false"
 EOF
 echo "✅ BTRFS Maintenance konfigurálva."
 
-# 6. Mirrorok frissítése
-echo "--> 6. Mirrorok frissítése..."
+# 6. Mirrorok frissítése (TELJES LISTA ALAPJÁN)
+echo "--> 6. Mirrorok frissítése (Ez eltarthat egy darabig)..."
 if command -v pacman-mirrors &> /dev/null; then
-    pacman-mirrors --fasttrack 5 && pacman -Syy
-    echo "✅ Mirrorok frissítve."
+    # -c all:        Minden létező országot engedélyez (reseteli a listát)
+    # --protocols:   Csak HTTPS (biztonságos) tükröket keressen
+    # --fasttrack 20: Megnézi a válaszidőket, és a TOP 20-at menti el
+    pacman-mirrors --country all --api --protocols https --fasttrack 20 && pacman -Syy
+    echo "✅ Mirrorok frissítve (Top 20 a teljes világlistából)."
 else
     echo "⚠️ pacman-mirrors nem található."
 fi
