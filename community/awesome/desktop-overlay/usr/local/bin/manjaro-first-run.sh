@@ -107,14 +107,17 @@ BTRFS_ALLOW_CONCURRENCY="false"
 EOF
 echo "✅ BTRFS Maintenance konfigurálva."
 
-# 6. Mirrorok frissítése (TELJES LISTA ALAPJÁN)
-echo "--> 6. Mirrorok frissítése (Ez eltarthat egy darabig)..."
+# 6. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
+echo "--> 6. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
+
 if command -v pacman-mirrors &> /dev/null; then
-    # -c all:        Minden létező országot engedélyez (reseteli a listát)
-    # --protocols:   Csak HTTPS (biztonságos) tükröket keressen
-    # --fasttrack 20: Megnézi a válaszidőket, és a TOP 20-at menti el
-    pacman-mirrors --country all --api --protocols https --fasttrack 20 && pacman -Syy
-    echo "✅ Mirrorok frissítve (Top 20 a teljes világlistából)."
+    # --continent:   Érzékeli a felhasználó kontinensét (pl. Európa vagy Észak-Amerika)
+    #                Így kis országokban (mint HU) is lesz bőven tartalék szerver a szomszédoktól.
+    # --api:         Frissíti a listát
+    # --protocols:   Csak HTTPS
+    pacman-mirrors --continent --api --protocols https && pacman -Syy
+    
+    echo "✅ Mirrorok frissítve (Kontinens szintű lista a biztonság érdekében)."
 else
     echo "⚠️ pacman-mirrors nem található."
 fi
