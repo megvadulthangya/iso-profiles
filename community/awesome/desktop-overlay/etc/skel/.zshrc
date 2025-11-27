@@ -9,9 +9,22 @@ if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
   source /usr/share/zsh/manjaro-zsh-config
 fi
 # Use manjaro zsh prompt
-if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
-  source /usr/share/zsh/manjaro-zsh-prompt
+#if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+#  source /usr/share/zsh/manjaro-zsh-prompt
+#fi
+
+# 1. Zsh Autosuggestions visszapótlása (mert ez a prompt fájlban volt)
+if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244' # Szürke szín beállítása
 fi
+
+# Oh My Posh indítása - NORDTRON témával blueish powerlevel10k_classic
+# Közvetlenül a rendszerfájlra hivatkozunk, így nem lesz hibaüzenet
+if command -v oh-my-posh &> /dev/null; then
+    eval "$(oh-my-posh init zsh --config /usr/share/oh-my-posh/themes/nordtron.omp.json)"
+fi
+
 
 # =============================================================================
 # Fish konfigurációból átvett aliasok és funkciók
@@ -149,9 +162,9 @@ cleanup() {
 }
 
 # Starship prompt inicializálás
-if command -v starship > /dev/null 2>&1; then
-    eval "$(starship init zsh)"
-fi
+#if command -v starship > /dev/null 2>&1; then
+#    eval "$(starship init zsh)"
+#fi
 
 # Fastfetch indítása interaktív sessionben
 if [[ -o interactive ]] && command -v fastfetch > /dev/null 2>&1; then

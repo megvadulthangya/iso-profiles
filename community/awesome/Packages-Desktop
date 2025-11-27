@@ -239,7 +239,7 @@ qt6ct
 xsettingsd
 geany
 fish
-starship
+##starship
 bat
 eza
 jq
@@ -248,6 +248,7 @@ dex
 nano-syntax-highlighting
 grayjay-bin
 tilix-git
+tilda
 i3lock-fancy-git
 betterlockscreen
 oh-my-posh-bin

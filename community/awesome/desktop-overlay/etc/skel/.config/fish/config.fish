@@ -41,8 +41,16 @@ if test -d ~/Applications/depot_tools
 end
 
 ## Starship prompt
+#if status --is-interactive
+#   source ("/usr/bin/starship" init fish --print-full-init | psub)
+#end
+
+## Oh My Posh prompt
 if status --is-interactive
-   source ("/usr/bin/starship" init fish --print-full-init | psub)
+    if type -q oh-my-posh
+        # Itt adjuk meg a konkrét témát a --config kapcsolóval
+        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/powerlevel10k_classic.omp.json | source
+    end
 end
 
 ## Advanced command-not-found hook
