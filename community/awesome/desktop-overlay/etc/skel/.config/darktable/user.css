@@ -1,0 +1,126 @@
+/* DARKTABLE NORDIC THEME (user.css)
+   Bázis: darktable-elegant-grey.css változók felülírása
+*/
+
+/* --- 1. NORDIC PALETTA DEFINÍCIÓK (Hogy könnyen módosítható legyen) --- */
+@define-color n_polar_0   #2E3440; /* Legsötétebb háttér */
+@define-color n_polar_1   #3B4252; /* Panelek háttere */
+@define-color n_polar_2   #434C5E; /* Gombok, nem aktív elemek */
+@define-color n_polar_3   #4C566A; /* Szegélyek, input mezők */
+@define-color n_snow_0    #D8DEE9; /* Fő szövegszín */
+@define-color n_snow_1    #E5E9F0; /* Világosabb szöveg */
+@define-color n_frost_2   #88C0D0; /* Kiemelés (Cyan) - Fő akciószín */
+@define-color n_frost_3   #81A1C1; /* Másodlagos kék */
+@define-color n_red       #BF616A; /* Figyelmeztetés */
+
+/* --- 2. VÁLTOZÓK FELÜLÍRÁSA A BEMÁSOLT FÁJLOD ALAPJÁN --- */
+
+/* Általános felület */
+@define-color bg_color              @n_polar_0;
+@define-color fg_color              @n_snow_0;
+@define-color text_color            @n_snow_0;
+@define-color border_color          @n_polar_3;
+@define-color disabled_fg_color     @n_polar_3;
+
+/* Kijelölések (Selected items) */
+@define-color selected_bg_color     @n_frost_2;  /* A Nordic kék */
+@define-color selected_fg_color     @n_polar_0;  /* Sötét szöveg a kéken, hogy olvasható legyen */
+
+/* Panelek és Modulok (Jobb és bal oldali sávok) */
+/* A shade() helyett fix színeket adunk meg a tiszta Nordic look érdekében */
+@define-color plugin_bg_color       @n_polar_1;
+@define-color collapsible_bg_color  @n_polar_1;
+@define-color plugin_label_color    @n_snow_1;
+
+/* Gombok (GTK Buttons) */
+@define-color button_bg             @n_polar_2;
+@define-color button_hover_bg       @n_polar_3;
+@define-color button_hover_fg       @n_snow_1;
+
+/* Input mezők és keresők */
+@define-color field_bg              @n_polar_1;
+@define-color field_active_bg       @n_polar_0;
+@define-color field_active_fg       @n_frost_2;
+@define-color placeholder_text_color alpha(@n_snow_0, 0.5);
+
+/* Csúszkák (Bauhaus sliders - a Darktable speciális csúszkái) */
+@define-color bauhaus_fill          @n_polar_3;  /* A csúszka alapja */
+@define-color bauhaus_fg_selected   @n_frost_2;  /* Az érték színe, ha aktív */
+@define-color bauhaus_indicator_border @n_polar_3;
+
+/* Görgetősáv (Scrollbar) - hogy simuljon a háttérbe */
+@define-color scroll_bar_bg         @n_polar_0;
+@define-color scroll_bar_inactive   @n_polar_2;
+@define-color scroll_bar_active     @n_frost_3;
+
+/* Lighttable (Ahol a képeket válogatod) */
+@define-color lighttable_bg_color   @n_polar_0;
+@define-color thumbnail_bg_color    @n_polar_1;
+@define-color thumbnail_font_color  @n_snow_0;
+@define-color thumbnail_selected_bg_color @n_frost_2; /* Kijelölt kép kerete */
+@define-color thumbnail_hover_bg_color    @n_polar_3;
+
+/* Grafikonok és Hisztogram */
+@define-color graph_bg              @n_polar_0;
+@define-color graph_grid            @n_polar_2;
+@define-color graph_fg              @n_snow_0;
+
+/* --- 3. EXTRÁK (Specifikus javítások) --- */
+
+/* A "Középső nézet" (Sötétszoba kép mögötti rész) */
+/* Ezt @n_polar_0-ra állítom a design miatt, de fotózáshoz a @n_polar_2 jobb lenne (szürkébb) */
+@define-color darkroom_bg_color     @n_polar_0; 
+
+/* Tooltipek (kis buborék infók) */
+@define-color tooltip_bg_color      @n_polar_2;
+@define-color tooltip_fg_color      @n_snow_0;
+
+/* Globális reset, hogy a betűtípus színek biztosan érvényesüljenek */
+* {
+    color: @n_snow_0;
+}
+
+
+/* --- JAVÍTÁS: VILÁGOS HÁTTEREK KÉNYSZERÍTETT SÖTÉTÍTÉSE --- */
+
+/* 1. A fő "Asztal" (Lighttable) háttere, ahol a képek vannak */
+#view-lighttable,
+#lighttable-center,
+#center-view,
+.dt_lighttable_view {
+    background-color: @n_polar_0; /* Legsötétebb Nordic */
+    color: @n_snow_0;
+}
+
+/* 2. Az alsó "Filmszalag" (Filmstrip) háttere */
+#filmstrip,
+#filmstrip-box,
+#cameraroll {
+    background-color: @n_polar_1; /* Kicsit világosabb, hogy elkülönüljön */
+}
+
+/* 3. A miniatűrök (thumbnail) közvetlen háttere */
+/* Ha ez világos, akkor a képek körül "fehér keret" hatás van */
+.dt_thumbnail,
+#thumb-main {
+    background-color: @n_polar_1; 
+    border-color: @n_polar_0;
+}
+
+/* 4. A görgetősáv mögötti csatorna (gyakran ez marad fehér) */
+scrollbar trough {
+    background-color: @n_polar_0;
+    border: none;
+}
+
+/* 5. A modulok közötti elválasztók és üres helyek */
+separator {
+    background-color: @n_polar_0;
+    color: @n_polar_0;
+}
+
+/* Kényszerített globális háttér a "lyukak" ellen */
+window, box {
+    background-color: @n_polar_0;
+}
+
