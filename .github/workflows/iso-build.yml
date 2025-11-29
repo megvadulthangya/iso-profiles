@@ -33,11 +33,11 @@ jobs:
         BRANCH: [stable]
         SCOPE: [full]
     steps:
-      # 1. LÉPÉS: Itt töltjük le a repót a git log miatt
+      # 1. LÉPÉS: Repó letöltése (kell a git history-hoz)
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # FONTOS: Ez kell ahhoz, hogy lássuk a git előzményeket a README-hez
+          fetch-depth: 0
 
       - uses: styfle/cancel-workflow-action@0.12.1
         with:
@@ -61,13 +61,12 @@ jobs:
           version: ${{ steps.time.outputs.time }}-Nordic-TESTING
           kernel: linux612
           code-name: "awesome-Build"
-          # release-tag kikommentelve, mert SF-re megyünk
 
-      # 3. LÉPÉS: Readme generálás (Fastfetch-el) és Feltöltés
+      # 3. LÉPÉS: Readme generálás és Feltöltés
       - name: Generate README & Upload to SourceForge
         if: success()
         env:
-          SF_USER: ${{ secrets.SF_USERNAME }} # Győződj meg róla, hogy a Secret neve SF_USERNAME
+          SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
           SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
@@ -87,25 +86,23 @@ jobs:
           # --- 2. ISO megkeresése ---
           ISO_FILE=$(find . -type f -name "*.iso" | head -n 1)
           SOURCE_DIR=$(dirname "$ISO_FILE")
-
           if [ -z "$ISO_FILE" ]; then
             echo "HIBA: Nem található ISO fájl!"
             exit 1
           fi
           echo "Forrás mappa: $SOURCE_DIR"
 
-          # --- 3. README.md GENERÁLÁSE ---
+          # --- 3. README GENERÁLÁS ---
           README_PATH="$SOURCE_DIR/README.md"
           
           # Fejléc
           echo "# Manjaro Awesome Edition (Testing)" > "$README_PATH"
           echo "" >> "$README_PATH"
           
-          # FONTOS INFÓK (Super+Z)
+          # Fontos infók
           echo "## ⚠️ Important Note / Fontos infó" >> "$README_PATH"
-          echo "The **Tilda** (Quake-style) terminal is installed and configured." >> "$README_PATH"
-          echo "You can toggle it with the keybinding: **SUPER + Z**" >> "$README_PATH"
-          echo "(This binding is not listed in the standard AwesomeWM help popup/Super S)" >> "$README_PATH"
+          echo "The **Tilda** (Quake-style) terminal is installed." >> "$README_PATH"
+          echo "Toggle key: **SUPER + Z**" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
           # Build infók
@@ -114,30 +111,36 @@ jobs:
           echo "- **Version:** ${{ steps.time.outputs.time }}-Nordic-TESTING" >> "$README_PATH"
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
-          
-          # --- FASTFETCH SZEKCIÓ ---
+
+          # --- FASTFETCH (Universe bekapcsolással) ---
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
-          # Telepítés és futtatás
-          sudo apt-get update -q > /dev/null
-          sudo apt-get install -y fastfetch > /dev/null
-          # A --pipe opció eltávolítja a színeket, hogy tiszta szöveget kapjunk
-          fastfetch --pipe >> "$README_PATH"
-          
+          # Bekapcsoljuk a Universe tárolót, mert ott van a fastfetch
+          sudo add-apt-repository -y universe || true
+          sudo apt-get update -q || true
+          sudo apt-get install -y fastfetch || echo "Fastfetch install failed"
+
+          if command -v fastfetch &> /dev/null; then
+            fastfetch --pipe >> "$README_PATH"
+          else
+            # B-terv
+            lscpu | grep "Model name" >> "$README_PATH" || true
+            free -h >> "$README_PATH" || true
+          fi
           echo '```' >> "$README_PATH"
           echo "" >> "$README_PATH"
-          # -------------------------
+          # -------------------------------------------
 
-          # Checksum szekció
+          # Checksums
           echo "## Checksums" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           cat "$SOURCE_DIR"/*.sha* >> "$README_PATH" || echo "Checksums available as separate files."
           echo '```' >> "$README_PATH"
           echo "" >> "$README_PATH"
           
-          # Változások (Git log)
+          # Git Log
           echo "## Recent Changes" >> "$README_PATH"
           echo "Last 10 commits from repository:" >> "$README_PATH"
           echo "" >> "$README_PATH"
@@ -145,15 +148,13 @@ jobs:
 
           echo "README generálva: $README_PATH"
 
-          # --- 4. SourceForge Mappák és Feltöltés ---
+          # --- 4. Feltöltés ---
           echo "SourceForge inicializálása ($SF_USER)..."
-          # -o IdentitiesOnly=yes kapcsoló hozzáadva a stabilitásért
           ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $SF_USER@shell.sourceforge.net "create" || true
           
-          echo "Mappaszerkezet létrehozása..."
+          echo "Mappák létrehozása..."
           echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
           
-          echo "Feltöltés indítása..."
-          # A "$README_PATH" változó biztosítja, hogy a szöveges fájl is felmenjen
+          echo "Feltöltés..."
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
