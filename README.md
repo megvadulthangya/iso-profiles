@@ -1,190 +1,121 @@
-## iso-profiles
+# 🏔️ Awesome Manjaro Edition
+
+**My personal, unified system installer - Create the same consistent AwesomeWM environment across all my devices.**
+
+[![Download manjaro-awesome-iso](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+
+---
+
+## ⚙️ Overview / Áttekintés
+
+This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
+
+**New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
+
+Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+
+**Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
+
+---
+
+## 🚀 Key Features / Főbb jellemzők
+
+### 🖥️ Desktop Environment
+* **Window Manager:** AwesomeWM 4.x (Custom Fork)
+* **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
+* **Wallpapers:** Curated collection "Norded" via ImageGoNord (Sources: Reddit, Unsplash, Wallhaven).
+* **Applets:** **Awesome-rofi** fork, patched for seamless integration.
+
+### 📸 Creative Suite (Photography)
+The ISO comes with a pre-populated **Darktable database**. You only need to install the software (`sudo pacman -S darktable`), and the presets are instantly available.
+* **Stefano Ferro's Styles:** Includes Traveller, Vintage, Dark Tones, Dodge & Burn, RGB Curves, and Urban Style packages.
+* **Perfect for Sony Alpha users (optimized for A7II) but works universally.*
+* **t3mujinpack:** Extensive film emulation pack (Fuji Velvia, Kodachrome, Ilford B&W, etc.).
 
 
-### profile.conf
+### 🛠️ System Core
+* **Base:** Manjaro Stable
+* **Filesystem:** BTRFS + Timeshift (automatic snapshot management).
+* **Shell:** Fish (root), Zsh/Bash (user).
 
-~~~
-##########################################
-###### use this file in the profile ######
-##########################################
+---
 
-## use multilib packages; x86_64 only
-# multilib="true"
+## 🧩 Detailed Components / Részletes összetevők
 
-## use extra packages as defined in pkglist to activate a full profile
-# extra="false"
+### 1. Awesome WM Nordic Copycats (Fork)
+* **Source:** [megvadulthangya/awesome-copycats-manjaro](https://github.com/megvadulthangya/awesome-copycats-manjaro)
+* **Description:** A modified version of the original Copycats themes. Every element has been recolored to strictly follow the Nordic palette.
+* **Features:**
+    * Autohide widgets & Autostart windowless processes
+    * Quake drop-down terminal
+    * Fast MPD and volume shortcuts
+    * Dynamic tagging & On-the-fly useless gaps resize
+    * Mouse-driven calendar & Notifications (battery, volume, mail)
+    * Freedesktop.org compliant menu
 
-################ install ################
+### 2. Nordic Wallpapers & Rofi
+* **Wallpapers:** A hand-picked collection from Christian Chiarulli, ThePrimeagen, and various art communities, color-graded to Nordic standards.
+* **Rofi:** Forked from `awesome-rofi` to fix compatibility issues within this specific environment. Includes custom Applets, Launchers & Powermenus.
 
-## default displaymanager: none
-## supported; lightdm, sddm, gdm, lxdm, mdm
-# displaymanager="none"
+### 3. Darktable Presets Integration
+I have integrated a professional library of styles directly into the ISO's configuration.
+* **Why?** To speed up photo editing workflows immediately after installation.
+* **Included:**
+    * *Stefano Ferro's Collection:* Vintage, Urban, Travel, and Dark Tones styles.
+    * *t3mujinpack:* The definitive open-source film simulation pack (Kodak, Fuji, Agfa, Ilford emulations).
+* **How to use:** Simply install Darktable. The database is already in `~/.config/darktable/`.
 
-## Set to false to disable autologin in the livecd
-# autologin="true"
+---
+## 📺 Video Walkthrough / Videós bemutató
+Watch the installation and setup guide:
+Tekintsd meg a telepítési és beállítási útmutatót:
 
-## nonfree xorg drivers
-# nonfree_mhwd="true"
+[![Manjaro Awesome Edition Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
+---
 
-## possible values: grub;systemd-boot
-# efi_boot_loader="grub"
+## 🪄 Installation / Telepítés
 
-## configure calamares for netinstall
-# netinstall="false"
+1.  **Download:** Grab the ISO from [SourceForge](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download).
+2.  **Boot:** Start the Live System.
+3.  **Install:** Run the standard Manjaro installer (Calamares).
+4.  **Reboot & Enjoy:** No further setup required. The environment is exactly as shown in the screenshots.
 
-## configure calamares for mhwd
-# mhwd_used="true"
+1.  **Letöltés:** Töltsd le az ISO-t a [SourceForge](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)-ról.
+2.  **Boot:** Indítsd el a Live rendszert.
+3.  **Telepítés:** Futtasd a szokásos Manjaro telepítőt.
+4.  **Használat:** Újraindítás után a rendszer azonnal kész. Nincs szükség további beállításra.
 
-## configure calamares for oem
-# oem_used="false"
+---
 
-## configure calamares to use chrootcfg instead of unpackfs; default: unpackfs
-# chrootcfg="false"
+## 🧩 Extra Feature — "Install XLibre"
 
-## use geoip
-# geoip="true"
+> **Note:** Available in the installed system via Manjaro Hello.
 
-## unset defaults to given values
-## names must match systemd service names
-# enable_systemd=('bluetooth' 'cronie' 'ModemManager' 'NetworkManager' 'org.cups.cupsd' 'tlp' 'tlp-sleep')
-# disable_systemd=()
+* Adds XLibre repository & GPG key.
+* Replaces Xorg configuration for specific hardware setups.
+* Accessible via the custom "Install XLibre" button in the Welcome screen.
 
-## unset defaults to given values
-# addgroups="video,power,disk,storage,optical,network,lp,scanner,wheel"
+---
 
-## the same workgroup name if samba is used
-# smb_workgroup="Manjaro"
+## ☕ Support / Támogatás
 
-## default system shell is bash
-## '/etc/defaults/useradd': " "
-## userShell              : "/bin/zsh"
-## empty value will not be used
-# user_shell=" "
+If you find this project useful, please support the development:
+Ha hasznosnak találod a projektet, támogasd a fejlesztést:
 
-## use calamares office installer
-## supported: true,false
-# office_installer="false"
+👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
 
-## add strict snaps: strict_snaps="snapd core core18 gnome-3-28-1804 gtk-common-themes snap-store"
-# strict_snaps=""
+---
 
-## add classic snaps: classic_snaps="code"
-# classic_snaps=""
+## 🧠 Credits / Készítette
 
-## choose the snap channel.
-## supported:: stable,candidate,beta,edge
-# snap_channel="candidate"
+**Built upon / Alapjául szolgált:**
+* 🐧 [Manjaro Linux](https://manjaro.org/)
+* 🎨 [Nordic Theme](https://github.com/EliverLara/Nordic)
+* ⚡ [AwesomeWM Copycats](https://github.com/lcpz/awesome-copycats) & [Luca CPZ](https://github.com/lcpz)
 
-########## calamares preferences ##########
-# See /etc/manjaro-tools/branding.desc.d for reference
-# These settings will override settings from manjaro-tools.conf
+**Photography Tools / Fotós eszközök:**
+* 📷 [Stefano Ferro (MEL365)](https://mel365.com/) - Presets & Styles
+* 🎞️ [t3mujinpack](https://t3mujinpack.github.io/) - Film emulation
 
-## welcome style for calamares
-## true="Welcome to the %1 installer."
-## false="Welcome to the Calamares installer for %1." (default)
-# welcomestyle=false
-
-## welcome image scaled (productWelcome)
-# welcomelogo=true
-
-## size and expansion policy for Calamares
-## supported: normal,fullscreen,noexpand
-# windowexp=noexpand
-
-## size of Calamares window, expressed as w,h
-## supported: pixel (px) or font-units (em))
-# windowsize="800px,520px"
-
-## placement of Calamares window
-## supported: center,free
-# windowplacement="center"
-
-## colors for text and background components:
-
-## background of the sidebar
-# sidebarbackground=#454948
-
-## text color
-# sidebartext=#efefef
-
-## background of the selected step
-# sidebartextselect=#4d915e
-
-## text color of the selected step
-# sidebartexthighlight=#1a1c1b
-
-################# live-session #################
-
-## unset defaults to given value
-# hostname="manjaro"
-
-## unset defaults to given value
-# username="manjaro"
-
-## unset defaults to given value
-# password="manjaro"
-
-## the login shell
-## defaults to bash
-# login_shell=/bin/bash
-
-## unset defaults to given values
-## names must match systemd service names
-## services in enable_systemd array don't need to be listed here
-# enable_systemd_live=('manjaro-live' 'mhwd-live' 'pacman-init' 'mirrors-live')
-disable_systemd_live=('tlp' 'tlp-sleep')
-
-~~~
-
-### Packagelist tags
-
-~~~
->systemd
-
->x86_64
->multilib
-
->nonfree_default
->nonfree_x86_64
->nonfree_multilib
-
->manjaro
-
->basic
->extra
-~~~
-
-### Packages-Root
-
-* Contains root image packages
-* ideally no xorg
-
-### Packages-Desktop
-
-* Contains the desktop image packages
-* desktop environment packages go here
-
-### Packages-Mhwd
-
-* Contains the MHWD driver packages repo
-
-### Packages-Live
-
-* Contains packages you only want in live session but not installed on the target system with installer
-* default files are in shared folder and can be symlinked or defined in a real file
-
-### buildiso can be configured to use custom repos
-
-* create a user-repos.conf
-
-~~~
-${profile_dir}/user-repos.conf
-~~~
-
-**Add only your repos to user-repos.conf!**
-
-**Important**: Only online repos is allowed in the user-repos.conf. Buildiso will fail on file-based repos.
-
-
-### Calamares
-netgroups definitions go in [this](https://github.com/manjaro/calamares-netgroups) repo please
+**Custom integration / Egyedi integráció:**
+* 👨💻 [@megvadulthangya](https://github.com/megvadulthangya)
