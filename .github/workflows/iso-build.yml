@@ -99,7 +99,7 @@ jobs:
           echo "# Manjaro Awesome Edition (Testing)" > "$README_PATH"
           echo "" >> "$README_PATH"
           
-          # Fontos infók
+          # Fontos infók (Super+Z)
           echo "## ⚠️ Important Note / Fontos infó" >> "$README_PATH"
           echo "The **Tilda** (Quake-style) terminal is installed." >> "$README_PATH"
           echo "Toggle key: **SUPER + Z**" >> "$README_PATH"
@@ -112,20 +112,23 @@ jobs:
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- FASTFETCH (Universe bekapcsolással) ---
+          # --- FASTFETCH (Direct DEB telepítéssel) ---
+          # Ez a legbiztosabb módszer: letöltjük a fájlt és telepítjük, így nem kell repo-kkal bajlódni
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
-          # Bekapcsoljuk a Universe tárolót, mert ott van a fastfetch
-          sudo add-apt-repository -y universe || true
-          sudo apt-get update -q || true
-          sudo apt-get install -y fastfetch || echo "Fastfetch install failed"
+          (
+            echo "Fastfetch letöltése..."
+            wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
+            sudo dpkg -i fastfetch.deb
+          ) || echo "Fastfetch telepítés sikertelen."
 
           if command -v fastfetch &> /dev/null; then
             fastfetch --pipe >> "$README_PATH"
           else
-            # B-terv
+            # B-terv: Ha mégsem sikerülne, akkor lscpu
+            echo "Fallback Info:" >> "$README_PATH"
             lscpu | grep "Model name" >> "$README_PATH" || true
             free -h >> "$README_PATH" || true
           fi
