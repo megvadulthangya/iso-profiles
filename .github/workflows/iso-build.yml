@@ -112,14 +112,14 @@ jobs:
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- FASTFETCH (Direct DEB telepítéssel) ---
-          # Ez a legbiztosabb módszer: letöltjük a fájlt és telepítjük, így nem kell repo-kkal bajlódni
+          # --- FASTFETCH (Direct DEB telepítéssel - JAVÍTVA) ---
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
           (
             echo "Fastfetch letöltése..."
+            # JAVÍTVA: Nincs markdown formázás a linken!
             wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
             sudo dpkg -i fastfetch.deb
           ) || echo "Fastfetch telepítés sikertelen."
@@ -127,7 +127,7 @@ jobs:
           if command -v fastfetch &> /dev/null; then
             fastfetch --pipe >> "$README_PATH"
           else
-            # B-terv: Ha mégsem sikerülne, akkor lscpu
+            # B-terv
             echo "Fallback Info:" >> "$README_PATH"
             lscpu | grep "Model name" >> "$README_PATH" || true
             free -h >> "$README_PATH" || true
