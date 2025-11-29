@@ -33,11 +33,11 @@ jobs:
         BRANCH: [stable]
         SCOPE: [full]
     steps:
-      # 1. LÉPÉS: Itt töltjük le a repót a git log miatt (EZ AZ ÚJ RÉSZ)
+      # 1. LÉPÉS: Itt töltjük le a repót a git log miatt
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ez kell ahhoz, hogy lássuk a git előzményeket
+          fetch-depth: 0 # FONTOS: Ez kell ahhoz, hogy lássuk a git előzményeket a README-hez
 
       - uses: styfle/cancel-workflow-action@0.12.1
         with:
@@ -63,15 +63,21 @@ jobs:
           code-name: "awesome-Build"
           # release-tag kikommentelve, mert SF-re megyünk
 
-      # 3. LÉPÉS: Readme generálás és Feltöltés SourceForge-ra
+      # 3. LÉPÉS: Readme generálás (Fastfetch-el) és Feltöltés
       - name: Generate README & Upload to SourceForge
         if: success()
         env:
-          SF_USER: ${{ secrets.SF_USERNAME }}
+          SF_USER: ${{ secrets.SF_USERNAME }} # Győződj meg róla, hogy a Secret neve SF_USERNAME
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
           SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
         run: |
+          # --- 0. Biztonsági ellenőrzés ---
+          if [ -z "$SF_USER" ]; then
+            echo "HIBA: Az SF_USER változó üres! Ellenőrizd a GitHub Secrets beállításokat (SF_USERNAME)!"
+            exit 1
+          fi
+
           # --- 1. SSH beállítás ---
           mkdir -p ~/.ssh
           echo "$SF_KEY" > ~/.ssh/id_ed25519
@@ -109,7 +115,22 @@ jobs:
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
           
-          # Checksum szekció (Beolvassuk a fájlokat, hogy látszódjon a szövegben is)
+          # --- FASTFETCH SZEKCIÓ ---
+          echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
+          echo "Built on GitHub Actions runner:" >> "$README_PATH"
+          echo '```' >> "$README_PATH"
+          
+          # Telepítés és futtatás
+          sudo apt-get update -q > /dev/null
+          sudo apt-get install -y fastfetch > /dev/null
+          # A --pipe opció eltávolítja a színeket, hogy tiszta szöveget kapjunk
+          fastfetch --pipe >> "$README_PATH"
+          
+          echo '```' >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          # -------------------------
+
+          # Checksum szekció
           echo "## Checksums" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           cat "$SOURCE_DIR"/*.sha* >> "$README_PATH" || echo "Checksums available as separate files."
@@ -120,20 +141,19 @@ jobs:
           echo "## Recent Changes" >> "$README_PATH"
           echo "Last 10 commits from repository:" >> "$README_PATH"
           echo "" >> "$README_PATH"
-          # Ez most már működni fog, mert betettük a checkout lépést az elejére!
           git log -n 10 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
 
           echo "README generálva: $README_PATH"
-          # ---------------------------------
 
           # --- 4. SourceForge Mappák és Feltöltés ---
-          echo "SourceForge inicializálása..."
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $SF_USER@shell.sourceforge.net "create" || true
+          echo "SourceForge inicializálása ($SF_USER)..."
+          # -o IdentitiesOnly=yes kapcsoló hozzáadva a stabilitásért
+          ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $SF_USER@shell.sourceforge.net "create" || true
           
           echo "Mappaszerkezet létrehozása..."
           echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
-          sftp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
+          sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
           
           echo "Feltöltés indítása..."
           # A "$README_PATH" változó biztosítja, hogy a szöveges fájl is felmenjen
-          rsync -avP -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
+          rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
