@@ -248,7 +248,10 @@ dex
 nano-syntax-highlighting
 grayjay-bin
 tilix-git
-tilda
+rxvt-unicode
+xsel
+urxvt-perls
+urxvt-resize-font-git
 i3lock-fancy-git
 betterlockscreen
 oh-my-posh-bin

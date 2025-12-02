@@ -166,8 +166,8 @@ cleanup() {
 #    eval "$(starship init zsh)"
 #fi
 
-# Fastfetch indítása interaktív sessionben
-if [[ -o interactive ]] && command -v fastfetch > /dev/null 2>&1; then
+# Fastfetch indítása interaktív sessionben (KIVÉVE ha Quake módban vagyunk)
+if [[ -o interactive ]] && [[ -z "$QUAKE_MODE" ]] && command -v fastfetch > /dev/null 2>&1; then
     fastfetch --config neofetch.jsonc 2>/dev/null || fastfetch
 fi
 

@@ -19,53 +19,81 @@ Xft.lcdfilter: lcddefault
 
 ! DPI settings for proper scaling
 Xft.dpi: 96
-! Ha nagyobb felbontású monitorod van, állítsd be a megfelelő DPI-t:
-! Xft.dpi: 192
 
 ! ================================
-! TERMINAL AND APPLICATION SETTINGS  
+! URXVT TERMINAL CONFIGURATION
+! (Nordic Theme + Performance)
 ! ================================
 
-! Alacritty terminal font (ha használod)
-! alacritty*font: Monospace-12
+! Betűtípus beállítása (A te rendszereden lévő FiraCode)
+URxvt.font: xft:FiraCode Nerd Font:size=12:antialias=true
+URxvt.boldFont: xft:FiraCode Nerd Font:bold:size=12:antialias=true
 
-! URxvt terminal settings (ha használod)
-! URxvt*font: xft:Monospace:size=12
-! URxvt*boldFont: xft:Monospace:bold:size=12
-! URxvt*scrollBar: false
+! Gördítősáv kikapcsolása (Szebb, Quake-style kinézet)
+URxvt.scrollBar: false
 
-! XTerm settings
-! xterm*faceName: Monospace
-! xterm*faceSize: 12
+! Kurzor villogás kikapcsolása (kíméli az erőforrást és a szemet)
+URxvt.cursorBlink: true
 
-! ================================
-! GTK THEME OVERRIDES
-! ================================
+! Linkek megnyitása és másolás funkciók
+URxvt.perl-ext-common: default,matcher,selection-to-clipboard
+URxvt.url-launcher: brave
+URxvt.matcher.button: 1
 
-! GTK theme settings (néhány alkalmazás figyel erre)
-! gtk-theme-name: "Arc-Dark"
-! gtk-font-name: "Sans,10"
+! Puffer méret (hány sort jegyezzen meg visszafelé)
+URxvt.saveLines: 5000
 
 ! ================================
-! KEYBOARD AND INPUT SETTINGS
+! NORD COLOR SCHEME & TRANSPARENCY
 ! ================================
 
-! Keyboard repeat rate
-! XTerm*VT100*translations: #override \! n\
-!     <Key>BackSpace: string(0x7F)
+! Átlátszóság (32 bites mélység kell hozzá)
+URxvt.depth: 32
+
+! Háttér: [85] jelenti az átlátszóság mértékét (0-100)
+! A #2E3440 a hivatalos Nord háttérszín
+URxvt.background:   [85]#2E3440
+URxvt.foreground:   #D8DEE9
+URxvt.cursorColor:  #D8DEE9
+
+! Black (Nord Polar Night)
+URxvt.color0:       #3B4252
+URxvt.color8:       #4C566A
+
+! Red (Nord Aurora Red)
+URxvt.color1:       #BF616A
+URxvt.color9:       #BF616A
+
+! Green (Nord Aurora Green)
+URxvt.color2:       #A3BE8C
+URxvt.color10:      #A3BE8C
+
+! Yellow (Nord Aurora Yellow)
+URxvt.color3:       #EBCB8B
+URxvt.color11:      #EBCB8B
+
+! Blue (Nord Frost Blue)
+URxvt.color4:       #81A1C1
+URxvt.color12:      #81A1C1
+
+! Magenta (Nord Aurora Purple)
+URxvt.color5:       #B48EAD
+URxvt.color13:      #B48EAD
+
+! Cyan (Nord Frost Cyan)
+URxvt.color6:       #88C0D0
+URxvt.color14:      #8FBCBB
+
+! White (Nord Snow Storm)
+URxvt.color7:       #E5E9F0
+URxvt.color15:      #ECEFF4
 
 ! ================================
-! WINDOW MANAGER INTEGRATION
+! LEGACY / UNUSED SETTINGS
 ! ================================
 
-! Basic window behavior
+! XTerm settings (tartaléknak)
+! XTerm*faceName: Monospace
+! XTerm*faceSize: 12
 ! XTerm*saveLines: 1000
 ! XTerm*jumpScroll: true
-
-! ================================
-! MOUSE SETTINGS
-! ================================
-
-! Additional mouse settings
-! XTerm*VT100*pointerColor: red
-! XTerm*VT100*pointerColorBackground: white
