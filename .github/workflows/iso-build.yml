@@ -98,12 +98,6 @@ jobs:
           # Fejléc
           echo "# Manjaro Awesome Edition (Testing)" > "$README_PATH"
           echo "" >> "$README_PATH"
-          
-          # Fontos infók (Super+Z)
-          echo "## ⚠️ Important Note / Fontos infó" >> "$README_PATH"
-          echo "The **Tilda** (Quake-style) terminal is installed." >> "$README_PATH"
-          echo "Toggle key: **SUPER + Z**" >> "$README_PATH"
-          echo "" >> "$README_PATH"
 
           # Build infók
           echo "## Build Info" >> "$README_PATH"
