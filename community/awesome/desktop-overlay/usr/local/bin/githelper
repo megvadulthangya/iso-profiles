@@ -1,220 +1,131 @@
 #!/bin/bash
 
-# GitHub helper script - Multilanguage support
-# Használat: githelper [--help]
+# GitHub helper script - v3.1 (Mapfile edition)
+# Location: /usr/local/bin/githelper
 
-# Language detection based on system locale
+# --- 1. CONFIGURATION ---
+
 detect_language() {
     local lang=$(echo "$LANG" | cut -d'_' -f1)
-    case "$lang" in
-        "hu")
-            LANGUAGE="hu"
-            ;;
-        *)
-            LANGUAGE="en"
-            ;;
-    esac
+    if [ "$lang" = "hu" ]; then LANGUAGE="hu"; else LANGUAGE="en"; fi
 }
 
-# Text definitions
 init_texts() {
+    INSTRUCT_BOX_TITLE="=== 📝 INPUT INSTRUCTIONS ==="
+    INSTRUCT_LINE_1="• PASTE or TYPE your message below."
+    INSTRUCT_LINE_2="• Press [ENTER] for new lines."
+    INSTRUCT_LINE_3="• TO SAVE: Press [ENTER], then [CTRL+D] (once or twice)."
+    
     if [ "$LANGUAGE" = "hu" ]; then
-        # Hungarian texts
-        TITLE="=== GitHub Helper Script ==="
-        NOT_GIT_REPO="Hiba: Ez a könyvtár nem Git repository!"
-        ADDING_CHANGES="1. Változások hozzáadása..."
-        GIT_ADD_FAILED="Hiba: A 'git add' parancs sikertelen!"
-        ENTER_COMMIT_MESSAGE="2. Add meg a commit üzenetet:"
-        EMPTY_COMMIT_MESSAGE="Hiba: Üres commit üzenet nem megengedett!"
-        CREATING_COMMIT="3. Commit készítése..."
-        COMMIT_FAILED="Hiba: A commit sikertelen!"
-        PUSHING="4. Push GitHubra..."
-        PUSH_FAILED="Hiba: A push sikertelen!"
-        SUCCESS="✅ Minden művelet sikeresen befejeződött!"
-        MISSING_USER_CONFIG="Hiba: A Git felhasználói beállítások hiányoznak."
-        SET_USER_CONFIG="Kérlek, állítsd be a felhasználó neved és email címet:"
-        USER_NAME_EXAMPLE='git config --global user.name "Gábor"'
-        USER_EMAIL_EXAMPLE='git config --global user.email "gabor@example.com"'
-        CHECKING_CONFIG="Git beállítások ellenőrzése..."
-        CONFIG_OK="Git beállítások: OK"
-        SETUP_COMPLETED="Git beállítások elmentve!"
-        SETUP_CANCELLED="Git beállítások hiányoznak. Kilépés."
-        
-        HELP_TEXT="Használat: githelper [OPCIÓ]
-        
-OPCIÓK:
-    --help    Segítség megjelenítése
-
-LEÍRÁS:
-    Ez a script egyszerűsíti a GitHubbal való munkát. Automatikusan
-    hozzáadja a változtatásokat, bekéri a commit üzenetet, majd
-    feltölti a változtatásokat a GitHubra.
-
-MEGJEGYZÉS:
-    A script használata előtt győződj meg róla, hogy be van állítva
-    a Git felhasználói konfiguráció:
-
-    git config --global user.name \"A neved\"
-    git config --global user.email \"email@example.com\"
-
-PÉLDA:
-    githelper          # Normál használat
-    githelper --help   # Segítség megjelenítése"
+        TITLE="=== GitHub Helper Script v3.1 ==="
+        NOT_GIT_REPO="❌ HIBA: Ez nem Git mappa!"
+        ADDING_CHANGES="1. 📦 Változások hozzáadása..."
+        ENTER_COMMIT_HEADER="2. ✍️  COMMIT ÜZENET MEGADÁSA"
+        CONFIRM_HEADER="3. 🔍 ELLENŐRZÉS (Ezt fogom beküldeni):"
+        CONFIRM_QUESTION="Mehet a commit és a push? (i/n): "
+        CANCELLED="❌ Megszakítva. Semmi nem történt."
+        CREATING_COMMIT="4. 💾 Commit készítése..."
+        PUSHING="5. 🚀 Push GitHubra..."
+        SUCCESS="✅ SIKER: Minden kész!"
+        EMPTY_MSG="❌ Hiba: Üres üzenet!"
     else
-        # English texts
-        TITLE="=== GitHub Helper Script ==="
-        NOT_GIT_REPO="Error: This directory is not a Git repository!"
-        ADDING_CHANGES="1. Adding changes..."
-        GIT_ADD_FAILED="Error: The 'git add' command failed!"
-        ENTER_COMMIT_MESSAGE="2. Enter the commit message:"
-        EMPTY_COMMIT_MESSAGE="Error: Empty commit message is not allowed!"
-        CREATING_COMMIT="3. Creating commit..."
-        COMMIT_FAILED="Error: The commit failed!"
-        PUSHING="4. Pushing to GitHub..."
-        PUSH_FAILED="Error: The push failed!"
-        SUCCESS="✅ All operations completed successfully!"
-        MISSING_USER_CONFIG="Error: Git user configuration is missing."
-        SET_USER_CONFIG="Please set your user name and email:"
-        USER_NAME_EXAMPLE='git config --global user.name "John Doe"'
-        USER_EMAIL_EXAMPLE='git config --global user.email "john@example.com"'
-        CHECKING_CONFIG="Checking Git configuration..."
-        CONFIG_OK="Git configuration: OK"
-        SETUP_COMPLETED="Git configuration saved!"
-        SETUP_CANCELLED="Git configuration missing. Exiting."
-        
-        HELP_TEXT="Usage: githelper [OPTION]
-        
-OPTIONS:
-    --help    Show this help message
-
-DESCRIPTION:
-    This script simplifies working with GitHub. It automatically
-    adds changes, asks for a commit message, and then uploads
-    the changes to GitHub.
-
-NOTE:
-    Before using this script, make sure your Git user configuration
-    is set up:
-
-    git config --global user.name \"Your Name\"
-    git config --global user.email \"email@example.com\"
-
-EXAMPLE:
-    githelper          # Normal usage
-    githelper --help   # Show help"
+        TITLE="=== GitHub Helper Script v3.1 ==="
+        NOT_GIT_REPO="❌ ERROR: Not a Git repository!"
+        ADDING_CHANGES="1. 📦 Adding changes..."
+        ENTER_COMMIT_HEADER="2. ✍️  ENTER COMMIT MESSAGE"
+        CONFIRM_HEADER="3. 🔍 VERIFY (I will commit this):"
+        CONFIRM_QUESTION="Commit and push now? (y/n): "
+        CANCELLED="❌ Cancelled. No changes made."
+        CREATING_COMMIT="4. 💾 Creating commit..."
+        PUSHING="5. 🚀 Pushing to GitHub..."
+        SUCCESS="✅ SUCCESS: All done!"
+        EMPTY_MSG="❌ Error: Empty message!"
     fi
 }
 
-# Check Git configuration
 check_git_config() {
-    echo "$CHECKING_CONFIG"
-    
-    local user_name=$(git config --global user.name)
-    local user_email=$(git config --global user.email)
-    
-    if [ -z "$user_name" ] || [ -z "$user_email" ]; then
-        echo "$MISSING_USER_CONFIG"
-        echo "$SET_USER_CONFIG"
-        echo ""
-        echo "$USER_NAME_EXAMPLE"
-        echo "$USER_EMAIL_EXAMPLE"
-        echo ""
-        
-        if [ "$LANGUAGE" = "hu" ]; then
-            read -p "Szeretnéd most beállítani a Git konfigurációt? (i/n): " setup_config
-        else
-            read -p "Would you like to set up Git configuration now? (y/n): " setup_config
-        fi
-        
-        if [[ "$setup_config" =~ ^[YyiI]$ ]]; then
-            if [ "$LANGUAGE" = "hu" ]; then
-                read -p "Add meg a neved: " user_name
-                read -p "Add meg az email címed: " user_email
-            else
-                read -p "Enter your name: " user_name
-                read -p "Enter your email: " user_email
-            fi
-            
-            git config --global user.name "$user_name"
-            git config --global user.email "$user_email"
-            
-            echo "$SETUP_COMPLETED"
-            return 0
-        else
-            echo "$SETUP_CANCELLED"
-            return 1
-        fi
-    else
-        echo "$CONFIG_OK"
-        return 0
+    if [ -z "$(git config --global user.name)" ]; then
+        echo "Git user config missing!"
+        read -p "Name: " name
+        read -p "Email: " email
+        git config --global user.name "$name"
+        git config --global user.email "$email"
     fi
 }
 
-# Show help and exit
-show_help() {
-    echo "$HELP_TEXT"
-    exit 0
-}
+# --- MAIN ---
 
-# Main function
 main() {
-    # Handle --help parameter
-    if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-        show_help
-    fi
-
-    # Detect language and initialize texts
     detect_language
     init_texts
 
     echo "$TITLE"
 
-    # Check if we're in a Git repository
+    # 1. Check Git
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
-        echo "$NOT_GIT_REPO"
+        echo -e "\033[0;31m$NOT_GIT_REPO\033[0m"
         exit 1
     fi
+    check_git_config
 
-    # Check Git configuration
-    if ! check_git_config; then
-        exit 1
-    fi
-
-    # Add changes
+    # 2. Add Changes
     echo "$ADDING_CHANGES"
     git add .
-    if [ $? -ne 0 ]; then
-        echo "$GIT_ADD_FAILED"
-        exit 1
-    fi
 
-    # Get commit message
-    echo "$ENTER_COMMIT_MESSAGE"
-    read commit_message
+    # 3. Input Message (JAVÍTOTT MAPFILE METÓDUS)
+    echo ""
+    echo "$ENTER_COMMIT_HEADER"
+    echo -e "\033[1;36m----------------------------------------\033[0m"
+    echo -e "$INSTRUCT_LINE_1"
+    echo -e "$INSTRUCT_LINE_2"
+    echo -e "\033[1;33m$INSTRUCT_LINE_3\033[0m"
+    echo -e "\033[1;36m----------------------------------------\033[0m"
+    
+    # mapfile olvasása a stdin-ről. 
+    # Ez a legstabilabb módszer a többsoros paste-hez Bash-ben.
+    if ! mapfile -t commit_lines; then
+        # Ha a mapfile valamiért 'fail'-al térne vissza (ritka), de van adat
+        if [ ${#commit_lines[@]} -eq 0 ]; then
+             echo "$EMPTY_MSG"
+             exit 1
+        fi
+    fi
+    
+    # Tömb összefűzése stringgé, sortörésekkel
+    commit_message=$(printf "%s\n" "${commit_lines[@]}")
+
+    # Üres sorok levágása a végéről (trim)
+    commit_message=$(echo "$commit_message" | sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba')
 
     if [ -z "$commit_message" ]; then
-        echo "$EMPTY_COMMIT_MESSAGE"
+        echo "$EMPTY_MSG"
         exit 1
     fi
 
-    # Create commit
+    # 4. Verification
+    echo ""
+    echo -e "\033[1;35m$CONFIRM_HEADER\033[0m" 
+    echo "----------------------------------------"
+    echo "$commit_message"
+    echo "----------------------------------------"
+    
+    read -p "$CONFIRM_QUESTION" confirm < /dev/tty
+    # Megjegyzés: a '< /dev/tty' fontos, mert a mapfile után a stdin bezáródhat
+    
+    if [[ ! "$confirm" =~ ^[YyIi] ]]; then
+        echo "$CANCELLED"
+        exit 0
+    fi
+
+    # 5. Commit
     echo "$CREATING_COMMIT"
     git commit -m "$commit_message"
-    if [ $? -ne 0 ]; then
-        echo "$COMMIT_FAILED"
-        exit 1
-    fi
 
-    # Push to GitHub
+    # 6. Push
     echo "$PUSHING"
     git push
-    if [ $? -ne 0 ]; then
-        echo "$PUSH_FAILED"
-        exit 1
-    fi
 
     echo "$SUCCESS"
 }
 
-# Run main function with all arguments
 main "$@"

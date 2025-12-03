@@ -99,6 +99,19 @@ jobs:
           echo "# Manjaro Awesome Edition (Testing)" > "$README_PATH"
           echo "" >> "$README_PATH"
 
+          # Legacy Intel GPU Support Info
+          echo "## 🔧 Legacy Intel GPU Support / Régi Intel GPU Javítás" >> "$README_PATH"
+          echo "Automatic fix included for legacy Intel Graphics (GMA 4500MHD, Mobile 4)." >> "$README_PATH"
+          echo "It prevents crashes in GTK apps (like gThumb) by enabling Software Rendering." >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          echo "🎮 **Gaming & Performance:**" >> "$README_PATH"
+          echo "Software rendering is too slow for 3D games." >> "$README_PATH"
+          echo "Use the **\`gpu-run\`** command to force hardware acceleration:" >> "$README_PATH"
+          echo "> \`gpu-run <game_name>\` (e.g., \`gpu-run supertuxkart\`)" >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          echo "ℹ️ *Note: This workaround disables automatically if a dedicated GPU (or eGPU) is detected.*" >> "$README_PATH"
+          echo "" >> "$README_PATH"
+
           # Build infók
           echo "## Build Info" >> "$README_PATH"
           echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$README_PATH"

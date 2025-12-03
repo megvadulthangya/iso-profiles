@@ -1,11 +1,38 @@
-export QT_QPA_PLATFORMTHEME="qt6ct"
-
+export QT_QPA_PLATFORMTHEME="qt5ct"
 # Monitor setup
 if [ -f "$HOME/.screenlayout/layout.sh" ]; then
+    # Mivel ez az X session indításakor fut, a DISPLAY már elérhető
     bash "$HOME/.screenlayout/layout.sh" &
 fi
 
-# --- MPD AUTOMATIKUS INDÍTÁSA ---
-if ! systemctl --user is-active --quiet mpd; then
-    systemctl --user enable --now mpd &
+# ===============================================================
+# INTELLIGENT GPU FIX (Legacy Intel Fix + eGPU Support)
+# ===============================================================
+
+# Step 1: Check for "problematic" legacy cards (GMA series, Mobile 4, Pineview)
+# 'grep -E' allows using OR (|) for multiple keywords.
+HAS_BAD_INTEL=$(lspci | grep -E -i "Mobile 4 Series|GMA 3100|GMA 950|GMA 900|Pineview")
+
+# Step 2: Check for "good" dedicated cards (NVIDIA or AMD/ATI)
+# If any Nvidia or Radeon is present (even via eGPU), we consider it safe.
+HAS_DEDICATED_GPU=$(lspci | grep -E -i "NVIDIA|Radeon|AMD")
+
+# Step 3: The Decision
+if [ -n "$HAS_BAD_INTEL" ] && [ -z "$HAS_DEDICATED_GPU" ]; then
+    # Bad Intel detected AND NO dedicated card found.
+    # This is a "Potato Laptop" -> Enabling software rendering to prevent crashes.
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export COGL_DRIVER=gl
+    export COGL_DEBUG=disable-atlas
+    
+    # (Optional) Debug info for logs:
+    # echo "Legacy Intel detected without eGPU. Software rendering enabled." >> /tmp/gpu-fix.log
+
+elif [ -n "$HAS_BAD_INTEL" ] && [ -n "$HAS_DEDICATED_GPU" ]; then
+    # Bad Intel detected, BUT a dedicated card IS present (eGPU or Desktop).
+    # We DO NOT enable software rendering, let the dedicated GPU handle it!
+    # echo "Legacy Intel detected, but Dedicated GPU found. Hardware acceleration stays ON." >> /tmp/gpu-fix.log
+    :
 fi
+
+# ===============================================================
