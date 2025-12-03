@@ -235,6 +235,8 @@ xorg-xev
 xss-lock
 feh
 qt5ct
+qt5-styleplugins
+kvantum-qt5
 qt6ct
 xsettingsd
 geany
