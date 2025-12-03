@@ -101,15 +101,12 @@ jobs:
 
           # Legacy Intel GPU Support Info
           echo "## 🔧 Legacy Intel GPU Support / Régi Intel GPU Javítás" >> "$README_PATH"
-          echo "Automatic fix included for legacy Intel Graphics (GMA 4500MHD, Mobile 4)." >> "$README_PATH"
-          echo "It prevents crashes in GTK apps (like gThumb) by enabling Software Rendering." >> "$README_PATH"
+          echo "This system automatically applies fixes for legacy Intel Graphics (Mobile 4 Series)." >> "$README_PATH"
+          echo "Affected applications (like gThumb,geeqie etc.) are patched individually to prevent crashes." >> "$README_PATH"
           echo "" >> "$README_PATH"
-          echo "🎮 **Gaming & Performance:**" >> "$README_PATH"
-          echo "Software rendering is too slow for 3D games." >> "$README_PATH"
-          echo "Use the **\`gpu-run\`** command to force hardware acceleration:" >> "$README_PATH"
-          echo "> \`gpu-run <game_name>\` (e.g., \`gpu-run supertuxkart\`)" >> "$README_PATH"
-          echo "" >> "$README_PATH"
-          echo "ℹ️ *Note: This workaround disables automatically if a dedicated GPU (or eGPU) is detected.*" >> "$README_PATH"
+          echo "🎥 **Video & Gaming:**" >> "$README_PATH"
+          echo "Video players (mpv) and Games run with full Hardware Acceleration by default." >> "$README_PATH"
+          echo "No special configuration is needed." >> "$README_PATH"
           echo "" >> "$README_PATH"
 
           # Build infók
