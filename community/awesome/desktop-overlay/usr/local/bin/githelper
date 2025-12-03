@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitHub helper script - v3.1 (Mapfile edition)
+# GitHub helper script - v4.0 (Editor Support)
 # Location: /usr/local/bin/githelper
 
 # --- 1. CONFIGURATION ---
@@ -12,29 +12,30 @@ detect_language() {
 
 init_texts() {
     INSTRUCT_BOX_TITLE="=== 📝 INPUT INSTRUCTIONS ==="
-    INSTRUCT_LINE_1="• PASTE or TYPE your message below."
-    INSTRUCT_LINE_2="• Press [ENTER] for new lines."
-    INSTRUCT_LINE_3="• TO SAVE: Press [ENTER], then [CTRL+D] (once or twice)."
+    INSTRUCT_LINE_1="• PASTE your message below."
+    INSTRUCT_LINE_2="• TO SAVE: Press [ENTER], then [CTRL+D] (once or twice)."
     
     if [ "$LANGUAGE" = "hu" ]; then
-        TITLE="=== GitHub Helper Script v3.1 ==="
+        TITLE="=== GitHub Helper Script v4.0 ==="
         NOT_GIT_REPO="❌ HIBA: Ez nem Git mappa!"
         ADDING_CHANGES="1. 📦 Változások hozzáadása..."
         ENTER_COMMIT_HEADER="2. ✍️  COMMIT ÜZENET MEGADÁSA"
         CONFIRM_HEADER="3. 🔍 ELLENŐRZÉS (Ezt fogom beküldeni):"
-        CONFIRM_QUESTION="Mehet a commit és a push? (i/n): "
+        # Frissített kérdés opciók:
+        CONFIRM_QUESTION="Opciók: [i]gen (Commit) / [e]dit (Szerkesztés) / [n]em (Mégse): "
         CANCELLED="❌ Megszakítva. Semmi nem történt."
         CREATING_COMMIT="4. 💾 Commit készítése..."
         PUSHING="5. 🚀 Push GitHubra..."
         SUCCESS="✅ SIKER: Minden kész!"
         EMPTY_MSG="❌ Hiba: Üres üzenet!"
     else
-        TITLE="=== GitHub Helper Script v3.1 ==="
+        TITLE="=== GitHub Helper Script v4.0 ==="
         NOT_GIT_REPO="❌ ERROR: Not a Git repository!"
         ADDING_CHANGES="1. 📦 Adding changes..."
         ENTER_COMMIT_HEADER="2. ✍️  ENTER COMMIT MESSAGE"
         CONFIRM_HEADER="3. 🔍 VERIFY (I will commit this):"
-        CONFIRM_QUESTION="Commit and push now? (y/n): "
+        # Updated question options:
+        CONFIRM_QUESTION="Options: [y]es (Commit) / [e]dit (Open Nano) / [n]o (Cancel): "
         CANCELLED="❌ Cancelled. No changes made."
         CREATING_COMMIT="4. 💾 Creating commit..."
         PUSHING="5. 🚀 Pushing to GitHub..."
@@ -61,40 +62,31 @@ main() {
 
     echo "$TITLE"
 
-    # 1. Check Git
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
         echo -e "\033[0;31m$NOT_GIT_REPO\033[0m"
         exit 1
     fi
     check_git_config
 
-    # 2. Add Changes
     echo "$ADDING_CHANGES"
     git add .
 
-    # 3. Input Message (JAVÍTOTT MAPFILE METÓDUS)
+    # --- INPUT ---
     echo ""
     echo "$ENTER_COMMIT_HEADER"
     echo -e "\033[1;36m----------------------------------------\033[0m"
     echo -e "$INSTRUCT_LINE_1"
     echo -e "$INSTRUCT_LINE_2"
-    echo -e "\033[1;33m$INSTRUCT_LINE_3\033[0m"
     echo -e "\033[1;36m----------------------------------------\033[0m"
     
-    # mapfile olvasása a stdin-ről. 
-    # Ez a legstabilabb módszer a többsoros paste-hez Bash-ben.
     if ! mapfile -t commit_lines; then
-        # Ha a mapfile valamiért 'fail'-al térne vissza (ritka), de van adat
         if [ ${#commit_lines[@]} -eq 0 ]; then
              echo "$EMPTY_MSG"
              exit 1
         fi
     fi
     
-    # Tömb összefűzése stringgé, sortörésekkel
     commit_message=$(printf "%s\n" "${commit_lines[@]}")
-
-    # Üres sorok levágása a végéről (trim)
     commit_message=$(echo "$commit_message" | sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba')
 
     if [ -z "$commit_message" ]; then
@@ -102,26 +94,58 @@ main() {
         exit 1
     fi
 
-    # 4. Verification
-    echo ""
-    echo -e "\033[1;35m$CONFIRM_HEADER\033[0m" 
-    echo "----------------------------------------"
-    echo "$commit_message"
-    echo "----------------------------------------"
-    
-    read -p "$CONFIRM_QUESTION" confirm < /dev/tty
-    # Megjegyzés: a '< /dev/tty' fontos, mert a mapfile után a stdin bezáródhat
-    
-    if [[ ! "$confirm" =~ ^[YyIi] ]]; then
-        echo "$CANCELLED"
-        exit 0
-    fi
+    # --- VERIFICATION LOOP (With Edit Option) ---
+    while true; do
+        echo ""
+        echo -e "\033[1;35m$CONFIRM_HEADER\033[0m" 
+        echo "----------------------------------------"
+        echo "$commit_message"
+        echo "----------------------------------------"
+        
+        # Read user choice
+        read -p "$CONFIRM_QUESTION" choice < /dev/tty
+        
+        case "$choice" in
+            [YyIi]*) 
+                # YES -> Break loop and proceed
+                break 
+                ;;
+            [Ee]*)
+                # EDIT -> Open in Nano
+                # Create temp file
+                TMPFILE=$(mktemp)
+                echo "$commit_message" > "$TMPFILE"
+                
+                # Open editor (Nano by default)
+                ${EDITOR:-nano} "$TMPFILE"
+                
+                # Read back the edited message
+                commit_message=$(cat "$TMPFILE")
+                rm "$TMPFILE"
+                
+                # Check if empty after edit
+                commit_message=$(echo "$commit_message" | sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba')
+                if [ -z "$commit_message" ]; then
+                    echo "$EMPTY_MSG"
+                    exit 1
+                fi
+                # Loop restarts to show the NEW message
+                ;;
+            [Nn]*)
+                # NO -> Exit
+                echo "$CANCELLED"
+                exit 0
+                ;;
+            *)
+                # Invalid input -> Ask again
+                ;;
+        esac
+    done
 
-    # 5. Commit
+    # --- EXECUTION ---
     echo "$CREATING_COMMIT"
     git commit -m "$commit_message"
 
-    # 6. Push
     echo "$PUSHING"
     git push
 
