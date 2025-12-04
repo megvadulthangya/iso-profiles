@@ -7,13 +7,12 @@ set -x SHELL /usr/bin/fish
 # Use bat for man pages
 set -xU MANPAGER "sh -c 'col -bx | bat -l man -p'"
 set -xU MANROFFOPT "-c"
-
-# Hint to exit PKGBUILD review in Paru
-#set -x PARU_PAGER "less -P \"Press 'q' to exit the PKGBUILD review.\""
+set -Ux EDITOR nano
+set -Ux VISUAL nano
 
 ## Export variable need for qt-theme
-if type "qtile" >> /dev/null 2>&1
-   set -x QT_QPA_PLATFORMTHEME "qt5ct"
+if type -q qtile
+    set -x QT_QPA_PLATFORMTHEME "qt5ct"
 end
 
 # Set settings for https://github.com/franciscolourenco/done
@@ -40,21 +39,10 @@ if test -d ~/Applications/depot_tools
     end
 end
 
-## Starship prompt
-#if status --is-interactive
-#   source ("/usr/bin/starship" init fish --print-full-init | psub)
-#end
-
-## Oh My Posh prompt
-if status --is-interactive
-    if type -q oh-my-posh
-        # Itt adjuk meg a konkrét témát a --config kapcsolóval
-        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/powerlevel10k_classic.omp.json | source
-    end
-end
-
 ## Advanced command-not-found hook
-source /usr/share/doc/find-the-command/ftc.fish
+if test -f /usr/share/doc/find-the-command/ftc.fish
+    source /usr/share/doc/find-the-command/ftc.fish
+end
 
 ## Functions
 # Functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
@@ -77,7 +65,7 @@ function __history_previous_command_arguments
   end
 end
 
-if [ "$fish_key_bindings" = fish_vi_key_bindings ];
+if test "$fish_key_bindings" = "fish_vi_key_bindings"
   bind -Minsert ! __history_previous_command
   bind -Minsert '$' __history_previous_command_arguments
 else
@@ -98,8 +86,8 @@ end
 function copy
     set count (count $argv | tr -d \n)
     if test "$count" = 2; and test -d "$argv[1]"
-	set from (echo $argv[1] | string trim --right --chars=/)
-	set to (echo $argv[2])
+        set from (echo $argv[1] | string trim --right --chars=/)
+        set to (echo $argv[2])
         command cp -r $from $to
     else
         command cp $argv
@@ -111,7 +99,7 @@ function cleanup
     while pacman -Qdtq
         sudo pacman -R (pacman -Qdtq)
         if test "$status" -eq 1
-           break
+            break
         end
     end
 end
@@ -128,10 +116,6 @@ alias l. 'eza -ald --color=always --group-directories-first --icons .*' # show o
 
 # Replace some more things with better alternatives
 alias cat 'bat --style header --style snip --style changes --style header'
-#if not test -x /usr/bin/yay; and test -x /usr/bin/paru
-#    alias yay 'paru'
-#end
-
 
 # Common use
 alias .. 'cd ..'
@@ -139,7 +123,7 @@ alias ... 'cd ../..'
 alias .... 'cd ../../..'
 alias ..... 'cd ../../../..'
 alias ...... 'cd ../../../../..'
-alias big 'expac -H M "%m\t%n" | sort -h | nl'     # Sort installed packages according to size in MB (expac must be installed)
+alias big 'expac -H M "%m\t%n" | sort -h | nl'      # Sort installed packages according to size in MB (expac must be installed)
 alias dir 'dir --color=auto'
 alias fixpacman 'sudo rm /var/lib/pacman/db.lck'
 alias gitpkg 'pacman -Q | grep -i "\-git" | wc -l' # List amount of -git packages
@@ -178,9 +162,48 @@ alias jctl 'journalctl -p 3 -xb'
 # Recent installed packages
 alias rip 'expac --timefmt="%Y-%m-%d %T" "%l\t%n %v" | sort | tail -200 | nl'
 
-## Run fastfetch if session is interactive
-if status --is-interactive && type -q fastfetch
-   fastfetch --config neofetch.jsonc
+## ============================================================================
+## INTERACTIVE SESSION SETTINGS
+## ============================================================================
+
+if status --is-interactive
+
+    # 1. Zoxide (Smart cd)
+    if type -q zoxide
+        zoxide init fish | source
+    end
+
+    # 2. FZF (Fuzzy Finder)
+    if type -q fzf
+        fzf --fish | source
+    end
+
+    # 3. Oh My Posh prompt (POWERLEVEL10K CLASSIC - Fish specific)
+    if type -q oh-my-posh
+        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/powerlevel10k_classic.omp.json | source
+    end
+
+    # 4. Fastfetch
+    if type -q fastfetch
+       fastfetch --config neofetch.jsonc
+    end
 end
-set -Ux EDITOR nano
-set -Ux VISUAL nano
+
+
+## ============================================================================
+## VTE & TILIX FIX (Directory Tracking)
+## ============================================================================
+# Ez biztosítja, hogy ha új lapot nyitsz (Ctrl+Shift+T), 
+# ugyanabban a mappában maradjon.
+
+function __vte_osc7 --on-variable PWD
+  if status --is-interactive
+    if type -q vte_osc7
+        # Ha a rendszer alapból ad VTE támogatást Fish-hez
+        vte_osc7
+    else if test -n "$VTE_VERSION" -o -n "$TILIX_ID"
+        # Ha nincs, kézzel küldjük a jelet a terminálnak
+        printf "\033]7;file://%s%s\033\\" (hostname) (string escape --style=url $PWD)
+    end
+  end
+end
