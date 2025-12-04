@@ -247,6 +247,7 @@ bat
 eza
 jq
 fzf
+zoxide
 dex
 nano-syntax-highlighting
 grayjay-bin
