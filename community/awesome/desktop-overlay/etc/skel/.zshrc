@@ -1,72 +1,11 @@
-# Use powerline
-USE_POWERLINE="true"
-# Has weird character width
-# Example:
-#    is not a diamond
-HAS_WIDECHARS="false"
-# Source manjaro-zsh-configuration
-if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-  source /usr/share/zsh/manjaro-zsh-config
-fi
-# Use manjaro zsh prompt
-#if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
-#  source /usr/share/zsh/manjaro-zsh-prompt
-#fi
-
-# 1. Zsh Autosuggestions visszapótlása (mert ez a prompt fájlban volt)
-if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244' # Szürke szín beállítása
-fi
-
-# Oh My Posh indítása - NORDTRON témával blueish powerlevel10k_classic
-# Közvetlenül a rendszerfájlra hivatkozunk, így nem lesz hibaüzenet
-if command -v oh-my-posh &> /dev/null; then
-    eval "$(oh-my-posh init zsh --config /usr/share/oh-my-posh/themes/nordtron.omp.json)"
-fi
-
-
 # =============================================================================
-# Fish konfigurációból átvett aliasok és funkciók
+# KÖRNYEZETI VÁLTOZÓK (Environment Variables)
 # =============================================================================
 
-# eza aliasok
-alias ls="eza -al --color=always --group-directories-first --icons"
-alias la="eza -a --color=always --group-directories-first --icons" 
-alias ll="eza -l --color=always --group-directories-first --icons"
-alias lt="eza -aT --color=always --group-directories-first --icons"
-alias l.="eza -ald --color=always --group-directories-first --icons .*"
+# PATH beállítások
+export PATH="$HOME/.local/bin:$HOME/Applications/depot_tools:$PATH"
 
-# bat alias
-alias cat="bat --style header --style snip --style changes --style header"
-
-# Arch specifikus aliasok
-alias upd="pamac update --no-confirm"
-alias pacdiff="sudo -H DIFFPROG=meld pacdiff"
-alias jctl="journalctl -p 3 -xb"
-
-# Funkciók
-backup() {
-    cp "$1" "$1.bak"
-    echo "Backup created: $1.bak"
-}
-
-copy() {
-    if [ $# -eq 2 ] && [ -d "$1" ]; then
-        local from="${1%/}"
-        local to="$2"
-        command cp -r "$from" "$to"
-    else
-        command cp "$@"
-    fi
-}
-
-
-# =============================================================================
-# Fish konfigurációból átvett beállítások
-# =============================================================================
-
-# Környezeti változók
+# Manpager (bat használata man olvasáshoz)
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANROFFOPT="-c"
 
@@ -75,36 +14,85 @@ if command -v qtile > /dev/null 2>&1; then
     export QT_QPA_PLATFORMTHEME="qt5ct"
 fi
 
-# PATH beállítások
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/Applications/depot_tools:$PATH"
+# =============================================================================
+# MANJARO ALAPBEÁLLÍTÁSOK
+# =============================================================================
 
-# Aliasok a fish konfigurációból
+# Use powerline
+USE_POWERLINE="true"
+# Has weird character width
+HAS_WIDECHARS="false"
 
-# eza aliasok - FELÜLÍRJUK a manjaro ls aliasát
+# Source manjaro-zsh-configuration
+# Ez intézi a Syntax Highlightingot és az alap history keresést!
+if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+  source /usr/share/zsh/manjaro-zsh-config
+fi
+
+# =============================================================================
+# PLUGINEK ÉS PROMPT
+# =============================================================================
+
+# 1. Zsh Autosuggestions (Szürke javaslatok)
+if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244' 
+fi
+
+# 2. FZF (Fuzzy Finder) - EZT PÓTOLTAM!
+# Ctrl+R-re bejön a szupergyors kereső
+if command -v fzf &> /dev/null; then
+    source /usr/share/fzf/key-bindings.zsh
+    source /usr/share/fzf/completion.zsh
+fi
+
+# 3. Zoxide (Okos cd) - EZT PÓTOLTAM!
+# A 'z mappa' parancs odaugrik a leggyakoribb helyre
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+
+# 4. Command-not-found hook
+if [ -f /usr/share/doc/find-the-command/ftc.zsh ]; then
+    source /usr/share/doc/find-the-command/ftc.zsh
+fi
+
+# 5. Oh My Posh indítása (Nordtron téma)
+if command -v oh-my-posh &> /dev/null; then
+    eval "$(oh-my-posh init zsh --config /usr/share/oh-my-posh/themes/nordtron.omp.json)"
+fi
+
+# =============================================================================
+# ALIASOK
+# =============================================================================
+
+# --- Eza (modern ls) ---
 alias ls="eza -al --color=always --group-directories-first --icons"
 alias lsz="eza -al --color=always --total-size --group-directories-first --icons"
-alias la="eza -a --color=always --group-directories-first --icons"
+alias la="eza -a --color=always --group-directories-first --icons" 
 alias ll="eza -l --color=always --group-directories-first --icons"
 alias lt="eza -aT --color=always --group-directories-first --icons"
 alias l.="eza -ald --color=always --group-directories-first --icons .*"
 
-# bat alias
+# --- Bat (modern cat) ---
 alias cat="bat --style header --style snip --style changes --style header"
 
-# ugrep aliasok
+# --- Ugrep (modern grep) ---
 alias grep="ugrep --color=auto"
 alias egrep="ugrep -E --color=auto"
 alias fgrep="ugrep -F --color=auto"
 
-# Könyvtár navigáció
+# --- Könyvtár navigáció ---
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias ......="cd ../../../../.."
 
-# Arch Linux specifikus aliasok
+# --- Arch / Manjaro specifikus aliasok ---
+alias upd="pamac update --no-confirm"
+alias pacdiff="sudo -H DIFFPROG=meld pacdiff"
+alias jctl="journalctl -p 3 -xb"
 alias big="expac -H M '%m\t%n' | sort -h | nl"
 alias dir="dir --color=auto"
 alias fixpacman="sudo rm /var/lib/pacman/db.lck"
@@ -117,30 +105,31 @@ alias psmem10="ps auxf | sort -nr -k 4 | head -10"
 alias rmpkg="sudo pacman -Rdd"
 alias tarnow="tar -acf "
 alias untar="tar -zxvf "
-alias upd="pamac update --no-confirm"
 alias vdir="vdir --color=auto"
 alias wget="wget -c"
+alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 
-
-# Segítő aliasok
+# --- Segítő aliasok ---
 alias apt="man pacman"
 alias apt-get="man pacman"
 alias please="sudo"
 alias tb="nc termbin.com 9999"
 alias helpme="echo 'To print basic information about a command use helpme <command>'"
-alias pacdiff="sudo -H DIFFPROG=meld pacdiff"
-alias jctl="journalctl -p 3 -xb"
-alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 
-# Funkciók a fish konfigurációból
+# =============================================================================
+# FUNKCIÓK
+# =============================================================================
+
+# Biztonsági másolat készítése (.bak)
 backup() {
     cp "$1" "$1.bak"
+    echo "Backup created: $1.bak"
 }
 
+# Okos másolás (kezeli a mappák végi perjelet)
 copy() {
-    local count=$#
-    if [ "$count" -eq 2 ] && [ -d "$1" ]; then
-        local from=$(echo "$1" | sed 's:/*$::')
+    if [ $# -eq 2 ] && [ -d "$1" ]; then
+        local from="${1%/}"
         local to="$2"
         command cp -r "$from" "$to"
     else
@@ -148,6 +137,7 @@ copy() {
     fi
 }
 
+# Árva csomagok takarítása (rekurzív)
 cleanup() {
     while true; do
         local orphans=$(pacman -Qdtq)
@@ -161,57 +151,16 @@ cleanup() {
     done
 }
 
-# Starship prompt inicializálás
-#if command -v starship > /dev/null 2>&1; then
-#    eval "$(starship init zsh)"
-#fi
+# =============================================================================
+# INTERAKTÍV ÉS TERMINÁL BEÁLLÍTÁSOK
+# =============================================================================
 
-# Fastfetch indítása interaktív sessionben (KIVÉVE ha Quake módban vagyunk)
+# Tilix / VTE fix (Ctrl+Shift+T megtartja a könyvtárat)
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+    source /etc/profile.d/vte.sh
+fi
+
+# Fastfetch indítása (kivéve Quake módban)
 if [[ -o interactive ]] && [[ -z "$QUAKE_MODE" ]] && command -v fastfetch > /dev/null 2>&1; then
     fastfetch --config neofetch.jsonc 2>/dev/null || fastfetch
-fi
-
-# Command-not-found hook (ha elérhető)
-if [ -f /usr/share/doc/find-the-command/ftc.zsh ]; then
-    source /usr/share/doc/find-the-command/ftc.zsh
-fi
-
-# Fish beállítások vége
-
-# =============================================================================
-# Fish konfigurációból átvett aliasok és funkciók
-# =============================================================================
-
-# eza aliasok
-alias ls="eza -al --color=always --group-directories-first --icons"
-alias la="eza -a --color=always --group-directories-first --icons" 
-alias ll="eza -l --color=always --group-directories-first --icons"
-alias lt="eza -aT --color=always --group-directories-first --icons"
-alias l.="eza -ald --color=always --group-directories-first --icons .*"
-
-# bat alias
-alias cat="bat --style header --style snip --style changes --style header"
-
-# Arch specifikus aliasok
-alias upd="pamac update --no-confirm"
-alias pacdiff="sudo -H DIFFPROG=meld pacdiff"
-alias jctl="journalctl -p 3 -xb"
-
-# Funkciók
-backup() {
-    cp "$1" "$1.bak"
-    echo "Backup created: $1.bak"
-}
-
-copy() {
-    if [ $# -eq 2 ] && [ -d "$1" ]; then
-        local from="${1%/}"
-        local to="$2"
-        command cp -r "$from" "$to"
-    else
-        command cp "$@"
-    fi
-}
-if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-        source /etc/profile.d/vte.sh
 fi
