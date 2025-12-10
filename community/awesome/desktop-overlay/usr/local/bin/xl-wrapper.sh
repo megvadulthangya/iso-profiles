@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # XLibre telepítő wrapper script
-# Verzió: 1.2 (Tilix/URXVT optimalizált)
+# Verzió: 1.3 (Javítva: sudo bash futtatás /tmp noexec miatt)
 
 # Lock fájl
 LOCKFILE="/tmp/xlibre-installer.lock"
@@ -45,20 +45,14 @@ check_installation() {
     fi
 }
 
-# Terminál keresése - ÚJ SORREND!
+# Terminál keresése
 find_terminal() {
-    # 1. Tilix (Az ISO alapértelmezettje)
     if command -v tilix &>/dev/null; then echo "tilix"; return 0; fi
-    
-    # 2. URXVT (A tartalék az ISO-ban)
     if command -v urxvt &>/dev/null; then echo "urxvt"; return 0; fi
-    
-    # 3. Egyéb terminálok (ha a felhasználó később telepít mást)
     if command -v xfce4-terminal &>/dev/null; then echo "xfce4-terminal"; return 0; fi
     if command -v alacritty &>/dev/null; then echo "alacritty"; return 0; fi
     if command -v kitty &>/dev/null; then echo "kitty"; return 0; fi
     if command -v gnome-terminal &>/dev/null; then echo "gnome-terminal"; return 0; fi
-    
     return 1
 }
 
@@ -76,10 +70,12 @@ show_message() {
 # Letöltés
 download_installer() {
     local temp_script=$(mktemp)
-    if ! curl -sS -o "$temp_script" "https://x11libre.net/repo/arch_based/x86_64/install-xlibre.sh"; then
+    # Hozzáadtam a -L kapcsolót is, hogy kövesse az átirányításokat, ha vannak
+    if ! curl -L -sS -o "$temp_script" "https://x11libre.net/repo/arch_based/x86_64/install-xlibre.sh"; then
         show_message "XLibre" "$DOWNLOAD_FAIL_MSG"
         exit 1
     fi
+    # Bár a chmod +x itt van, a sudo bash megoldásnál kevésbé kritikus, de maradjon
     chmod +x "$temp_script"
     echo "$temp_script"
 }
@@ -96,24 +92,22 @@ install_xlibre() {
         exit 1
     fi
 
-    # Parancs összeállítása: Üzenet -> Sudo Install -> Enter várás -> Törlés
-    # A "rm" itt van a lánc végén, így biztonságos!
-    local cmd="echo '$TEST_MSG'; echo ''; sudo '$temp_script'; echo ''; echo '$PRESS_ENTER'; read; rm -f '$temp_script'"
+    # --- JAVÍTÁS ITT ---
+    # sudo '$temp_script' HELYETT sudo bash '$temp_script'
+    # Ez megkerüli a /tmp noexec korlátozását és a hibás shebang problémákat
+    local cmd="echo '$TEST_MSG'; echo ''; sudo bash '$temp_script'; echo ''; echo '$PRESS_ENTER'; read; rm -f '$temp_script'"
 
     case "$terminal" in
         "tilix")
-            # Tilix indítása
             tilix -e bash -c "$cmd"
             ;;
         "urxvt")
-            # URXVT indítása (néha kényes a méretezésre, de az alap működéshez elég ez)
             urxvt -e bash -c "$cmd"
             ;;
         "xfce4-terminal")
             xfce4-terminal --geometry=80x24 -e "bash -c \"$cmd\""
             ;;
         *)
-            # Általános fallback
             "$terminal" -e bash -c "$cmd"
             ;;
     esac

@@ -11,7 +11,20 @@ from gi.repository import Gtk, Gdk, GLib
 
 # --- KONFIGURÁCIÓ ---
 APP_TITLE = "Awesome Manjaro Welcome"
-XLIBRE_SCRIPT = "/usr/local/bin/xl-wrapper.sh"
+
+# Okos útvonalválasztás:
+# 1. Megnézzük, hol van a jelenlegi Python script
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOCAL_WRAPPER = os.path.join(CURRENT_DIR, "xl-wrapper.sh")
+
+# 2. Ha mellette van a script (tesztelésnél), azt használjuk, amúgy a rendszert
+if os.path.exists(LOCAL_WRAPPER):
+    XLIBRE_SCRIPT = LOCAL_WRAPPER
+    print(f"DEBUG: Helyi wrapper használata: {XLIBRE_SCRIPT}") # Hogy lásd a terminálban
+else:
+    XLIBRE_SCRIPT = "/usr/local/bin/xl-wrapper.sh"
+    print(f"DEBUG: Rendszer wrapper használata: {XLIBRE_SCRIPT}")
+
 
 # Útvonalak az autostart logikához
 AUTOSTART_DIR = os.path.expanduser("~/.config/autostart")
@@ -30,17 +43,16 @@ LINKS_MANJARO = {
     "Donate to Manjaro": "https://manjaro.org/donate"
 }
 
-# Nord Színséma CSS (Kicsit finomítva a több gombhoz)
-CSS_DATA = b"""
+# Nord Színséma CSS
+CSS_DATA = """
 window { background-color: #2E3440; color: #D8DEE9; }
 headerbar { background-color: #3B4252; color: #ECEFF4; border: none; }
 
-
-/* Nagy akciógombok stílusa */
+/* Nagy akciogombok stilusa */
 .action-btn { background-color: #5E81AC; color: #ECEFF4; font-weight: bold; padding: 12px; margin: 5px; }
 .action-btn:hover { background-color: #81A1C1; }
 
-/* Kisebb link gombok stílusa */
+/* Kisebb link gombok stilusa */
 .link-btn { background-color: #434C5E; color: #D8DEE9; padding: 6px; font-size: 13px; margin: 2px; }
 .link-btn:hover { background-color: #4C566A; }
 
@@ -56,16 +68,19 @@ class AwesomeWelcome(Gtk.Window):
     def __init__(self):
         super().__init__(title=APP_TITLE)
         self.set_border_width(20)
-        self.set_default_size(700, 550) # Szélesebb és magasabb a több tartalom miatt
+        self.set_default_size(700, 550)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_resizable(False)
 
         # Stílus betöltése
+        # --- JAVÍTÁS: utf-8 encode ÉS a konstans neve javítva ---
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data(CSS_DATA)
+        css_provider.load_from_data(CSS_DATA.encode('utf-8'))
+        
         Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(), css_provider,
-            Gtk.StyleContext.PROVIDER_PRIORITY_APPLICATION
+            Gdk.Screen.get_default(), 
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION  # <--- ITT VOLT A HIBA
         )
 
         # Headerbar
@@ -88,21 +103,23 @@ class AwesomeWelcome(Gtk.Window):
         vbox.pack_start(lbl_desc, False, False, 0)
 
         # --- FŐ AKCIÓK (Grid elrendezés) ---
-        # Live vs Installed logika
         self.is_live = os.path.exists("/run/miso/bootmnt/manjaro")
         
         main_actions_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         vbox.pack_start(main_actions_box, False, False, 10)
 
         if self.is_live:
-            # LIVE MÓD: Csak telepítés
+            # LIVE MÓD
             btn_install = Gtk.Button(label="Install Manjaro Linux")
             btn_install.get_style_context().add_class("action-btn")
             btn_install.connect("clicked", self.on_install_manjaro)
             
-            icon = Gtk.Image.new_from_icon_name("system-os-installer", Gtk.IconSize.BUTTON)
-            btn_install.set_image(icon)
-            btn_install.set_always_show_image(True)
+            try:
+                icon = Gtk.Image.new_from_icon_name("system-os-installer", Gtk.IconSize.BUTTON)
+                btn_install.set_image(icon)
+                btn_install.set_always_show_image(True)
+            except:
+                pass
             
             main_actions_box.pack_start(btn_install, False, False, 0)
             
@@ -110,7 +127,7 @@ class AwesomeWelcome(Gtk.Window):
             main_actions_box.pack_start(lbl_live, False, False, 0)
             
         else:
-            # TELEPÍTETT MÓD: XLibre és Szoftverek
+            # TELEPÍTETT MÓD
             grid = Gtk.Grid()
             grid.set_column_spacing(10)
             grid.set_row_spacing(10)
@@ -129,10 +146,12 @@ class AwesomeWelcome(Gtk.Window):
             btn_pamac.set_size_request(250, 50)
             btn_pamac.set_tooltip_text("Open Pamac Software Manager")
             
-            # Ikon hozzáadása a gombhoz
-            icon_pamac = Gtk.Image.new_from_icon_name("system-software-install", Gtk.IconSize.BUTTON)
-            btn_pamac.set_image(icon_pamac)
-            btn_pamac.set_always_show_image(True)
+            try:
+                icon_pamac = Gtk.Image.new_from_icon_name("system-software-install", Gtk.IconSize.BUTTON)
+                btn_pamac.set_image(icon_pamac)
+                btn_pamac.set_always_show_image(True)
+            except:
+                pass
             
             btn_pamac.connect("clicked", self.on_open_pamac)
             grid.attach(btn_pamac, 1, 0, 1, 1)
@@ -184,18 +203,12 @@ class AwesomeWelcome(Gtk.Window):
     def add_link_button(self, box, label, url):
         btn = Gtk.Button(label=label)
         btn.get_style_context().add_class("link-btn")
-        btn.connect("clicked", lambda x: webbrowser.open(url)) # Webbrowser modul biztosabb
+        btn.connect("clicked", lambda x: webbrowser.open(url))
         box.pack_start(btn, False, False, 0)
 
-    # --- ESEMÉNYKEZELŐK ---
-    
     def on_open_pamac(self, widget):
-        # Pamac indítása
         try:
             subprocess.Popen(["pamac-manager"])
-        except FileNotFoundError:
-             # Ha nincs pamac, próbáljuk a parancssorost, vagy hibát dobunk
-             self.show_error("Pamac manager not found!")
         except Exception as e:
             self.show_error(f"Error opening software manager: {e}")
 
