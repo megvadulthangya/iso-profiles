@@ -30,7 +30,7 @@ Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisa
 ### 📸 Creative Suite (Photography)
 The ISO comes with a pre-populated **Darktable database**. You only need to install the software (`sudo pacman -S darktable`), and the presets are instantly available.
 * **Stefano Ferro's Styles:** Includes Traveller, Vintage, Dark Tones, Dodge & Burn, RGB Curves, and Urban Style packages.
-* **Perfect for Sony Alpha users (optimized for A7II) but works universally.*
+* **Perfect for Sony Alpha users (optimized for A7 Series) but works universally.*
 * **t3mujinpack:** Extensive film emulation pack (Fuji Velvia, Kodachrome, Ilford B&W, etc.).
 
 
@@ -71,7 +71,7 @@ I have integrated a professional library of styles directly into the ISO's confi
 Watch the installation and setup guide:
 Tekintsd meg a telepítési és beállítási útmutatót:
 
-[![Manjaro Awesome Edition Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
+[![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
 ---
 
 ## 🪄 Installation / Telepítés
@@ -90,7 +90,7 @@ Tekintsd meg a telepítési és beállítási útmutatót:
 
 ## 🧩 Extra Feature — "Install XLibre"
 
-> **Note:** Available in the installed system via Manjaro Hello.
+> **Note:** Available in the installed system via the **Welcome App**.
 
 * Adds XLibre repository & GPG key.
 * Replaces Xorg configuration for specific hardware setups.
