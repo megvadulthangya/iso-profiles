@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   prepare-release:
-    runs-on: ubuntu-22.04    # <--- JAVÍTVA: 22.04 a stabil hálózatért
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
       - uses: styfle/cancel-workflow-action@0.12.1
@@ -24,7 +24,7 @@ jobs:
       release_tag: ${{ steps.time.outputs.time }}
 
   build-release:
-    runs-on: ubuntu-22.04    # <--- JAVÍTVA: 22.04 a stabil hálózatért
+    runs-on: ubuntu-22.04
     needs: [prepare-release]
     timeout-minutes: 120
     strategy:
@@ -33,7 +33,7 @@ jobs:
         BRANCH: [stable]
         SCOPE: [full]
     steps:
-      # 1. LÉPÉS: Repó letöltése (kell a git history-hoz)
+      # 1. LÉPÉS: Repó letöltése
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -46,21 +46,21 @@ jobs:
       - id: time
         uses: nanzm/get-time-action@v1.1
         with:
-          format: 'YY.MM'    
+          format: 'YY.MM'     
 
-      # 2. LÉPÉS: ISO Építése (Nincs DNS hack, csak a natív tool)
+      # 2. LÉPÉS: ISO Építése
       - name: image-build-upload
         uses: manjaro/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'master'
+          iso-profiles-branch: 'master'   # Az új, tiszta master ágad
           build-mirror: https://mirror.netcologne.de/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-Respin
           kernel: linux612
-          code-name: "awesome-Build"
+          code-name: "Nordic-Respin"      # Összhangban a rendszerrel
 
       # 3. LÉPÉS: Readme generálás és Feltöltés
       - name: Generate README & Upload to SourceForge
@@ -95,14 +95,14 @@ jobs:
           # --- 3. README GENERÁLÁS ---
           README_PATH="$SOURCE_DIR/README.md"
           
-          # Fejléc
-          echo "# Manjaro Awesome Respin" > "$README_PATH"
+          # Cím beállítása (konzisztens a megbeszéltekkel)
+          echo "# Manjaro Awesome Respin (Nordic Themed)" > "$README_PATH"
           echo "" >> "$README_PATH"
 
           # Legacy Intel GPU Support Info
           echo "## 🔧 Legacy Intel GPU Support / Régi Intel GPU Javítás" >> "$README_PATH"
           echo "This system automatically applies fixes for legacy Intel Graphics (Mobile 4 Series)." >> "$README_PATH"
-          echo "Affected applications (like gThumb,geeqie etc.) are patched individually to prevent crashes." >> "$README_PATH"
+          echo "Affected applications (like gThumb, geeqie etc.) are patched individually to prevent crashes." >> "$README_PATH"
           echo "" >> "$README_PATH"
           echo "🎥 **Video & Gaming:**" >> "$README_PATH"
           echo "Video players (mpv) and Games run with full Hardware Acceleration by default." >> "$README_PATH"
@@ -112,18 +112,17 @@ jobs:
           # Build infók
           echo "## Build Info" >> "$README_PATH"
           echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$README_PATH"
-          echo "- **Version:** ${{ steps.time.outputs.time }}-Nordic-TESTING" >> "$README_PATH"
+          echo "- **Version:** ${{ steps.time.outputs.time }}-Respin" >> "$README_PATH"
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- FASTFETCH (Direct DEB telepítéssel - JAVÍTVA) ---
+          # --- FASTFETCH (JAVÍTVA: Sima URL) ---
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
           (
             echo "Fastfetch letöltése..."
-            # JAVÍTVA: A link most már tiszta URL, nincsenek [] jelek
             wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
             sudo dpkg -i fastfetch.deb
           ) || echo "Fastfetch telepítés sikertelen."
