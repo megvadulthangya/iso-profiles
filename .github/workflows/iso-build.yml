@@ -58,7 +58,7 @@ jobs:
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-Nordic-TESTING
+          version: ${{ steps.time.outputs.time }}-Respin
           kernel: linux612
           code-name: "awesome-Build"
 
@@ -96,7 +96,7 @@ jobs:
           README_PATH="$SOURCE_DIR/README.md"
           
           # Fejléc
-          echo "# Manjaro Awesome Edition (Testing)" > "$README_PATH"
+          echo "# Manjaro Awesome Respin" > "$README_PATH"
           echo "" >> "$README_PATH"
 
           # Legacy Intel GPU Support Info
