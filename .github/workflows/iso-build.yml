@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   prepare-release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: styfle/cancel-workflow-action@0.12.1
