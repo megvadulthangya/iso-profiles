@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   prepare-release:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
       - uses: styfle/cancel-workflow-action@0.12.1
@@ -33,6 +33,19 @@ jobs:
         BRANCH: [stable]
         SCOPE: [full]
     steps:
+      # --- 0. LÉPÉS: Tárhely felszabadítása (KÖTELEZŐ!) ---
+      # Ez törli a felesleges Android/Dotnet/stb. szemetet, hogy elférjen az ISO.
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       # 1. LÉPÉS: Repó letöltése
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -53,14 +66,14 @@ jobs:
         uses: manjaro/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'master'   # Az új, tiszta master ágad
+          iso-profiles-branch: 'master'   # Az új fő ágad
           build-mirror: https://mirror.netcologne.de/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-Respin
           kernel: linux612
-          code-name: "Nordic-Respin"      # Összhangban a rendszerrel
+          code-name: "Nordic-Respin"
 
       # 3. LÉPÉS: Readme generálás és Feltöltés
       - name: Generate README & Upload to SourceForge
@@ -116,7 +129,7 @@ jobs:
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- FASTFETCH (JAVÍTVA: Sima URL) ---
+          # --- FASTFETCH (JAVÍTVA: Sima URL, nincs Markdown hiba) ---
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
