@@ -89,7 +89,7 @@ class AwesomeWelcome(Gtk.Window):
         self.add(vbox)
 
         # --- FEJLÉC ---
-        lbl_title = Gtk.Label(label="Welcome to Manjaro Awesome Edition")
+        lbl_title = Gtk.Label(label="Welcome to Manjaro Awesome Respin")
         lbl_title.get_style_context().add_class("title-label")
         vbox.pack_start(lbl_title, False, False, 0)
 
