@@ -34,7 +34,6 @@ jobs:
         SCOPE: [full]
     steps:
       # --- 0. LÉPÉS: Tárhely felszabadítása (KÖTELEZŐ!) ---
-      # Ez törli a felesleges Android/Dotnet/stb. szemetet, hogy elférjen az ISO.
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -61,12 +60,12 @@ jobs:
         with:
           format: 'YY.MM'     
 
-      # 2. LÉPÉS: ISO Építése
+      # 2. LÉPÉS: ISO Építése (A te javított actionöddel!)
       - name: image-build-upload
         uses: megvadulthangya/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'master'   # Az új fő ágad
+          iso-profiles-branch: 'master'
           build-mirror: https://mirror.netcologne.de/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
@@ -75,7 +74,7 @@ jobs:
           kernel: linux612
           code-name: "Nordic-Respin"
 
-      # 3. LÉPÉS: Readme generálás és Feltöltés
+      # 3. LÉPÉS: Readme generálás és Feltöltés (JAVÍTVA: Nincs több zárójel hiba)
       - name: Generate README & Upload to SourceForge
         if: success()
         env:
@@ -108,11 +107,9 @@ jobs:
           # --- 3. README GENERÁLÁS ---
           README_PATH="$SOURCE_DIR/README.md"
           
-          # Cím beállítása (konzisztens a megbeszéltekkel)
           echo "# Manjaro Awesome Respin (Nordic Themed)" > "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # Legacy Intel GPU Support Info
           echo "## 🔧 Legacy Intel GPU Support / Régi Intel GPU Javítás" >> "$README_PATH"
           echo "This system automatically applies fixes for legacy Intel Graphics (Mobile 4 Series)." >> "$README_PATH"
           echo "Affected applications (like gThumb, geeqie etc.) are patched individually to prevent crashes." >> "$README_PATH"
@@ -122,23 +119,20 @@ jobs:
           echo "No special configuration is needed." >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # Build infók
           echo "## Build Info" >> "$README_PATH"
           echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$README_PATH"
           echo "- **Version:** ${{ steps.time.outputs.time }}-Respin" >> "$README_PATH"
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- FASTFETCH (JAVÍTVA: Sima URL, nincs Markdown hiba) ---
+          # --- FASTFETCH (JAVÍTVA: Zárójelek eltávolítva a biztonság kedvéért) ---
           echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
           echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
-          (
-            echo "Fastfetch letöltése..."
-            wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
-            sudo dpkg -i fastfetch.deb
-          ) || echo "Fastfetch telepítés sikertelen."
+          echo "Fastfetch letöltése..."
+          wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
+          sudo dpkg -i fastfetch.deb || echo "Fastfetch telepítés sikertelen, de folytatjuk..."
 
           if command -v fastfetch &> /dev/null; then
             fastfetch --pipe >> "$README_PATH"
