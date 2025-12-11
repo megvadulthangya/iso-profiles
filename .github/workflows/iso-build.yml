@@ -63,7 +63,7 @@ jobs:
 
       # 2. LÉPÉS: ISO Építése
       - name: image-build-upload
-        uses: manjaro/manjaro-iso-action@main
+        uses: megvadulthangya/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'master'   # Az új fő ágad
