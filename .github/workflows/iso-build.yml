@@ -53,7 +53,7 @@ jobs:
         uses: manjaro/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'testing'
+          iso-profiles-branch: 'master'
           build-mirror: https://mirror.netcologne.de/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
