@@ -59,7 +59,7 @@ jobs:
 
       # --- 3. ISO Építése ---
       - name: image-build-upload
-        uses: megvadulthangya/manjaro-iso-action@main
+        uses: megvadulthangya/manjaro-iso-action@test
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'master'
