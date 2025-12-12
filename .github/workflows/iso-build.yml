@@ -137,9 +137,9 @@ jobs:
            
           # Git Log
           echo "## Recent Changes" >> "$README_PATH"
-          echo "Last 10 commits from repository:" >> "$README_PATH"
+          echo "Last 100 commits from repository:" >> "$README_PATH"
           echo "" >> "$README_PATH"
-          git log -n 10 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+          git log -n 100 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
 
           echo "README generálva: $README_PATH"
 
