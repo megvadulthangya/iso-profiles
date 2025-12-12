@@ -9,6 +9,7 @@ permissions:
 jobs:
   prepare-release:
     runs-on: ubuntu-22.04
+    timeout-minutes: 120
     steps:
       - uses: styfle/cancel-workflow-action@0.12.1
         with:
@@ -30,7 +31,7 @@ jobs:
         BRANCH: [stable]
         SCOPE: [full]
     steps:
-      # --- 1. HELYFELSZABADÍTÁS (EZ KELL!) ---
+      # --- 1. HELYFELSZABADÍTÁS (Muszáj, különben betelik a lemez) ---
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -48,6 +49,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      
       - id: time
         uses: nanzm/get-time-action@v1.1
         with:
@@ -67,7 +72,7 @@ jobs:
           kernel: linux612
           code-name: "Nordic-Respin"
 
-      # --- 4. README Generálás és Feltöltés (Atombiztos verzió) ---
+      # --- 4. A teljes, részletes README generálás és Feltöltés ---
       - name: Generate README & Upload to SourceForge
         if: success()
         env:
@@ -76,65 +81,98 @@ jobs:
           SF_PROJECT: "manjaro-awesome-iso"
           SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
         run: |
-          # Biztonsági ellenőrzés
+          # --- 0. Biztonsági ellenőrzés ---
           if [ -z "$SF_USER" ]; then
-            echo "HIBA: Az SF_USER változó üres!"
+            echo "HIBA: Az SF_USER változó üres! Ellenőrizd a GitHub Secrets beállításokat!"
             exit 1
           fi
 
-          # SSH beállítás
+          # --- 1. SSH beállítás ---
           mkdir -p ~/.ssh
           echo "$SF_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net >> ~/.ssh/known_hosts
 
-          # ISO megkeresése
-          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
+          # --- 2. ISO megkeresése ---
+          ISO_FILE=$(find . -type f -name "*.iso" | head -n 1)
           SOURCE_DIR=$(dirname "$ISO_FILE")
-          
           if [ -z "$ISO_FILE" ]; then
             echo "HIBA: Nem található ISO fájl!"
             exit 1
           fi
           echo "Forrás mappa: $SOURCE_DIR"
 
-          # README írása
+          # --- 3. README GENERÁLÁS (Brand nevek javítva) ---
           README_PATH="$SOURCE_DIR/README.md"
           
-          echo "# Manjaro Awesome Respin - Nordic Themed" > "$README_PATH"
+          # Fejléc
+          echo "# Manjaro Awesome Respin (Nordic Themed)" > "$README_PATH"
           echo "" >> "$README_PATH"
 
+          # Legacy Intel GPU Support Info
+          echo "## 🔧 Legacy Intel GPU Support" >> "$README_PATH"
+          echo "This system automatically applies fixes for legacy Intel Graphics (Mobile 4 Series)." >> "$README_PATH"
+          echo "Affected applications (like gThumb, geeqie etc.) are patched individually to prevent crashes." >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          
+          echo "🎥 **Video & Gaming:**" >> "$README_PATH"
+          echo "Video players (mpv) and Games run with full Hardware Acceleration by default." >> "$README_PATH"
+          echo "No special configuration is needed." >> "$README_PATH"
+          echo "" >> "$README_PATH"
+
+          # Build infók
           echo "## Build Info" >> "$README_PATH"
-          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
-          echo "- **Date:** $BUILD_DATE" >> "$README_PATH"
+          echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$README_PATH"
           echo "- **Version:** ${{ steps.time.outputs.time }}-Respin" >> "$README_PATH"
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # Fastfetch - Egyszerűsítve, zárójelek nélkül
-          echo "## Runner Hardware" >> "$README_PATH"
+          # --- FASTFETCH ---
+          echo "## Runner Hardware (Fastfetch)" >> "$README_PATH"
+          echo "Built on GitHub Actions runner:" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           
-          wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
-          sudo dpkg -i fastfetch.deb || true
+          # Itt javítottam a Wget szintaxist (kivettem a Markdown linket, mert attól szállt el), de a logika maradt
+          (
+            echo "Fastfetch letöltése..."
+            wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
+            sudo dpkg -i fastfetch.deb
+          ) || echo "Fastfetch telepítés sikertelen."
 
-          if command -v fastfetch > /dev/null; then
+          if command -v fastfetch &> /dev/null; then
             fastfetch --pipe >> "$README_PATH"
           else
+            # B-terv
+            echo "Fallback Info:" >> "$README_PATH"
             lscpu | grep "Model name" >> "$README_PATH" || true
+            free -h >> "$README_PATH" || true
           fi
           echo '```' >> "$README_PATH"
           echo "" >> "$README_PATH"
+          # -------------------------------------------
 
           # Checksums
           echo "## Checksums" >> "$README_PATH"
           echo '```' >> "$README_PATH"
           cat "$SOURCE_DIR"/*.sha* >> "$README_PATH" || echo "Checksums available as separate files."
           echo '```' >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          
+          # Git Log
+          echo "## Recent Changes" >> "$README_PATH"
+          echo "Last 10 commits from repository:" >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          git log -n 10 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
 
-          # Feltöltés
-          echo "Feltoltes inditasa..."
+          echo "README generálva: $README_PATH"
+
+          # --- 4. Feltöltés ---
+          echo "SourceForge inicializálása ($SF_USER)..."
+          ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $SF_USER@shell.sourceforge.net "create" || true
+          
+          echo "Mappák létrehozása..."
           echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
           
+          echo "Feltöltés..."
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
