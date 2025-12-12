@@ -66,7 +66,7 @@ jobs:
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-Respin
           kernel: linux612
-          code-name: "Nordic-Respin"
+          code-name: "Nordic"
 
       - name: Generate README & Upload to SourceForge
         if: success()
