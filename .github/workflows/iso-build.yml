@@ -76,6 +76,7 @@ jobs:
           SF_PROJECT: "manjaro-awesome-iso"
           SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
         run: |
+          # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
             echo "HIBA: Az SF_USER változó üres!"
             exit 1
@@ -97,6 +98,7 @@ jobs:
 
           README_PATH="$SOURCE_DIR/README.md"
            
+          # --- 2. README Fejléc ---
           echo "# Manjaro Awesome Respin - Nordic Themed" > "$README_PATH"
           echo "" >> "$README_PATH"
 
@@ -112,6 +114,7 @@ jobs:
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
+          # --- 3. Checksums (Szép lista) ---
           echo "## Checksums" >> "$README_PATH"
           for ext in sha1 sha256 sha512; do
             hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
@@ -123,15 +126,19 @@ jobs:
           done
           echo "" >> "$README_PATH"
            
+          # --- 4. Git Log (Javított formázás: Szabványos lista) ---
           echo "## Recent Changes" >> "$README_PATH"
           echo "Last 100 commits:" >> "$README_PATH"
+          echo "" >> "$README_PATH"
           
-          echo '```text' >> "$README_PATH"
-          git log -n 100 --pretty=format:"%h - %s (%ad)" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
-          echo '```' >> "$README_PATH"
+          # A trükk: a 'format' paraméterbe beletesszük a '* ' karaktereket.
+          # Így a README listaként (bullet points) jeleníti meg.
+          git log -n 100 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
           
+          echo "" >> "$README_PATH"
           echo "README generálva: $README_PATH"
 
+          # --- 5. Feltöltés ---
           echo "Feltoltes inditasa..."
           echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
