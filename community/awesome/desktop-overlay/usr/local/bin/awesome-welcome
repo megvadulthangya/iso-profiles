@@ -129,7 +129,7 @@ class AwesomeWelcome(Gtk.Window):
             grid.set_halign(Gtk.Align.CENTER)
             
             # Gomb 1: XLibre
-            self.btn_xlibre = Gtk.Button(label="Install XLibre Config")
+            self.btn_xlibre = Gtk.Button(label="Install XLibre")
             self.btn_xlibre.get_style_context().add_class("action-btn")
             self.btn_xlibre.set_size_request(250, 50)
             self.btn_xlibre.connect("clicked", self.on_install_xlibre)
