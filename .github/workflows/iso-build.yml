@@ -102,8 +102,6 @@ jobs:
           echo "# Manjaro Awesome Respin - Nordic Themed" > "$README_PATH"
           echo "" >> "$README_PATH"
 
-          echo "## Video and Gaming" >> "$README_PATH"
-          echo "Video players and Games run with full Hardware Acceleration by default." >> "$README_PATH"
           echo "" >> "$README_PATH"
 
           echo "## Build Info" >> "$README_PATH"
