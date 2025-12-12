@@ -131,7 +131,7 @@ jobs:
           
           echo "Fastfetch letoltese..."
           # Itt volt a hiba: Sima URL kell, nem [link](url)
-          wget -qO fastfetch.deb [https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb)
+          wget -qO fastfetch.deb https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb](https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb
           
           echo "Telepites..."
           # "|| true" biztosítja, hogy ha hiba van, akkor se álljon le a script
