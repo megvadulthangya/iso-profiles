@@ -109,7 +109,7 @@ jobs:
           echo "" >> "$README_PATH"
 
           echo "## Legacy Intel GPU Support" >> "$README_PATH"
-          echo "This system automatically applies fixes for legacy Intel Graphics." >> "$README_PATH"
+          echo "This system automatically applies fixes for legacy Intel Graphics,for example geeqie and gthumb" >> "$README_PATH"
           echo "" >> "$README_PATH"
           
           echo "## Video and Gaming" >> "$README_PATH"
