@@ -118,36 +118,39 @@ jobs:
 
           echo "## Build Info" >> "$README_PATH"
            
-          # Dátum generálás
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
           echo "- **Date:** $BUILD_DATE" >> "$README_PATH"
           echo "- **Version:** ${{ steps.time.outputs.time }}-Respin" >> "$README_PATH"
           echo "- **Kernel:** linux612" >> "$README_PATH"
           echo "" >> "$README_PATH"
 
-          # --- CHECKSUMS (Szép formázás) ---
+          # --- CHECKSUMS ---
           echo "## Checksums" >> "$README_PATH"
-          
-          # Ciklus végigmegy: sha1, sha256, sha512 fájlokon
           for ext in sha1 sha256 sha512; do
             hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
             if [ -f "$hash_file" ]; then
               LABEL=$(echo "$ext" | tr 'a-z' 'A-Z')
-              # Csak a hash kódot vesszük ki (első oszlop)
               HASH_CODE=$(awk '{print $1}' "$hash_file")
               echo "- **$LABEL:** \`$HASH_CODE\`" >> "$README_PATH"
             fi
           done
           echo "" >> "$README_PATH"
            
-          # --- GIT LOG (Lenyitható, utolsó 100 elem) ---
+          # --- GIT LOG (JAVÍTVA: Kódblokkba csomagolva) ---
           echo "## Recent Changes" >> "$README_PATH"
           
           echo "<details>" >> "$README_PATH"
           echo "<summary><b>Click here to see the last 100 commits</b></summary>" >> "$README_PATH"
           echo "" >> "$README_PATH"
           
-          git log -n 100 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+          # Itt a javítás: Nyitunk egy code blockot
+          echo '```text' >> "$README_PATH"
+          
+          # A git log parancs (kicsit szépítettem a formátumon, hogy olvashatóbb legyen listában)
+          git log -n 100 --pretty=format:"%h - %s (%ad)" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+          
+          # Lezárjuk a code blockot
+          echo '```' >> "$README_PATH"
           
           echo "" >> "$README_PATH"
           echo "</details>" >> "$README_PATH"
