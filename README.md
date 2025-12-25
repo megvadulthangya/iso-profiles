@@ -3,7 +3,12 @@
 
 **My personal, unified system installer - Create the same consistent AwesomeWM environment across all my devices.**
 
-[![Download manjaro-awesome-iso](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+[![Download Latest ISO](https://img.shields.io/badge/Download-Latest_ISO-35BF5C?logo=download&logoColor=white)](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+
+**Download Statistics / Letöltési statisztikák:**  
+[![Total Downloads](https://img.shields.io/sourceforge/dt/manjaro-awesome-iso.svg?label=Total&color=2d963d&logo=sourceforge)](https://sourceforge.net/projects/manjaro-awesome-iso)
+[![Monthly Downloads](https://img.shields.io/sourceforge/dm/manjaro-awesome-iso.svg?label=Monthly&color=81A1C1)](https://sourceforge.net/projects/manjaro-awesome-iso)
+[![Latest Version](https://img.shields.io/sourceforge/v/manjaro-awesome-iso.svg?label=Version&color=5E81AC)](https://sourceforge.net/projects/manjaro-awesome-iso)
 
 ---
 
