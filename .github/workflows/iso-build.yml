@@ -89,7 +89,7 @@ jobs:
 
           ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
           SOURCE_DIR=$(dirname "$ISO_FILE")
-           
+            
           if [ -z "$ISO_FILE" ]; then
             echo "HIBA: Nem található ISO fájl!"
             exit 1
@@ -97,23 +97,23 @@ jobs:
           echo "Forrás mappa: $SOURCE_DIR"
 
           README_PATH="$SOURCE_DIR/README.md"
-           
-          # --- 2. README Fejléc ---
-          echo "# Manjaro Awesome Respin - Nordic Themed" > "$README_PATH"
-          echo "" >> "$README_PATH"
-
-          echo "" >> "$README_PATH"
-
-          echo "## Build Info" >> "$README_PATH"
-           
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
-          echo "- **Date:** $BUILD_DATE" >> "$README_PATH"
-          echo "- **Version:** ${{ steps.time.outputs.time }}-Respin" >> "$README_PATH"
-          echo "- **Kernel:** linux612" >> "$README_PATH"
-          echo "" >> "$README_PATH"
+            
+          # --- 2. README Generálása (Dinamikus Fejléc) ---
+          {
+            echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
+            echo ""
+            echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
+            echo ""
+            echo "## 📦 Build Info"
+            echo "- **Date:** $BUILD_DATE"
+            echo "- **Version:** ${{ steps.time.outputs.time }}-Respin"
+            echo "- **Kernel:** linux612"
+            echo ""
+            echo "## 🔐 Checksums"
+          } > "$README_PATH"
 
-          # --- 3. Checksums (Szép lista) ---
-          echo "## Checksums" >> "$README_PATH"
+          # Checksum loop
           for ext in sha1 sha256 sha512; do
             hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
             if [ -f "$hash_file" ]; then
@@ -122,17 +122,91 @@ jobs:
               echo "- **$LABEL:** \`$HASH_CODE\`" >> "$README_PATH"
             fi
           done
-          echo "" >> "$README_PATH"
-           
-          # --- 4. Git Log (Javított formázás: Szabványos lista) ---
-          echo "## Recent Changes" >> "$README_PATH"
-          echo "Last 100 commits:" >> "$README_PATH"
-          echo "" >> "$README_PATH"
+
+          # --- 3. Statikus Tartalom (A lényeg!) ---
+          # Itt fűzzük hozzá a leírást, beleértve a hálózati javítást is
+          cat <<EOF >> "$README_PATH"
+
+          ---
+
+          ## ⚙️ Overview / Áttekintés
+
+          This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
+
+          **New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
+
+          Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+
+          **Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
+
+          ---
+
+          ## 🚀 Key Features / Főbb jellemzők
+
+          ### 🖥️ Desktop Environment
+          * **Window Manager:** AwesomeWM 4.x (Custom Fork)
+          * **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
+          * **Applets:** **Awesome-rofi** fork, patched for seamless integration.
+
+          ### 📸 Creative Suite (Photography)
+          The ISO comes with a pre-populated **Darktable database**.
+          * **Stefano Ferro's Styles:** Includes Traveller, Vintage, Dark Tones, Dodge & Burn.
+          * **t3mujinpack:** Extensive film emulation pack.
+
+          ### 🛠️ System Core
+          * **Base:** Manjaro Stable
+          * **Filesystem:** BTRFS + Timeshift (automatic snapshot management).
+          * **Shell:** Fish (root), Zsh/Bash (user).
+
+          ### 🌐 Connectivity & Stability Fixes / Hálózati Stabilitás
+          Unlike standard Manjaro, this ISO **fixes the infamous "Limited Connectivity" / "No Internet" false positives**.
           
-          # A trükk: a 'format' paraméterbe beletesszük a '* ' karaktereket.
-          # Így a README listaként (bullet points) jeleníti meg.
-          git log -n 100 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+          * **The Problem:** Manjaro's upstream servers often have expired SSL certificates or strict firewall rules, causing NetworkManager and Calamares to report connection failures even when your internet is working perfectly.
+          * **The Fix:** I have overridden the connectivity checks to bypass Manjaro's infrastructure entirely.
+            * **NetworkManager:** Configured to ping **Cloudflare** (\`cp.cloudflare.com\`) for instant, reliable status detection.
+            * **Calamares Installer:** Verifies connection via \`1.1.1.1\` instead of unreliable mirrors.
+          * **Result:** No more confusing error icons or stalled installations due to upstream server issues.
+
+          A standard Manjaróval ellentétben ez az ISO **javítja a hírhedt "Korlátozott kapcsolat" / "Nincs Internet" téves hibaüzeneteket**.
           
+          * **A probléma:** A Manjaro saját szerverei gyakran küzdenek lejárt SSL tanúsítványokkal vagy túl szigorú tűzfal szabályokkal, ami miatt a NetworkManager és a telepítő akkor is hibát jelez, ha az interneted tökéletesen működik.
+          * **A megoldás:** Felülbíráltam a kapcsolódási ellenőrzéseket, így a rendszer teljesen megkerüli a Manjaro instabil infrastruktúráját.
+             * **NetworkManager:** A **Cloudflare** globális hálózatát (\`cp.cloudflare.com\`) használja a gyors és megbízható állapotjelzéshez.
+             * **Calamares Telepítő:** A \`1.1.1.1\` címen ellenőrzi a kapcsolatot a megbízhatatlan tükörszerverek helyett.
+          * **Eredmény:** Nincs több megtévesztő hibaüzenet, kérdőjeles wifi ikon vagy emiatt megakadó telepítés.
+
+          ---
+
+          ## 📺 Video Walkthrough / Videós bemutató
+
+          [![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
+
+          ---
+
+          ## ☕ Support / Támogatás
+
+          If you find this project useful, please support the development: / Ha hasznosnak találod a projektet, támogasd a fejlesztést:
+
+          👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
+
+          ---
+
+          ## 🧠 Credits / Készítette
+
+          * **Base:** [Manjaro Linux](https://manjaro.org/)
+          * **Theme:** [Nordic Theme](https://github.com/EliverLara/Nordic)
+          * **WM:** [AwesomeWM Copycats](https://github.com/lcpz/awesome-copycats) & [Luca CPZ](https://github.com/lcpz)
+          * **Photo:** [Stefano Ferro (MEL365)](https://mel365.com/) & [t3mujinpack](https://t3mujinpack.github.io/)
+          * **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
+
+          ---
+          
+          ## 📜 Recent Changes (Git Log)
+          EOF
+
+          # --- 4. Git Log hozzáadása a végére ---
+          git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+            
           echo "" >> "$README_PATH"
           echo "README generálva: $README_PATH"
 
@@ -140,5 +214,5 @@ jobs:
           echo "Feltoltes inditasa..."
           echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
-           
+            
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
