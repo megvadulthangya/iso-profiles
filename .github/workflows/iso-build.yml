@@ -144,7 +144,7 @@ jobs:
           ## 🚀 Key Features / Főbb jellemzők
 
           ### 🖥️ Desktop Environment
-          * **Window Manager:** AwesomeWM 4.x (Custom Fork)
+          * **Window Manager:** AwesomeWM 4.x (Github version)
           * **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
           * **Applets:** **Awesome-rofi** fork, patched for seamless integration.
 

@@ -27,7 +27,7 @@ Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisa
 ## 🚀 Key Features / Főbb jellemzők
 
 ### 🖥️ Desktop Environment
-* **Window Manager:** AwesomeWM 4.x (Custom Fork)
+* **Window Manager:** AwesomeWM 4.x (Github Version)
 * **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
 * **Wallpapers:** Curated collection "Norded" via ImageGoNord (Sources: Reddit, Unsplash, Wallhaven).
 * **Applets:** **Awesome-rofi** fork, patched for seamless integration.
