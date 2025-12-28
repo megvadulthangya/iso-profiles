@@ -44,6 +44,22 @@ The ISO comes with a pre-populated **Darktable database**. You only need to inst
 * **Filesystem:** BTRFS + Timeshift (automatic snapshot management).
 * **Shell:** Fish (root), Zsh/Bash (user).
 
+### 🌐 Connectivity & Stability Fixes
+Unlike standard Manjaro, this ISO **fixes the infamous "Limited Connectivity" / "No Internet" false positives**.
+* **The Problem:** Manjaro's upstream servers often have expired SSL certificates or strict firewall rules, causing NetworkManager and Calamares to report connection failures even when your internet is working perfectly.
+* **The Fix:** I have overridden the connectivity checks to bypass Manjaro's infrastructure entirely.
+    * **NetworkManager:** Configured to ping **Cloudflare** (`cp.cloudflare.com`) for instant, reliable status detection.
+    * **Calamares Installer:** Verifies connection via `1.1.1.1` instead of unreliable mirrors.
+* **Result:** No more confusing error icons or stalled installations due to upstream server issues.
+
+### 🌐 Hálózati Stabilitás és Javítások
+A standard Manjaróval ellentétben ez az ISO **javítja a hírhedt "Korlátozott kapcsolat" / "Nincs Internet" téves hibaüzeneteket**.
+* **A probléma:** A Manjaro saját szerverei gyakran küzdenek lejárt SSL tanúsítványokkal vagy túl szigorú tűzfal szabályokkal, ami miatt a NetworkManager és a telepítő akkor is hibát jelez, ha az interneted tökéletesen működik.
+* **A megoldás:** Felülbíráltam a kapcsolódási ellenőrzéseket, így a rendszer teljesen megkerüli a Manjaro instabil infrastruktúráját.
+    * **NetworkManager:** A **Cloudflare** globális hálózatát (`cp.cloudflare.com`) használja a gyors és megbízható állapotjelzéshez.
+    * **Calamares Telepítő:** A `1.1.1.1` címen ellenőrzi a kapcsolatot a megbízhatatlan tükörszerverek helyett.
+* **Eredmény:** Nincs több megtévesztő hibaüzenet, kérdőjeles wifi ikon vagy emiatt megakadó telepítés.
+
 ---
 
 ## 🧩 Detailed Components / Részletes összetevők
