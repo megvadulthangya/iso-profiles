@@ -133,7 +133,7 @@ Ha hasznosnak találod a projektet, támogasd a fejlesztést:
 **Built upon / Alapjául szolgált:**
 * 🐧 [Manjaro Linux](https://manjaro.org/)
 * 🎨 [Nordic Theme](https://github.com/EliverLara/Nordic)
-* ⚡ [AwesomeWM Copycats](https://github.com/lcpz/awesome-copycats) & [Luca CPZ](https://github.com/lcpz)
+* ⚡ [Awesome Copycats Manjaro](https://github.com/megvadulthangya/awesome-copycats-manjaro) & [Luca CPZ](https://github.com/lcpz)
 
 **Photography Tools / Fotós eszközök:**
 * 📷 [Stefano Ferro (MEL365)](https://mel365.com/) - Presets & Styles
