@@ -21,7 +21,6 @@ libxvmc
 >multilib lib32-libxvmc
 >multilib lib32-primus
 ## --- NVIDIA DRIVERS (FIXED FOR GTX 750 Ti) ---
->nonfree_x86_64 video-nvidia
 >nonfree_x86_64 linux612-nvidia
 >nonfree_x86_64 nvidia-utils
 >nonfree_x86_64 nvidia-settings
