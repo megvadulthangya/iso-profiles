@@ -66,11 +66,3 @@ which
 wireless-regdb
 wpa_supplicant
 xfsprogs
-# --- NVIDIA CLOSED DRIVERS (GTX 750 Ti FIX) ---
-linux612-nvidia
-nvidia-utils
-nvidia-settings
-lib32-nvidia-utils
-egl-gbm
-egl-wayland
-egl-x11
