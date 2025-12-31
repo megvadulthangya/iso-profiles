@@ -79,9 +79,3 @@ xf86-video-nouveau
 xf86-video-sisusb
 xf86-video-vesa
 xf86-video-voodoo
-linux612-nvidia
-nvidia-utils
-nvidia-settings
-lib32-nvidia-utils
-egl-gbm
-egl-wayland
