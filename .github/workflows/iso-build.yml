@@ -59,12 +59,12 @@ jobs:
         uses: megvadulthangya/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'master'
+          iso-profiles-branch: 'testing'
           build-mirror: https://mirror.netcologne.de/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-Respin
+          version: ${{ steps.time.outputs.time }}-NDA-test
           kernel: linux612
           code-name: "Nordic"
 
