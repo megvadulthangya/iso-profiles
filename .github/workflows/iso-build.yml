@@ -60,7 +60,7 @@ jobs:
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'master'
-          build-mirror: https://mirror.netcologne.de/manjaro/
+          build-mirror: https://mirror.fcix.net/manjaro/
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
