@@ -25,9 +25,9 @@ Xft.dpi: 96
 ! (Nordic Theme + Performance)
 ! ================================
 
-! Betűtípus beállítása (A te rendszereden lévő FiraCode)
-URxvt.font: xft:FiraCode Nerd Font:size=12:antialias=true
-URxvt.boldFont: xft:FiraCode Nerd Font:bold:size=12:antialias=true
+! Betűtípus beállítása (A te rendszereden lévő FiraCode) - FONTOS: pontos beállítás a bővítményhez
+URxvt.font: xft:FiraCode Nerd Font:size=12
+URxvt.boldFont: xft:FiraCode Nerd Font:bold:size=12
 
 ! Gördítősáv kikapcsolása (Szebb, Quake-style kinézet)
 URxvt.scrollBar: false
@@ -35,13 +35,30 @@ URxvt.scrollBar: false
 ! Kurzor villogás kikapcsolása (kíméli az erőforrást és a szemet)
 URxvt.cursorBlink: true
 
-! Linkek megnyitása és másolás funkciók
-URxvt.perl-ext-common: default,matcher,selection-to-clipboard
+! Perl bővítmények - resize-font hozzáadva, pontosan a dokumentáció szerint
+URxvt.perl-ext-common: default,matcher,selection-to-clipboard,resize-font
 URxvt.url-launcher: brave
 URxvt.matcher.button: 1
 
 ! Puffer méret (hány sort jegyezzen meg visszafelé)
 URxvt.saveLines: 5000
+
+! ================================
+! RESIZE-FONT PLUGIN CONFIGURATION - README alapján
+! ================================
+
+! Alapértelmezett billentyűkombinációk a dokumentáció szerint
+URxvt.keysym.C-minus:     resize-font:smaller
+URxvt.keysym.C-plus:      resize-font:bigger
+URxvt.keysym.C-equal:     resize-font:reset
+URxvt.keysym.C-question:  resize-font:show
+
+! Opcionális lépésméret beállítása (1-2 pixel ajánlott)
+URxvt.resize-font.step: 1
+
+! Opcionális méretkorlátok
+URxvt.resize-font.min: 6
+URxvt.resize-font.max: 32
 
 ! ================================
 ! NORD COLOR SCHEME & TRANSPARENCY
