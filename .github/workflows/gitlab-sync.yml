@@ -32,8 +32,8 @@ jobs:
       # 4️⃣ Push GitHubra PAT-al
       - name: Push to GitHub using PAT
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}  # ide kell a fine-grained PAT
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           # Átállítjuk a remote URL-t a PAT-ra
-          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/megvadulthangya/iso-profiles.git
+          git remote set-url origin "https://x-access-token:${GH_PAT}@github.com/megvadulthangya/iso-profiles.git"
           git push origin master --force
