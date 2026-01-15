@@ -1,6 +1,5 @@
 name: Sync master from Manjaro GitLab
 
-# Trigger: manuálisan és naponta 05:00 UTC-kor
 on:
   workflow_dispatch:
   schedule:
@@ -11,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout a repo
+      # 1️⃣ Checkout a repo PAT-tal
       - name: Checkout GitHub repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # teljes history kell
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
       # 2️⃣ GitLab remote hozzáadása
       - name: Add GitLab remote
@@ -29,13 +29,7 @@ jobs:
           git checkout master
           git reset --hard gitlab/master
 
-      # 4️⃣ Push GitHubra PAT-al
+      # 4️⃣ Push back to GitHub
       - name: Push to GitHub using PAT
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          # Távolítsuk el a newline karaktereket
-          GH_PAT_CLEAN=$(echo -n "$GH_PAT" | tr -d '\n')
-          git remote set-url origin "https://x-access-token:${GH_PAT_CLEAN}@github.com/megvadulthangya/iso-profiles.git"
           git push origin master --force
-
