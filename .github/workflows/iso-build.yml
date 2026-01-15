@@ -64,7 +64,7 @@ jobs:
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-NDA-test
+          version: ${{ steps.time.outputs.time }}-testing
           kernel: linux612
           code-name: "Nordic"
 
