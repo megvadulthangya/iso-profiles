@@ -1,0 +1,30 @@
+name: Sync master from Manjaro GitLab
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add GitLab remote
+        run: |
+          git remote add gitlab https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git
+          git fetch gitlab
+
+      - name: Reset master to GitLab master
+        run: |
+          git checkout master
+          git reset --hard gitlab/master
+
+      - name: Push to GitHub
+        run: |
+          git push origin master --force
