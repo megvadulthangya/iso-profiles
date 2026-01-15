@@ -28,3 +28,6 @@ jobs:
       - name: Push to GitHub
         run: |
           git push origin master --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
