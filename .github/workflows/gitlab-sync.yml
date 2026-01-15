@@ -34,6 +34,8 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          # Átállítjuk a remote URL-t a PAT-ra
-          git remote set-url origin "https://x-access-token:${GH_PAT}@github.com/megvadulthangya/iso-profiles.git"
+          # Távolítsuk el a newline karaktereket
+          GH_PAT_CLEAN=$(echo -n "$GH_PAT" | tr -d '\n')
+          git remote set-url origin "https://x-access-token:${GH_PAT_CLEAN}@github.com/megvadulthangya/iso-profiles.git"
           git push origin master --force
+
