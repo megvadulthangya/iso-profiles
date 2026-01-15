@@ -192,6 +192,7 @@ brave-browser
 # >extra flashplugin
 >extra galculator
 gcolor3
+gghelper
 gpick
 gthumb
 gparted
@@ -203,6 +204,7 @@ mc
 inxi
 ##kdeconnect
 ##manjaro-hello
+awesome-welome
 ##manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
