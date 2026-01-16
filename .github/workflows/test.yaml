@@ -1,0 +1,283 @@
+name: Test_iso_build
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      - id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          format: 'YYYYMMDDHHmm'
+    outputs:
+      release_tag: ${{ steps.time.outputs.time }}
+
+  build-release:
+    runs-on: ubuntu-latest
+    needs: [prepare-release]
+    timeout-minutes: 120
+    strategy:
+      matrix:
+        EDITION: [awesome]
+        BRANCH: [stable]
+        SCOPE: [full]
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+       
+      - id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          format: 'YY.MM'
+
+      - name: image-build-upload
+        uses: megvadulthangya/manjaro-iso-action@main
+        with:
+          iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
+          iso-profiles-branch: 'testing'
+          build-mirror: https://mirror.fcix.net/manjaro/
+          edition: ${{ matrix.edition }}
+          branch: ${{ matrix.branch }}
+          scope: ${{ matrix.scope }}
+          version: ${{ steps.time.outputs.time }}-NDA-test
+          kernel: linux612
+          code-name: "Nordic"
+
+      - name: Generate README & Upload to SourceForge
+        if: success()
+        env:
+          SF_USER: ${{ secrets.SF_USERNAME }}
+          SF_KEY: ${{ secrets.SF_SSH_KEY }}
+          SF_PROJECT: "manjaro-awesome-iso"
+          SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
+        run: |
+          # --- 1. Alapvető ellenőrzések és beállítások ---
+          if [ -z "$SF_USER" ]; then
+            echo "HIBA: Az SF_USER változó üres!"
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          echo "$SF_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net >> ~/.ssh/known_hosts
+
+          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
+          SOURCE_DIR=$(dirname "$ISO_FILE")
+            
+          if [ -z "$ISO_FILE" ]; then
+            echo "HIBA: Nem található ISO fájl!"
+            exit 1
+          fi
+          echo "Forrás mappa: $SOURCE_DIR"
+
+          README_PATH="$SOURCE_DIR/README.md"
+          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
+            
+          # --- 2. README Generálása (Dinamikus Fejléc) ---
+          {
+            echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
+            echo ""
+            echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
+            echo ""
+            echo "## 📦 Build Info"
+            echo "- **Date:** $BUILD_DATE"
+            echo "- **Version:** ${{ steps.time.outputs.time }}-Respin"
+            echo "- **Kernel:** linux612"
+            echo ""
+            echo "## 🔐 Checksums"
+          } > "$README_PATH"
+
+          # Checksum loop
+          for ext in sha1 sha256 sha512; do
+            hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
+            if [ -f "$hash_file" ]; then
+              LABEL=$(echo "$ext" | tr 'a-z' 'A-Z')
+              HASH_CODE=$(awk '{print $1}' "$hash_file")
+              echo "- **$LABEL:** \`$HASH_CODE\`" >> "$README_PATH"
+            fi
+          done
+
+          # --- 3. Statikus Tartalom (A lényeg!) ---
+          # Itt fűzzük hozzá a leírást, beleértve a hálózati javítást is
+          cat <<EOF >> "$README_PATH"
+
+          ---
+
+          ## ⚠️⚠️⚠️ FONTOS FIGYELMEZTETÉS / IMPORTANT WARNING ⚠️⚠️⚠️
+
+          ### **🚨 EZ CSAK TESZT VERZIÓ! 🚨**
+          ### **🚨 THIS IS A TEST VERSION ONLY! 🚨**
+
+          **Normál felhasználók számára a stabil változatot ajánljuk!** 
+          [Stabil verzió letöltése](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+          
+          Ez a teszt verzió kizárólag fejlesztők és haladó felhasználók számára készült, akik tudják kijavítani az esetleges hibákat.
+
+          **For normal users, we recommend the stable version!** 
+          [Download stable version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+          
+          This test version is intended only for developers and advanced users who can fix potential issues.
+
+          ---
+
+          ## ⚙️ Overview / Áttekintés
+
+          This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
+
+          **New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
+
+          Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+
+          **Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
+
+          ---
+
+          ## 🧪 TESZT VERZIÓ CÉLJA / TEST VERSION PURPOSE
+
+          **Ez a teszt ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
+
+          1. **Teljes NVIDIA támogatás** - minden driver készen áll:
+             - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
+             - **Komplett CUDA/CUDNN stack** pre-installálva
+             - Nem kell a driver-ekkel foglalkozni, minden készen van
+
+          2. **AI/ML alkalmazások könnyű telepítése:**
+             - Csak fel kell telepíteni az alkalmazásokat, a rendszer már támogatja őket
+             - **Stable Diffusion Forge** (AI képgenerálás)
+             - **Kohya_ss** (LoRA/Dreambooth képzés)
+             - **Ollama** (lokális LLM futtatás)
+
+          3. **Docker konténerek támogatása:**
+             - NVIDIA Container Toolkit már konfigurálva
+             - Könnyű telepíthető: **Ollama konténer** + **OpenWebUI**
+
+          4. **Teljes NVIDIA fejlesztői környezet:**
+             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
+             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
+             - python-torch python-torchvision python-torchtext
+
+          **This test ISO provides an out-of-the-box AI/ML development environment:**
+
+          1. **Full NVIDIA support** - all drivers ready:
+             - **Legacy 575** and **modern 590 NVIDIA driver** support
+             - **Complete CUDA/CUDNN stack** pre-installed
+             - No need to worry about drivers, everything is set up
+
+          2. **Easy installation of AI/ML applications:**
+             - Just install the applications, the system already supports them
+             - **Stable Diffusion Forge** (AI image generation)
+             - **Kohya_ss** (LoRA/Dreambooth training)
+             - **Ollama** (local LLM running)
+
+          3. **Docker container support:**
+             - NVIDIA Container Toolkit already configured
+             - Easy to install: **Ollama container** + **OpenWebUI**
+
+          4. **Complete NVIDIA developer environment:**
+             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
+             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
+             - python-torch python-torchvision python-torchtext
+
+          ---
+
+          ## 🚀 Key Features / Főbb jellemzők
+
+          ### 🖥️ Desktop Environment
+          * **Window Manager:** AwesomeWM 4.x (Github version)
+          * **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
+          * **Applets:** **Awesome-rofi** fork, patched for seamless integration.
+
+          ### 📸 Creative Suite (Photography)
+          The ISO comes with a pre-populated **Darktable database**.
+          * **Stefano Ferro's Styles:** Includes Traveller, Vintage, Dark Tones, Dodge & Burn.
+          * **t3mujinpack:** Extensive film emulation pack.
+
+          ### 🛠️ System Core
+          * **Base:** Manjaro Stable
+          * **Filesystem:** BTRFS + Timeshift (automatic snapshot management).
+          * **Shell:** Fish (root), Zsh/Bash (user).
+
+          ### 🌐 Connectivity & Stability Fixes / Hálózati Stabilitás
+          Unlike standard Manjaro, this ISO **fixes the infamous "Limited Connectivity" / "No Internet" false positives**.
+          
+          * **The Problem:** Manjaro's upstream servers often have expired SSL certificates or strict firewall rules, causing NetworkManager and Calamares to report connection failures even when your internet is working perfectly.
+          * **The Fix:** I have overridden the connectivity checks to bypass Manjaro's infrastructure entirely.
+            * **NetworkManager:** Configured to ping **Cloudflare** (\`cp.cloudflare.com\`) for instant, reliable status detection.
+            * **Calamares Installer:** Verifies connection via \`1.1.1.1\` instead of unreliable mirrors.
+          * **Result:** No more confusing error icons or stalled installations due to upstream server issues.
+
+          A standard Manjaróval ellentétben ez az ISO **javítja a hírhedt "Korlátozott kapcsolat" / "Nincs Internet" téves hibaüzeneteket**.
+          
+          * **A probléma:** A Manjaro saját szerverei gyakran küzdenek lejárt SSL tanúsítványokkal vagy túl szigorú tűzfal szabályokkal, ami miatt a NetworkManager és a telepítő akkor is hibát jelez, ha az interneted tökéletesen működik.
+          * **A megoldás:** Felülbíráltam a kapcsolódási ellenőrzéseket, így a rendszer teljesen megkerüli a Manjaro instabil infrastruktúráját.
+             * **NetworkManager:** A **Cloudflare** globális hálózatát (\`cp.cloudflare.com\`) használja a gyors és megbízható állapotjelzéshez.
+             * **Calamares Telepítő:** A \`1.1.1.1\` címen ellenőrzi a kapcsolatot a megbízhatatlan tükörszerverek helyett.
+          * **Eredmény:** Nincs több megtévesztő hibaüzenet, kérdőjeles wifi ikon vagy emiatt megakadó telepítés.
+
+          ---
+
+          ## 📺 Video Walkthrough / Videós bemutató
+
+          [![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
+
+          ---
+
+          ## ☕ Support / Támogatás
+
+          If you find this project useful, please support the development: / Ha hasznosnak találod a projektet, támogasd a fejlesztést:
+
+          👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
+
+          ---
+
+          ## 🧠 Credits / Készítette
+
+          * **Base:** [Manjaro Linux](https://manjaro.org/)
+          * **Theme:** [Nordic Theme](https://github.com/EliverLara/Nordic)
+          * **WM:** [Awesome Copycats Manjaro](https://github.com/megvadulthangya/awesome-copycats-manjaro) & [Luca CPZ](https://github.com/lcpz)
+          * **Photo:** [Stefano Ferro (MEL365)](https://mel365.com/) & [t3mujinpack](https://t3mujinpack.github.io/)
+          * **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
+
+          ---
+          
+          ## 📜 Recent Changes (Git Log)
+          EOF
+
+          # --- 4. Git Log hozzáadása a végére ---
+          git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+            
+          echo "" >> "$README_PATH"
+          echo "README generálva: $README_PATH"
+
+          # --- 5. Feltöltés ---
+          echo "Feltoltes inditasa..."
+          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
+          sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
+            
+          rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
