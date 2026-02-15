@@ -323,8 +323,8 @@ libinput-gestures
 
 ## NVIDIA and LLM
 ##>extra opencl-nvidia-575xx
-##>extra cuda
-##>extra cudnn
+##cuda-12.9
+##cudnn9.10-cuda12.9
 ##>multilib lib32-nvidia-utils-575xx
 ##>multilib lib32-opencl-nvidia-575xx
 ##>extra python-cuda
