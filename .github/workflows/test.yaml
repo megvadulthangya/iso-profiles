@@ -56,7 +56,7 @@ jobs:
           format: 'YY.MM'
 
       - name: image-build-upload
-        uses: megvadulthangya/manjaro-iso-action
+        uses: megvadulthangya/manjaro-iso-action@main
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'testing'
