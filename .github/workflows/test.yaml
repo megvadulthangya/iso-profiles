@@ -56,11 +56,12 @@ jobs:
           format: 'YY.MM'
 
       - name: image-build-upload
-        uses: megvadulthangya/manjaro-iso-action@main
+        uses: megvadulthangya/manjaro-iso-action@awesome
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'testing'
           build-mirror: https://mirror.fcix.net/manjaro/
+          additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
