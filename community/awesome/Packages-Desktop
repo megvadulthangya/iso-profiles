@@ -167,7 +167,13 @@ lain-git
 ##>extra manjaro-wallpapers-18.0
 ##gnome-themes-standard
 ##grub-theme-manjaro
-hyperfluent-grub-theme-manjaro
+##hyperfluent-grub-theme-manjaro
+manjaro-distro-grub-theme
+##manjaro-distro-grub-theme-ai
+##dmgrub-nord-1080p
+##dmgrub-nord-1080p-ai
+##dmgrub-nord-1440p
+##dmgrub-nord-1440p-ai
 ##matcha-gtk-theme
 ##xcursor-simpleandsoft
 ##xcursor-vanilla-dmz-aa
