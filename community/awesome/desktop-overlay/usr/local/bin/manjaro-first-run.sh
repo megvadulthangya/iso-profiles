@@ -153,6 +153,32 @@ pacman-key --lsign-key "${KEYID}"
 echo "✅ Kulcs locally signed: ${KEYID}"
 
 
+# 5.6 XLibre repo kulcs hozzáadása
+echo "--> 5.6 XLibre repo kulcs hozzáadása..."
+
+XLIBRE_KEYID="73580DE2EDDFA6D6"
+XLIBRE_KEY_URL="https://x11libre.net/repo/arch_based/x86_64/0x73580DE2EDDFA6D6.gpg"
+
+if pacman-key --list-keys "${XLIBRE_KEYID}" &>/dev/null; then
+    echo "✅ XLibre kulcs már létezik a keyringben: ${XLIBRE_KEYID}"
+else
+    echo "--> XLibre kulcs letöltése és importálása: ${XLIBRE_KEY_URL}"
+    TMPKEY="$(mktemp)"
+
+    if command -v curl &>/dev/null; then
+        curl -fsSL "${XLIBRE_KEY_URL}" -o "${TMPKEY}"
+    else
+        wget -qO "${TMPKEY}" "${XLIBRE_KEY_URL}"
+    fi
+
+    pacman-key --add "${TMPKEY}"
+    rm -f "${TMPKEY}"
+
+    echo "✅ XLibre kulcs importálva: ${XLIBRE_KEYID}"
+fi
+
+pacman-key --lsign-key "${XLIBRE_KEYID}"
+echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
 
 
 # 6. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
