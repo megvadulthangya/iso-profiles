@@ -107,6 +107,54 @@ BTRFS_ALLOW_CONCURRENCY="false"
 EOF
 echo "✅ BTRFS Maintenance konfigurálva."
 
+
+
+
+# 5.5 Repo kulcs hozzáadása (manjaro-awesome) - hogy a pacman -Syy ne akadjon el
+echo "--> 5.5 Manjaro-awesome repo kulcs hozzáadása..."
+
+KEYID="A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C"
+REPO_PUB_URL="https://repo.gshoots.hu/manjaro-awesome/x86_64/manjaro-awesome.pub"
+KOO_URL="https://keys.openpgp.org/vks/v1/by-fingerprint/${KEYID}"
+
+# Ha már megvan, nem csinálunk semmit
+if pacman-key --list-keys "${KEYID}" &>/dev/null; then
+    echo "✅ Kulcs már létezik a keyringben: ${KEYID}"
+else
+    echo "--> Kulcs letöltése és importálása..."
+
+    TMPKEY="$(mktemp)"
+
+    # 1) Első körben a saját repo publikus kulcs (stabilabb)
+    if command -v curl &>/dev/null; then
+        curl -fsSL "${REPO_PUB_URL}" -o "${TMPKEY}" || true
+    else
+        wget -qO "${TMPKEY}" "${REPO_PUB_URL}" || true
+    fi
+
+    # Ha üres/hibás lett, fallback keys.openpgp.org
+    if [ ! -s "${TMPKEY}" ]; then
+        echo "⚠️ Repo kulcs letöltés nem sikerült, fallback: keys.openpgp.org"
+        if command -v curl &>/dev/null; then
+            curl -fsSL "${KOO_URL}" -o "${TMPKEY}"
+        else
+            wget -qO "${TMPKEY}" "${KOO_URL}"
+        fi
+    fi
+
+    pacman-key --add "${TMPKEY}"
+    rm -f "${TMPKEY}"
+
+    echo "✅ Kulcs importálva: ${KEYID}"
+fi
+
+# Trust: locally sign
+pacman-key --lsign-key "${KEYID}"
+echo "✅ Kulcs locally signed: ${KEYID}"
+
+
+
+
 # 6. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
 echo "--> 6. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
 
