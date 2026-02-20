@@ -61,7 +61,7 @@ jobs:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: 'testing'
           build-mirror: https://mirror.fcix.net/manjaro/
-          additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C'
+          additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C 73580DE2EDDFA6D6'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
