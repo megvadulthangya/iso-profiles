@@ -83,6 +83,7 @@ deleteSnapshots=true
 maxSnapshots=10
 updateGrub=true
 snapshotDescription={timeshift-autosnap} {created before upgrade}
+minHoursBetweenSnapshots=0
 EOF
 echo "✅ Timeshift-autosnap konfigurálva (Limit: 10)."
 
@@ -108,10 +109,21 @@ EOF
 echo "✅ BTRFS Maintenance konfigurálva."
 
 
+# 6. Szolgáltatások újraindítása az új konfigokkal
+echo "--> 6. Szolgáltatások engedélyezése és újraindítása..."
+systemctl daemon-reload
+
+# BTRFS Maintenance szolgáltatások aktiválása
+systemctl enable --now btrfs-scrub.timer
+systemctl enable --now btrfs-trim.timer
+systemctl enable --now btrfs-balance.timer
+
+# udisks2
+systemctl enable --now udisks2.service
 
 
-# 5.5 Repo kulcs hozzáadása (manjaro-awesome) - hogy a pacman -Syy ne akadjon el
-echo "--> 5.5 Manjaro-awesome repo kulcs hozzáadása..."
+# 7 Repo kulcs hozzáadása (manjaro-awesome) - hogy a pacman -Syy ne akadjon el
+echo "--> 7 Manjaro-awesome repo kulcs hozzáadása..."
 
 KEYID="A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C"
 REPO_PUB_URL="https://repo.gshoots.hu/manjaro-awesome/x86_64/manjaro-awesome.pub"
@@ -153,8 +165,8 @@ pacman-key --lsign-key "${KEYID}"
 echo "✅ Kulcs locally signed: ${KEYID}"
 
 
-# 5.6 XLibre repo kulcs hozzáadása
-echo "--> 5.6 XLibre repo kulcs hozzáadása..."
+# 8 XLibre repo kulcs hozzáadása
+echo "--> 8 XLibre repo kulcs hozzáadása..."
 
 XLIBRE_KEYID="73580DE2EDDFA6D6"
 XLIBRE_KEY_URL="https://x11libre.net/repo/arch_based/x86_64/0x73580DE2EDDFA6D6.gpg"
@@ -181,8 +193,8 @@ pacman-key --lsign-key "${XLIBRE_KEYID}"
 echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
 
 
-# 6. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
-echo "--> 6. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
+# 9. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
+echo "--> 9. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
 
 if command -v pacman-mirrors &> /dev/null; then
     # --continent:   Érzékeli a felhasználó kontinensét (pl. Európa vagy Észak-Amerika)
@@ -196,23 +208,13 @@ else
     echo "⚠️ pacman-mirrors nem található."
 fi
 
-# 7. Szolgáltatások újraindítása az új konfigokkal
-echo "--> 7. Szolgáltatások engedélyezése és újraindítása..."
-systemctl daemon-reload
 
-# BTRFS Maintenance szolgáltatások aktiválása
-systemctl enable --now btrfs-scrub.timer
-systemctl enable --now btrfs-trim.timer
-systemctl enable --now btrfs-balance.timer
-
-# udisks2
-systemctl enable --now udisks2.service
 
 echo "=========================================="
 echo "✅ TELEPÍTÉS UTÁNI BEÁLLÍTÁSOK KÉSZEN!"
 echo "=========================================="
 
-# 8. ÖNGYILKOS MECHANIZMUS
+# 10. ÖNGYILKOS MECHANIZMUS
 # Letiltjuk a szolgáltatást, hogy többet ne fusson le
 echo "--> Szolgáltatás letiltása a következő bootra..."
 systemctl disable manjaro-first-run.service
