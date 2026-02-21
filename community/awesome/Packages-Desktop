@@ -292,10 +292,10 @@ unrar  # RAR archive support
 
 ## Xorg Input Drivers
 nvidia-driver-assistant
-xf86-input-elographics
-xf86-input-evdev
-xf86-input-libinput
-xf86-input-void
+xlibre-input-elographics
+xlibre-input-evdev
+xlibre-input-libinput
+xlibre-input-void
 
 ## Xorg Server and Graphics
 >multilib lib32-libva-intel-driver
@@ -306,7 +306,7 @@ mesa-utils
 >multilib lib32-mesa-utils
 numlockx
 xdg-user-dirs
-xorg-server
+xlibre-xserver
 xorg-twm
 xorg-xinit
 xorg-xkill
