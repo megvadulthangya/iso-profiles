@@ -215,7 +215,7 @@ awesome-welcome
 ##manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
->extra mlocate
+mlocate
 mousepad
 mugshot
 ##>basic parole # media player
@@ -260,7 +260,7 @@ fzf
 zoxide
 dex
 nano-syntax-highlighting
-grayjay-bin
+>extra grayjay-bin
 tilix-git
 rxvt-unicode
 xsel
@@ -336,4 +336,3 @@ libinput-gestures
 ##>multilib lib32-opencl-nvidia-575xx
 ##>extra python-cuda
 ##>extra python-pycuda
-
