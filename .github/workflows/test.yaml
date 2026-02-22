@@ -1,4 +1,4 @@
-name: Test_iso_build
+name: NO-NVIDIA-driver
 on:
   workflow_dispatch:
 
@@ -28,7 +28,7 @@ jobs:
       matrix:
         EDITION: [awesome]
         BRANCH: [stable]
-        SCOPE: [full]
+        SCOPE: [full, minimal]
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -59,13 +59,13 @@ jobs:
         uses: megvadulthangya/manjaro-iso-action@awesome
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'XLibre'
+          iso-profiles-branch: 'minimal-without-nvidia'
           build-mirror: https://mirror.fcix.net/manjaro/
           additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C 73580DE2EDDFA6D6'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-NDA-test
+          version: ${{ steps.time.outputs.time }}-NO-NVIDIA-driver-stack
           kernel: linux618
           code-name: "Nordic"
 
@@ -102,7 +102,7 @@ jobs:
             
           # --- 2. README Generálása (Dinamikus Fejléc) ---
           {
-            echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
+            echo "# NO NVIDIA Driver!!! 🏔️ Manjaro Awesome Respin - Nordic Themed"
             echo ""
             echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
             echo ""
@@ -132,18 +132,20 @@ jobs:
 
           ## ⚠️⚠️⚠️ FONTOS FIGYELMEZTETÉS / IMPORTANT WARNING ⚠️⚠️⚠️
 
-          ### **🚨 EZ CSAK TESZT VERZIÓ! 🚨**
-          ### **🚨 THIS IS A TEST VERSION ONLY! 🚨**
+          ### **🚨 EZ A VERZIÓ NEM TARTALMAZ NVIDIA DRIVER STACK-OT! 🚨**
+          ### **🚨 THIS VERSION DOES NOT INCLUDE AN NVIDIA DRIVER STACK! 🚨**
 
-          **Normál felhasználók számára a stabil változatot ajánljuk!** 
+          **Live ISO indításnál NE próbáld a „Boot with proprietary drivers” opciót.**
+          **Csak és kizárólag a „Boot with open source drivers” opció használható.**
+
+          **Do NOT try to use “Boot with proprietary drivers” in the live ISO.**
+          **Only “Boot with open source drivers” is supported in this build.**
+
+          **Akinek out-of-the-box szüksége van NVIDIA driverre, használja a stabil verziót:**
           [Stabil verzió letöltése](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          Ez a teszt verzió kizárólag fejlesztők és haladó felhasználók számára készült, akik tudják kijavítani az esetleges hibákat.
 
-          **For normal users, we recommend the stable version!** 
+          **If you need NVIDIA drivers out of the box, use the stable version:**
           [Download stable version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          This test version is intended only for developers and advanced users who can fix potential issues.
 
           ---
 
@@ -151,9 +153,13 @@ jobs:
 
           This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
 
+          **This specific release is a NO-NVIDIA variant:** it intentionally ships **without the NVIDIA driver stack**, and the live session is meant to be started **only with open source drivers**.
+
           **New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
 
           Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+
+          **Ez a kiadás egy NO-NVIDIA változat:** szándékosan **NVIDIA driver stack nélkül** készül, és a live rendszert **csak nyílt forráskódú driverekkel** szabad indítani.
 
           **Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
 
@@ -161,49 +167,37 @@ jobs:
 
           ## 🧪 TESZT VERZIÓ CÉLJA / TEST VERSION PURPOSE
 
-          **Ez a teszt ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
+          **Ez a teszt ISO a NO-NVIDIA build ág ellenőrzésére szolgál, és nyílt forráskódú driverekkel használható live környezetet ad:**
 
-          1. **Teljes NVIDIA támogatás** - minden driver készen áll:
-             - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
-             - **Komplett CUDA/CUDNN stack** pre-installálva
-             - Nem kell a driver-ekkel foglalkozni, minden készen van
+          1. **NVIDIA driver stack nélkül készül**
+             - Nincs proprietary NVIDIA driver stack ebben a kiadásban
+             - Nincs CUDA/CUDNN stack előtelepítve
+             - A live ISO indítása kizárólag **Boot with open source drivers** opcióval támogatott
 
-          2. **AI/ML alkalmazások könnyű telepítése:**
-             - Csak fel kell telepíteni az alkalmazásokat, a rendszer már támogatja őket
-             - **Stable Diffusion Forge** (AI képgenerálás)
-             - **Kohya_ss** (LoRA/Dreambooth képzés)
-             - **Ollama** (lokális LLM futtatás)
+          2. **Tesztelési / validációs cél**
+             - Annak ellenőrzése, hogy a rendszer stabilan bootol és használható NVIDIA stack nélkül is
+             - A Nordic/Awesome környezet, telepítő és alap rendszerfunkciók tesztelése
+             - Hibakeresés és visszajelzés gyűjtése a NO-NVIDIA ághoz
 
-          3. **Docker konténerek támogatása:**
-             - NVIDIA Container Toolkit már konfigurálva
-             - Könnyű telepíthető: **Ollama konténer** + **OpenWebUI**
+          3. **Stabil verzió ajánlás NVIDIA igény esetén**
+             - Ha valakinek out-of-the-box NVIDIA támogatás kell, ezt a buildet ne használja
+             - Helyette a stabil kiadást töltse le és használja
 
-          4. **Teljes NVIDIA fejlesztői környezet:**
-             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
-             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
-             - python-torch python-torchvision python-torchtext
+          **This test ISO is intended to validate the NO-NVIDIA build branch and provides a live environment for use with open source drivers only:**
 
-          **This test ISO provides an out-of-the-box AI/ML development environment:**
+          1. **Built without an NVIDIA driver stack**
+             - No proprietary NVIDIA driver stack is included in this release
+             - No CUDA/CUDNN stack is pre-installed
+             - Live ISO boot is supported **only via Boot with open source drivers**
 
-          1. **Full NVIDIA support** - all drivers ready:
-             - **Legacy 575** and **modern 590 NVIDIA driver** support
-             - **Complete CUDA/CUDNN stack** pre-installed
-             - No need to worry about drivers, everything is set up
+          2. **Testing / validation purpose**
+             - Verify that the system boots and works reliably without an NVIDIA stack
+             - Test the Nordic/Awesome environment, installer, and core system functionality
+             - Collect feedback and troubleshoot the NO-NVIDIA branch
 
-          2. **Easy installation of AI/ML applications:**
-             - Just install the applications, the system already supports them
-             - **Stable Diffusion Forge** (AI image generation)
-             - **Kohya_ss** (LoRA/Dreambooth training)
-             - **Ollama** (local LLM running)
-
-          3. **Docker container support:**
-             - NVIDIA Container Toolkit already configured
-             - Easy to install: **Ollama container** + **OpenWebUI**
-
-          4. **Complete NVIDIA developer environment:**
-             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
-             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
-             - python-torch python-torchvision python-torchtext
+          3. **Stable version recommendation for NVIDIA users**
+             - If someone needs out-of-the-box NVIDIA support, they should not use this build
+             - Use the stable release download instead
 
           ---
 
