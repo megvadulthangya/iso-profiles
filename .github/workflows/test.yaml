@@ -272,7 +272,13 @@ jobs:
 
           # --- 5. Feltöltés ---
           echo "Feltoltes inditasa..."
-          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\nmkdir /home/frs/project/$SF_PROJECT/Releases/lite-no-nvidia-stack\nmkdir /home/frs/project/$SF_PROJECT/Releases/lite-no-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}\nmkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
-          sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
-            
-          rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
+
+          REMOTE_TARGET="/home/frs/project/$SF_PROJECT/$SF_DIR"
+
+          # Biztos mappalétrehozás (nem gond, ha már létezik)
+          ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 \
+            $SF_USER@shell.sourceforge.net "mkdir -p \"$REMOTE_TARGET\""
+
+          rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
+            "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
+            "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
