@@ -1,4 +1,4 @@
-name: Test_iso_build
+name: AI-ML-Edition
 on:
   workflow_dispatch:
 
@@ -59,13 +59,13 @@ jobs:
         uses: megvadulthangya/manjaro-iso-action@awesome
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'XLibre'
+          iso-profiles-branch: 'AI/ML'
           build-mirror: https://mirror.fcix.net/manjaro/
           additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C 73580DE2EDDFA6D6'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-NDA-test
+          version: ${{ steps.time.outputs.time }}-AI-ML-Edition
           kernel: linux618
           code-name: "Nordic"
 
@@ -75,7 +75,7 @@ jobs:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
+          SF_DIR: "Releases/ai-ml-edition-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
           # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
@@ -102,13 +102,13 @@ jobs:
             
           # --- 2. README Generálása (Dinamikus Fejléc) ---
           {
-            echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
+            echo "# 🧠 Manjaro Awesome Respin - Nordic Themed (AI/ML Edition)"
             echo ""
             echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
             echo ""
             echo "## 📦 Build Info"
             echo "- **Date:** $BUILD_DATE"
-            echo "- **Version:** ${{ steps.time.outputs.time }}-Respin"
+            echo "- **Version:** ${{ steps.time.outputs.time }}-AI-ML-Edition"
             echo "- **Kernel:** linux618"
             echo ""
             echo "## 🔐 Checksums"
@@ -125,25 +125,18 @@ jobs:
           done
 
           # --- 3. Statikus Tartalom (A lényeg!) ---
-          # Itt fűzzük hozzá a leírást, beleértve a hálózati javítást is
           cat <<EOF >> "$README_PATH"
 
           ---
 
-          ## ⚠️⚠️⚠️ FONTOS FIGYELMEZTETÉS / IMPORTANT WARNING ⚠️⚠️⚠️
+          ## 🤖 AI/ML KIADÁS / AI/ML EDITION
 
-          ### **🚨 EZ CSAK TESZT VERZIÓ! 🚨**
-          ### **🚨 THIS IS A TEST VERSION ONLY! 🚨**
+          ### **🚀 AI/ML MUNKAFOLYAMATOKHOZ OPTIMALIZÁLT KIADÁS 🚀**
+          ### **🚀 RELEASE OPTIMIZED FOR AI/ML WORKFLOWS 🚀**
 
-          **Normál felhasználók számára a stabil változatot ajánljuk!** 
-          [Stabil verzió letöltése](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          Ez a teszt verzió kizárólag fejlesztők és haladó felhasználók számára készült, akik tudják kijavítani az esetleges hibákat.
+          **Ez a kiadás egy NVIDIA stackkel előkészített, out-of-the-box AI/ML környezetet céloz, hogy a rendszer telepítése után gyorsan munkára fogható legyen.**
 
-          **For normal users, we recommend the stable version!** 
-          [Download stable version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          This test version is intended only for developers and advanced users who can fix potential issues.
+          **This release targets an NVIDIA-stack-enabled, out-of-the-box AI/ML environment so the system is quickly ready for work after installation.**
 
           ---
 
@@ -151,17 +144,21 @@ jobs:
 
           This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
 
+          **This AI/ML Edition is built for users who want a workstation-ready setup with NVIDIA support and common AI/ML tooling prerequisites already in place.**
+
           **New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
 
           Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+
+          **Ez az AI/ML Edition azoknak készült, akik egy munkára kész rendszert szeretnének NVIDIA támogatással és előkészített AI/ML alapokkal.**
 
           **Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
 
           ---
 
-          ## 🧪 TESZT VERZIÓ CÉLJA / TEST VERSION PURPOSE
+          ## 🤖 AI/ML READY ENVIRONMENT / AI/ML-RE FELKÉSZÍTETT KÖRNYEZET
 
-          **Ez a teszt ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
+          **Ez az ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
 
           1. **Teljes NVIDIA támogatás** - minden driver készen áll:
              - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
@@ -183,7 +180,7 @@ jobs:
              - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
              - python-torch python-torchvision python-torchtext
 
-          **This test ISO provides an out-of-the-box AI/ML development environment:**
+          **This ISO provides an out-of-the-box AI/ML development environment:**
 
           1. **Full NVIDIA support** - all drivers ready:
              - **Legacy 575** and **modern 590 NVIDIA driver** support
@@ -278,7 +275,7 @@ jobs:
 
           # --- 5. Feltöltés ---
           echo "Feltoltes inditasa..."
-          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
+          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\nmkdir /home/frs/project/$SF_PROJECT/Releases/ai-ml-edition-nvidia-stack\nmkdir /home/frs/project/$SF_PROJECT/Releases/ai-ml-edition-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}\nmkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
             
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
