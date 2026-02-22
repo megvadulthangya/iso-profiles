@@ -1,4 +1,4 @@
-name: Test_iso_build
+name: Stable-NVIDIA-Stack
 on:
   workflow_dispatch:
 
@@ -65,7 +65,7 @@ jobs:
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-NDA-test
+          version: ${{ steps.time.outputs.time }}-Respin
           kernel: linux618
           code-name: "Nordic"
 
@@ -75,7 +75,7 @@ jobs:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
+          SF_DIR: "Releases/stable-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
           # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
@@ -130,20 +130,14 @@ jobs:
 
           ---
 
-          ## ⚠️⚠️⚠️ FONTOS FIGYELMEZTETÉS / IMPORTANT WARNING ⚠️⚠️⚠️
+          ## ✅ STABIL KIADÁS / STABLE RELEASE
 
-          ### **🚨 EZ CSAK TESZT VERZIÓ! 🚨**
-          ### **🚨 THIS IS A TEST VERSION ONLY! 🚨**
+          ### **🚀 EZ A NORMÁL KIADÁS, TELJES NVIDIA STACK TÁMOGATÁSSAL 🚀**
+          ### **🚀 THIS IS THE STANDARD RELEASE WITH FULL NVIDIA STACK SUPPORT 🚀**
 
-          **Normál felhasználók számára a stabil változatot ajánljuk!** 
-          [Stabil verzió letöltése](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          Ez a teszt verzió kizárólag fejlesztők és haladó felhasználók számára készült, akik tudják kijavítani az esetleges hibákat.
+          **Ez a kiadás NVIDIA stackkel érkezik (driver + AI/ML használathoz szükséges komponensek), és out-of-the-box használatra készült.**
 
-          **For normal users, we recommend the stable version!** 
-          [Download stable version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
-          
-          This test version is intended only for developers and advanced users who can fix potential issues.
+          **This release includes the NVIDIA stack (driver + components required for AI/ML workflows) and is intended for out-of-the-box use.**
 
           ---
 
@@ -159,9 +153,9 @@ jobs:
 
           ---
 
-          ## 🧪 TESZT VERZIÓ CÉLJA / TEST VERSION PURPOSE
+          ## 🤖 AI/ML READY ENVIRONMENT / AI/ML-RE FELKÉSZÍTETT KÖRNYEZET
 
-          **Ez a teszt ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
+          **Ez az ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
 
           1. **Teljes NVIDIA támogatás** - minden driver készen áll:
              - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
@@ -183,7 +177,7 @@ jobs:
              - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
              - python-torch python-torchvision python-torchtext
 
-          **This test ISO provides an out-of-the-box AI/ML development environment:**
+          **This ISO provides an out-of-the-box AI/ML development environment:**
 
           1. **Full NVIDIA support** - all drivers ready:
              - **Legacy 575** and **modern 590 NVIDIA driver** support
@@ -278,7 +272,7 @@ jobs:
 
           # --- 5. Feltöltés ---
           echo "Feltoltes inditasa..."
-          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
+          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\nmkdir /home/frs/project/$SF_PROJECT/Releases/stable-nvidia-stack\nmkdir /home/frs/project/$SF_PROJECT/Releases/stable-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}\nmkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
             
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
