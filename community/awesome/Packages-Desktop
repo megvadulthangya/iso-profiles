@@ -1,24 +1,57 @@
 ## Network
-avahi
-ethtool
-networkmanager
-networkmanager-openconnect
-networkmanager-openvpn
-networkmanager-vpnc
-nss-mdns # NSS support for mDNS (optdepend for avahi)
-ntp
-mobile-broadband-provider-info
-modemmanager
-openssh
-samba
-usb_modeswitch
-wavemon
-openbsd-netcat
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#avahi
+>extra avahi
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#ethtool
+>extra ethtool
+##(2026-02-21): duplikáció (Packages-Root már tartalmazza) → itt kommentelve a tisztaságért (non-destructive).
+#networkmanager
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#networkmanager-openconnect
+>extra networkmanager-openconnect
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#networkmanager-openvpn
+>extra networkmanager-openvpn
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#networkmanager-vpnc
+>extra networkmanager-vpnc
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#nss-mdns # NSS support for mDNS (optdepend for avahi)
+>extra nss-mdns # NSS support for mDNS (optdepend for avahi)
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#ntp
+>extra ntp
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mobile-broadband-provider-info
+>extra mobile-broadband-provider-info
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#modemmanager
+>extra modemmanager
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#openssh
+>extra openssh
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#samba
+>extra samba
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#usb_modeswitch
+>extra usb_modeswitch
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#wavemon
+>extra wavemon
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#openbsd-netcat
+>extra openbsd-netcat
 
 ## Btrfs
 grub-btrfs
-btrfs-assistant
-btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#btrfs-assistant
+>extra btrfs-assistant
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
+>extra btrfsmaintenance  # opcionális, de hasznos karbantartó eszközök
 >extra timeshift-autosnap-manjaro
 
 ## Libraries for Sound/Audio/Video
@@ -35,30 +68,54 @@ manjaro-alsa
 manjaro-gstreamer
 >extra manjaro-modem
 manjaro-pipewire
-mpd
-mpc
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mpd
+>extra mpd
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mpc
+>extra mpc
 mpv
 playerctl
 
 ## Connect Packages
-android-tools
-android-udev
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#android-tools
+>extra android-tools
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#android-udev
+>extra android-udev
 gvfs
-gvfs-afc
-gvfs-gphoto2
-gvfs-mtp
-gvfs-nfs
-gvfs-smb
-mtpfs
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gvfs-afc
+>extra gvfs-afc
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gvfs-gphoto2
+>extra gvfs-gphoto2
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gvfs-mtp
+>extra gvfs-mtp
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gvfs-nfs
+>extra gvfs-nfs
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gvfs-smb
+>extra gvfs-smb
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mtpfs
+>extra mtpfs
 udiskie
 udisks2
-gsconnect
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gsconnect
+>extra gsconnect
 
 ## Fonts
 ttf-dejavu
 # cantarell-fonts        # Installed as gnome-themes-standard dependency
 noto-fonts               # default font
-noto-fonts-cjk           # asian fonts - needed big package, ~76 mb compressed
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#noto-fonts-cjk           # asian fonts - needed big package, ~76 mb compressed
+>extra noto-fonts-cjk           # asian fonts - needed big package, ~76 mb compressed
 adobe-source-sans-pro-fonts
 # adobe-source-han-sans-jp-fonts
 # adobe-source-han-sans-kr-fonts
@@ -112,20 +169,38 @@ xfce4-power-manager
 ##xfwm4
 
 ## XFCE Extras
-blueman
-ffmpegthumbnailer  # tumbler - for video thumbnails
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#blueman
+>extra blueman
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#ffmpegthumbnailer  # tumbler - for video thumbnails
+>extra ffmpegthumbnailer  # tumbler - for video thumbnails
 freetype2          # tumbler - for font thumbnails
 gnome-keyring      # fix wlan segfault
-libgsf             # tumbler - for ODF thumbnails
-libopenraw         # tumbler - for RAW thumbnails
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#libgsf             # tumbler - for ODF thumbnails
+>extra libgsf             # tumbler - for ODF thumbnails
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#libopenraw         # tumbler - for RAW thumbnails
+>extra libopenraw         # tumbler - for RAW thumbnails
 # light-locker     # remove it for now as it might double-lock in certain cases
 ##xfce4-screensaver
 network-manager-applet
-menulibre
-poppler-glib       # tumbler - for PDF thumbnails
-thunar-archive-plugin
-thunar-media-tags-plugin
-raw-thumbnailer
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#menulibre
+>extra menulibre
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#poppler-glib       # tumbler - for PDF thumbnails
+>extra poppler-glib       # tumbler - for PDF thumbnails
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#thunar-archive-plugin
+>extra thunar-archive-plugin
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#thunar-media-tags-plugin
+>extra thunar-media-tags-plugin
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#raw-thumbnailer
+>extra raw-thumbnailer
 ### >extra xfce4-artwork
 ##xfce4-battery-plugin
 ##xfce4-clipman-plugin
@@ -194,16 +269,32 @@ nordzy-icon-theme
 bash-completion
 >extra catfish
 dmidecode # optional dependency inxi
-engrampa
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#engrampa
+>extra engrampa
 brave-browser
 # >extra flashplugin
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#galculator
 >extra galculator
-gcolor3
-gghelper
-gpick
-gthumb
-gparted
-gufw
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gcolor3
+>extra gcolor3
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gghelper
+>extra gghelper
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gpick
+>extra gpick
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gthumb
+>extra gthumb
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gparted
+>extra gparted
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#gufw
+>extra gufw
 >extra audacious
 btop
 fastfetch
@@ -215,24 +306,40 @@ awesome-welcome
 ##manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
+##(2026-02-21): terminálos eszköz kell minimal + full → átrakva "always"-ra (non-destructive).
+#>extra mlocate
 mlocate
-mousepad
-mugshot
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mousepad
+>extra mousepad
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#mugshot
+>extra mugshot
 ##>basic parole # media player
 ##>extra pidgin
 powertop
 ##screenfetch
-evince
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#evince
+>extra evince
 >extra poppler-data  # CKJ support for pdf
 #>basic sylpheed # mail client
 ##>extra thunderbird
 #>extra vlc
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#viewnior
 >extra viewnior
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#xfburn
 >extra xfburn
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#yelp
 >extra yelp
 dmenu
 rofi
-flameshot
+##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
+#flameshot
+>extra flameshot
 picom
 scrot
 unclutter
@@ -260,6 +367,8 @@ fzf
 zoxide
 dex
 nano-syntax-highlighting
+##(2026-02-21): Grayjay nagy app → csak FULL (>extra) (non-destructive).
+#grayjay-bin
 >extra grayjay-bin
 tilix-git
 rxvt-unicode
@@ -291,7 +400,9 @@ unrar  # RAR archive support
 ##manjaro-browser-settings
 
 ## Xorg Input Drivers
-nvidia-driver-assistant
+##(2026-02-21): NVIDIA nélküli minimal ISO → csak FULL-only (>extra) (non-destructive).
+#nvidia-driver-assistant
+>extra nvidia-driver-assistant
 xlibre-input-elographics
 xlibre-input-evdev
 xlibre-input-libinput
@@ -336,3 +447,4 @@ libinput-gestures
 ##>multilib lib32-opencl-nvidia-575xx
 ##>extra python-cuda
 ##>extra python-pycuda
+

@@ -1,17 +1,18 @@
 calamares
-KERNEL-bbswitch
+##(2026-02-21): NVIDIA nélküli minimal cél → bbswitch/primus/bumblebee nem kell a Live-hoz; Nouveau marad a normál felbontáshoz (non-destructive).
+#KERNEL-bbswitch
 KERNEL-broadcom-wl
 #KERNEL-r8168
 #KERNEL-rt3562sta
 manjaro-live-skel
 mkinitcpio-nfs-utils
 >multilib lib32-libxvmc
->multilib lib32-primus
+#>multilib lib32-primus
 nbd
 open-vm-tools
-primus
+#primus
 >manjaro grub-theme-live-manjaro
-bumblebee
+#bumblebee
 manjaro-live-systemd
 #manjaro-architect
 xlibre-input-vmmouse
@@ -24,4 +25,7 @@ xlibre-video-nouveau
 xlibre-video-sisusb
 xlibre-video-vesa
 xlibre-video-voodoo
+
+
+
 

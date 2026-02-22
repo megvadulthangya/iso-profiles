@@ -4,7 +4,8 @@
 
 ## Normal MHWD package list
 
-KERNEL-bbswitch
+##(2026-02-21): NVIDIA nélküli minimal cél → proprietary NVIDIA stack + Optimus/prime eszközök kikommentelve (non-destructive). Nouveau marad, hogy NVIDIA-val is legyen normális felbontás.
+#KERNEL-bbswitch
 KERNEL-broadcom-wl
 #KERNEL-r8168
 #KERNEL-zfs
@@ -19,38 +20,38 @@ libxaw
 libxpm
 libxvmc
 >multilib lib32-libxvmc
->multilib lib32-primus
->nonfree_x86_64 KERNEL-nvidia-390xx
->nonfree_x86_64 KERNEL-nvidia-470xx
->nonfree_x86_64 KERNEL-nvidia
->nonfree_x86_64 KERNEL-nvidia-open
->nonfree_x86_64 KERNEL-nvidia-570xx
->nonfree_x86_64 KERNEL-nvidia-570xx-open
->nonfree_x86_64 KERNEL-nvidia-575xx
->nonfree_x86_64 KERNEL-nvidia-575xx-open
->nonfree_x86_64 nvidia-390xx-utils
->nonfree_x86_64 nvidia-390xx-settings
->nonfree_x86_64 libxnvctrl-390xx
->nonfree_x86_64 nvidia-470xx-utils
->nonfree_x86_64 nvidia-470xx-settings
->nonfree_x86_64 libxnvctrl-470xx
->nonfree_x86_64 nvidia-utils
->nonfree_x86_64 nvidia-settings
->nonfree_x86_64 libxnvctrl
->nonfree_x86_64 nvidia-570xx-utils
->nonfree_x86_64 nvidia-570xx-settings
->nonfree_x86_64 nvidia-575xx-utils
->nonfree_x86_64 nvidia-575xx-settings
->nonfree_multilib lib32-nvidia-470xx-utils
->nonfree_multilib lib32-nvidia-390xx-utils
->nonfree_multilib lib32-nvidia-utils
->nonfree_multilib lib32-nvidia-570xx-utils
->nonfree_multilib lib32-nvidia-575xx-utils
+#>multilib lib32-primus
+#>nonfree_x86_64 KERNEL-nvidia-390xx
+#>nonfree_x86_64 KERNEL-nvidia-470xx
+#>nonfree_x86_64 KERNEL-nvidia
+#>nonfree_x86_64 KERNEL-nvidia-open
+#>nonfree_x86_64 KERNEL-nvidia-570xx
+#>nonfree_x86_64 KERNEL-nvidia-570xx-open
+#>nonfree_x86_64 KERNEL-nvidia-575xx
+#>nonfree_x86_64 KERNEL-nvidia-575xx-open
+#>nonfree_x86_64 nvidia-390xx-utils
+#>nonfree_x86_64 nvidia-390xx-settings
+#>nonfree_x86_64 libxnvctrl-390xx
+#>nonfree_x86_64 nvidia-470xx-utils
+#>nonfree_x86_64 nvidia-470xx-settings
+#>nonfree_x86_64 libxnvctrl-470xx
+#>nonfree_x86_64 nvidia-utils
+#>nonfree_x86_64 nvidia-settings
+#>nonfree_x86_64 libxnvctrl
+#>nonfree_x86_64 nvidia-570xx-utils
+#>nonfree_x86_64 nvidia-570xx-settings
+#>nonfree_x86_64 nvidia-575xx-utils
+#>nonfree_x86_64 nvidia-575xx-settings
+#>nonfree_multilib lib32-nvidia-470xx-utils
+#>nonfree_multilib lib32-nvidia-390xx-utils
+#>nonfree_multilib lib32-nvidia-utils
+#>nonfree_multilib lib32-nvidia-570xx-utils
+#>nonfree_multilib lib32-nvidia-575xx-utils
 open-vm-tools
-primus
+#primus
 qemu-guest-agent
-bumblebee
-nvidia-prime
+#bumblebee
+#nvidia-prime
 gtkmm3
 spice-vdagent
 virtualbox-guest-utils
@@ -74,4 +75,3 @@ xlibre-video-nouveau
 xlibre-video-sisusb
 xlibre-video-vesa
 xlibre-video-voodoo
-
