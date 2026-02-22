@@ -280,9 +280,7 @@ brave-browser
 ##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
 #gcolor3
 >extra gcolor3
-##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
-#gghelper
->extra gghelper
+gghelper
 ##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
 #gpick
 >extra gpick

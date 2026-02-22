@@ -1,4 +1,4 @@
-name: NO-NVIDIA-driver
+name: Lite-No-NVIDIA-Stack
 on:
   workflow_dispatch:
 
@@ -65,7 +65,7 @@ jobs:
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-NO-NVIDIA-driver-stack
+          version: ${{ steps.time.outputs.time }}-LITE-NO-NVIDIA-STACK
           kernel: linux618
           code-name: "Nordic"
 
@@ -75,7 +75,7 @@ jobs:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/${{ needs.prepare-release.outputs.release_tag }}"
+          SF_DIR: "Releases/lite-no-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
           # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
@@ -102,13 +102,13 @@ jobs:
             
           # --- 2. README Generálása (Dinamikus Fejléc) ---
           {
-            echo "# NO NVIDIA Driver!!! 🏔️ Manjaro Awesome Respin - Nordic Themed"
+            echo "# Lite Edition (AMD/Intel Friendly, No NVIDIA Stack) 🏔️ Manjaro Awesome Respin - Nordic Themed"
             echo ""
             echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
             echo ""
             echo "## 📦 Build Info"
             echo "- **Date:** $BUILD_DATE"
-            echo "- **Version:** ${{ steps.time.outputs.time }}-Respin"
+            echo "- **Version:** ${{ steps.time.outputs.time }}-LITE-NO-NVIDIA-STACK"
             echo "- **Kernel:** linux618"
             echo ""
             echo "## 🔐 Checksums"
@@ -272,7 +272,7 @@ jobs:
 
           # --- 5. Feltöltés ---
           echo "Feltoltes inditasa..."
-          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\n mkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
+          echo -e "mkdir /home/frs/project/$SF_PROJECT/Releases\nmkdir /home/frs/project/$SF_PROJECT/Releases/lite-no-nvidia-stack\nmkdir /home/frs/project/$SF_PROJECT/Releases/lite-no-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}\nmkdir /home/frs/project/$SF_PROJECT/$SF_DIR" > sftp_commands.txt
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net || true
             
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" "$SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/$SF_DIR/"
