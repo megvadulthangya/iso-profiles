@@ -2,6 +2,11 @@ name: AI-ML-Edition
 on:
   workflow_dispatch:
 
+env:
+  STACK_SLUG: ai-ml-stack
+  VERSION_SUFFIX: AI-ML-Edition
+  ISO_PROFILES_BRANCH: AI/ML
+
 permissions:
   contents: write
   actions: read
@@ -59,13 +64,13 @@ jobs:
         uses: megvadulthangya/manjaro-iso-action@awesome
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
-          iso-profiles-branch: 'AI/ML'
+          iso-profiles-branch: ${{ env.ISO_PROFILES_BRANCH }}
           build-mirror: https://mirror.fcix.net/manjaro/
           additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C 73580DE2EDDFA6D6'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
-          version: ${{ steps.time.outputs.time }}-AI-ML-Edition
+          version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
           kernel: linux618
           code-name: "Nordic"
 
@@ -75,7 +80,7 @@ jobs:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/ai-ml-edition-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
+          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
           # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
@@ -108,7 +113,7 @@ jobs:
             echo ""
             echo "## 📦 Build Info"
             echo "- **Date:** $BUILD_DATE"
-            echo "- **Version:** ${{ steps.time.outputs.time }}-AI-ML-Edition"
+            echo "- **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}"
             echo "- **Kernel:** linux618"
             echo ""
             echo "## 🔐 Checksums"
@@ -282,8 +287,8 @@ jobs:
           # SFTP batch: '-' prefix = hiba ignorálása (pl. ha a mappa már létezik)
           cat > sftp_commands.txt <<SFTP
           -mkdir $BASE_REMOTE/Releases
-          -mkdir $BASE_REMOTE/Releases/ai-ml-edition-nvidia-stack
-          -mkdir $BASE_REMOTE/Releases/ai-ml-edition-nvidia-stack/${{ needs.prepare-release.outputs.release_tag }}
+          -mkdir $BASE_REMOTE/Releases/$STACK_SLUG
+          -mkdir $BASE_REMOTE/Releases/$STACK_SLUG/${{ needs.prepare-release.outputs.release_tag }}
           -mkdir $REMOTE_TARGET
           SFTP
 
@@ -292,3 +297,172 @@ jobs:
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
             "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
+
+  prune-stack-history:
+    name: List & keep only current + previous release (per stack)
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-release]
+    if: success()
+    env:
+      SF_USER: ${{ secrets.SF_USERNAME }}
+      SF_KEY: ${{ secrets.SF_SSH_KEY }}
+      SF_PROJECT: "manjaro-awesome-iso"
+      CURRENT_RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
+    steps:
+      - name: Prune old releases in current stack
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SF_USER:-}" ]; then
+            echo "HIBA: Az SF_USER változó üres!"
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          echo "$SF_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
+
+          BASE_REMOTE="/home/frs/project/$SF_PROJECT"
+          STACK_REMOTE="$BASE_REMOTE/Releases/$STACK_SLUG"
+
+          sftp_run() {
+            local batch_file="$1"
+            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$batch_file" "$SF_USER@frs.sourceforge.net"
+          }
+
+          sftp_ls_raw() {
+            local remote_path="$1"
+            local tmp_batch
+            tmp_batch="$(mktemp)"
+            printf 'ls -1 %s\n' "$remote_path" > "$tmp_batch"
+            sftp_run "$tmp_batch" 2>&1 || true
+            rm -f "$tmp_batch"
+          }
+
+          # SFTP outputból csak a "név" (basename) maradjon.
+          # Kezeli a teljes path-os listát is.
+          sftp_ls_names() {
+            local remote_path="$1"
+            sftp_ls_raw "$remote_path" \
+              | sed 's/^sftp> //' \
+              | sed '/^$/d' \
+              | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' \
+              | awk -F'/' 'NF{print $NF}' \
+              | sed '/^$/d'
+          }
+
+          echo "=============================================="
+          echo "STACK ellenőrzés / Stack inventory"
+          echo "Stack: $STACK_SLUG"
+          echo "Current release tag: $CURRENT_RELEASE_TAG"
+          echo "Remote stack path: $STACK_REMOTE"
+          echo "=============================================="
+
+          echo "=== Nyers lista a stack rootból (debug) ==="
+          sftp_ls_raw "$STACK_REMOTE" || true
+          echo ""
+
+          mapfile -t TAGS < <(
+            sftp_ls_names "$STACK_REMOTE" \
+              | grep -E '^[0-9]{12}$' \
+              | sort
+          )
+
+          TAG_COUNT=${#TAGS[@]}
+          echo "Talált release mappák száma ebben a stack-ben: $TAG_COUNT"
+
+          echo ""
+          echo "=== Részletes lista (verziók / scope-ok / fájlok) ==="
+          if [ "$TAG_COUNT" -eq 0 ]; then
+            echo "Nincs release mappa a stack alatt."
+            exit 0
+          fi
+
+          for tag in "${TAGS[@]}"; do
+            echo ""
+            echo "[Release] $STACK_SLUG / $tag"
+
+            mapfile -t SCOPES < <(
+              sftp_ls_names "$STACK_REMOTE/$tag" \
+                | grep -E '^[A-Za-z0-9._-]+$' \
+                | sort
+            )
+
+            if [ "${#SCOPES[@]}" -eq 0 ]; then
+              echo "  (nincs scope vagy nem olvasható)"
+              continue
+            fi
+
+            for scope in "${SCOPES[@]}"; do
+              echo "  [Scope] $scope"
+
+              mapfile -t FILES < <(
+                sftp_ls_names "$STACK_REMOTE/$tag/$scope" || true
+              )
+
+              if [ "${#FILES[@]}" -eq 0 ]; then
+                echo "    (üres)"
+                continue
+              fi
+
+              for f in "${FILES[@]}"; do
+                echo "    /Releases/$STACK_SLUG/$tag/$scope/$f"
+              done
+            done
+          done
+
+          echo ""
+          echo "=== Megtartási szabály / Retention policy ==="
+          echo "Csak az utolsó 2 release marad meg ebben a stack-ben (előző + aktuális)."
+
+          if [ "$TAG_COUNT" -le 2 ]; then
+            echo "Nincs mit törölni (<= 2 release van)."
+            exit 0
+          fi
+
+          # Növekvő sorrendben vannak -> az utolsó 2 marad
+          mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
+
+          echo "Törlendő release mappák:"
+          printf ' - %s\n' "${DELETE_TAGS[@]}"
+
+          for old_tag in "${DELETE_TAGS[@]}"; do
+            echo ""
+            echo ">>> Törlés előkészítése: $STACK_SLUG / $old_tag"
+
+            mapfile -t SCOPES < <(
+              sftp_ls_names "$STACK_REMOTE/$old_tag" \
+                | grep -E '^[A-Za-z0-9._-]+$' \
+                | sort
+            )
+
+            BATCH_DEL="$(mktemp)"
+
+            # scope-onként fájlok törlése, majd scope dir törlése
+            for scope in "${SCOPES[@]}"; do
+              mapfile -t FILES < <(
+                sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true
+              )
+
+              for f in "${FILES[@]}"; do
+                printf '%s\n' "-rm $STACK_REMOTE/$old_tag/$scope/$f" >> "$BATCH_DEL"
+              done
+
+              printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
+            done
+
+            # végül a release tag mappa
+            printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
+
+            echo "--- SFTP delete batch ($old_tag) ---"
+            cat "$BATCH_DEL"
+
+            sftp_run "$BATCH_DEL" || true
+            rm -f "$BATCH_DEL"
+          done
+
+          echo ""
+          echo "=== Törlés utáni lista / Post-prune inventory ==="
+          sftp_ls_raw "$STACK_REMOTE" || true
