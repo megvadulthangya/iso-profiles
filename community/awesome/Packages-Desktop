@@ -168,8 +168,8 @@ lain-git
 ##gnome-themes-standard
 ##grub-theme-manjaro
 ##hyperfluent-grub-theme-manjaro
-manjaro-distro-grub-theme
-##manjaro-distro-grub-theme-ai
+##manjaro-distro-grub-theme
+manjaro-distro-grub-theme-ai
 ##dmgrub-nord-1080p
 ##dmgrub-nord-1080p-ai
 ##dmgrub-nord-1440p
@@ -329,9 +329,9 @@ zram-generator
 libinput-gestures
 
 ## NVIDIA and LLM
-##>extra opencl-nvidia-575xx
-##cuda-12.9
-##cudnn9.10-cuda12.9
+>extra opencl-nvidia-575xx
+cuda-12.9
+cudnn9.10-cuda12.9
 ##>multilib lib32-nvidia-utils-575xx
 ##>multilib lib32-opencl-nvidia-575xx
 ##>extra python-cuda
