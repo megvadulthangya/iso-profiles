@@ -16,6 +16,257 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# ==============================
+# CachyOS repo setup (FIRST-RUN, repo+key only, NO package operations)
+# SAFE VERSION: keeps existing generic [cachyos] repo, only replaces CPU-specific repos
+# ==============================
+setup_cachyos_repos_first_run() {
+  local CACHYOS_KEYID="F3B607488DB35A47"
+  local PACMAN_CONF="/etc/pacman.conf"
+  local PACMAN_CONF_BAK="/etc/pacman.conf.bak.cachyos-first-run.$(date +%Y%m%d%H%M%S)"
+
+  echo "=== CACHYOS FIRST-RUN REPO SETUP START ==="
+
+  if [[ $EUID -ne 0 ]]; then
+    echo "❌ CACHYOS: root jogosultság kell."
+    return 1
+  fi
+
+  if [[ ! -f "$PACMAN_CONF" ]]; then
+    echo "❌ CACHYOS: $PACMAN_CONF nem található."
+    return 1
+  fi
+
+  # --- 1) Keyring init (ha kell) ---
+  if [[ ! -d /etc/pacman.d/gnupg ]] || [[ ! -f /etc/pacman.d/gnupg/pubring.kbx ]]; then
+    echo "CACHYOS: pacman-key init (missing keyring)"
+    pacman-key --init
+    pacman-key --populate archlinux
+  fi
+
+  # Legyen local secret key is lsign-hoz
+  if ! pacman-key --list-secret-keys >/dev/null 2>&1 || [[ -z "$(pacman-key --list-secret-keys 2>/dev/null)" ]]; then
+    echo "CACHYOS: pacman-key init (no local secret key for lsign)"
+    pacman-key --init
+    pacman-key --populate archlinux
+  fi
+
+  # --- 2) CachyOS key import + local sign (idempotens) ---
+  echo "CACHYOS: importing key ${CACHYOS_KEYID} from keyserver.ubuntu.com"
+
+  local key_ok=0
+  local attempt
+  for attempt in 1 2; do
+    echo "CACHYOS: recv-keys attempt=${attempt} (keyserver.ubuntu.com)"
+    if pacman-key --keyserver keyserver.ubuntu.com --recv-keys "${CACHYOS_KEYID}"; then
+      key_ok=1
+      break
+    fi
+    sleep 2
+  done
+
+  # opcionális fallback HKPS-re
+  if [[ "$key_ok" -ne 1 ]]; then
+    for attempt in 1 2; do
+      echo "CACHYOS: recv-keys attempt=${attempt} (hkps://keyserver.ubuntu.com)"
+      if pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys "${CACHYOS_KEYID}"; then
+        key_ok=1
+        break
+      fi
+      sleep 2
+    done
+  fi
+
+  if [[ "$key_ok" -ne 1 ]]; then
+    echo "❌ CACHYOS: a kulcs importálása sikertelen."
+    return 1
+  fi
+
+  echo "CACHYOS: local-sign key"
+  pacman-key --lsign-key "${CACHYOS_KEYID}"
+
+  # --- 3) CPU tier detektálás a célgépen ---
+  # Sorrend:
+  #   znver4/5 -> znver4
+  #   x86-64-v4 -> v4
+  #   x86-64-v3 -> v3
+  #   különben -> generic
+  local tier="generic"
+  local arch_dir=""
+  local repo_a=""
+  local repo_b=""
+  local repo_c=""
+
+  if command -v gcc >/dev/null 2>&1; then
+    local march
+    march="$(gcc -march=native -Q --help=target 2>/dev/null | awk '/^[[:space:]]+-march=/{print $2; exit}' || true)"
+    if [[ "${march:-}" == "znver4" || "${march:-}" == "znver5" ]]; then
+      tier="znver4"
+    fi
+  fi
+
+  if [[ "$tier" != "znver4" ]]; then
+    if /lib/ld-linux-x86-64.so.2 --help 2>/dev/null | grep -q "x86-64-v4 (supported"; then
+      tier="v4"
+    elif /lib/ld-linux-x86-64.so.2 --help 2>/dev/null | grep -q "x86-64-v3 (supported"; then
+      tier="v3"
+    else
+      tier="generic"
+    fi
+  fi
+
+  case "$tier" in
+    v3)
+      arch_dir="x86_64_v3"
+      repo_a="cachyos-v3"
+      repo_b="cachyos-core-v3"
+      repo_c="cachyos-extra-v3"
+      ;;
+    v4)
+      arch_dir="x86_64_v4"
+      repo_a="cachyos-v4"
+      repo_b="cachyos-core-v4"
+      repo_c="cachyos-extra-v4"
+      ;;
+    znver4)
+      arch_dir="x86_64_v4"
+      repo_a="cachyos-znver4"
+      repo_b="cachyos-core-znver4"
+      repo_c="cachyos-extra-znver4"
+      ;;
+    *)
+      tier="generic"
+      ;;
+  esac
+
+  echo "CACHYOS: detected tier=${tier}"
+
+  # --- 4) Backup ---
+  cp -a "$PACMAN_CONF" "$PACMAN_CONF_BAK"
+  echo "CACHYOS: backup created -> $PACMAN_CONF_BAK"
+
+  # --- 5) Csak a CPU-specifikus CachyOS repo szekciók eltávolítása (generic [cachyos] MEGMARAD) ---
+  local tmp_conf
+  tmp_conf="$(mktemp)"
+
+  awk '
+    BEGIN { skip=0 }
+    /^\[(cachyos-v3|cachyos-core-v3|cachyos-extra-v3|cachyos-v4|cachyos-core-v4|cachyos-extra-v4|cachyos-znver4|cachyos-core-znver4|cachyos-extra-znver4)\][[:space:]]*$/ {
+      skip=1
+      next
+    }
+    skip && /^\[/ {
+      skip=0
+      print
+      next
+    }
+    skip { next }
+    { print }
+  ' "$PACMAN_CONF" > "$tmp_conf"
+
+  mv "$tmp_conf" "$PACMAN_CONF"
+
+  # --- 6) CPU-specifikus blokk összeállítása (ha nem generic) ---
+  local tier_block_file=""
+  if [[ "$tier" != "generic" ]]; then
+    tier_block_file="$(mktemp)"
+    cat > "$tier_block_file" <<EOF
+
+# ==============================
+# CachyOS CPU-specific repos (managed by first-run script)
+# Auto-selected tier: $tier
+# ==============================
+
+[$repo_a]
+SigLevel = PackageRequired
+Server = https://mirror.cachyos.org/repo/$arch_dir/$repo_a/
+
+[$repo_b]
+SigLevel = PackageRequired
+Server = https://mirror.cachyos.org/repo/$arch_dir/$repo_b/
+
+[$repo_c]
+SigLevel = PackageRequired
+Server = https://mirror.cachyos.org/repo/$arch_dir/$repo_c/
+
+EOF
+  fi
+
+  # --- 7) [cachyos] generic repo jelenlétének ellenőrzése ---
+  local has_generic=0
+  if grep -qE '^\[cachyos\][[:space:]]*$' "$PACMAN_CONF"; then
+    has_generic=1
+  fi
+
+  # --- 8) CPU-specifikus blokk beszúrása a [cachyos] elé (ha van generic) ---
+  if [[ "$tier" != "generic" ]]; then
+    if [[ "$has_generic" -eq 1 ]]; then
+      local tmp_insert
+      tmp_insert="$(mktemp)"
+
+      awk -v insert_file="$tier_block_file" '
+        BEGIN { inserted=0 }
+        /^\[cachyos\][[:space:]]*$/ && !inserted {
+          while ((getline line < insert_file) > 0) print line
+          close(insert_file)
+          inserted=1
+          print
+          next
+        }
+        { print }
+      ' "$PACMAN_CONF" > "$tmp_insert"
+
+      mv "$tmp_insert" "$PACMAN_CONF"
+      echo "CACHYOS: inserted CPU-specific repos before existing [cachyos]"
+    else
+      # nincs generic repo -> appendeljük a CPU-specifikus blokkot + generic blokkot
+      cat "$tier_block_file" >> "$PACMAN_CONF"
+      cat >> "$PACMAN_CONF" <<'EOF'
+
+# ==============================
+# CachyOS generic repo (managed by first-run script)
+# ==============================
+
+[cachyos]
+SigLevel = PackageRequired
+Server = https://mirror.cachyos.org/repo/x86_64/cachyos/
+
+EOF
+      echo "CACHYOS: generic [cachyos] was missing -> added"
+    fi
+  else
+    # generic tier: nem kell CPU-specifikus repo
+    # csak biztosítjuk, hogy [cachyos] meglegyen
+    if [[ "$has_generic" -ne 1 ]]; then
+      cat >> "$PACMAN_CONF" <<'EOF'
+
+# ==============================
+# CachyOS generic repo (managed by first-run script)
+# ==============================
+
+[cachyos]
+SigLevel = PackageRequired
+Server = https://mirror.cachyos.org/repo/x86_64/cachyos/
+
+EOF
+      echo "CACHYOS: generic [cachyos] was missing -> added"
+    else
+      echo "CACHYOS: existing generic [cachyos] kept as-is"
+    fi
+  fi
+
+  # takarítás
+  if [[ -n "${tier_block_file:-}" && -f "${tier_block_file:-}" ]]; then
+    rm -f "$tier_block_file"
+  fi
+
+  echo "CACHYOS: pacman.conf updated successfully (tier=${tier})"
+  echo "=== CACHYOS FIRST-RUN REPO SETUP END ==="
+
+  # SZÁNDÉKOSAN nincs itt pacman -Sy / -Syu / pacman -U
+  return 0
+}
+
 # 2. UUID Detektálás (Kritikus a Timeshiftnek)
 echo "--> Root partíció UUID keresése..."
 ROOT_UUID=$(findmnt / -n -o UUID)
@@ -193,8 +444,17 @@ pacman-key --lsign-key "${XLIBRE_KEYID}"
 echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
 
 
-# 9. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
-echo "--> 9. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
+# 9. CachyOS repo kulcs + CPU-specifikus repo blokk beállítása (NINCS csomagtelepítés)
+echo "--> 9. CachyOS repo beállítása (CPU detektálás + pacman.conf módosítás)..."
+if setup_cachyos_repos_first_run; then
+    echo "✅ CachyOS repo beállítás kész."
+else
+    echo "⚠️ CachyOS repo beállítás sikertelen, a script folytatódik."
+fi
+
+
+# 10. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
+echo "--> 10. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
 
 if command -v pacman-mirrors &> /dev/null; then
     # --continent:   Érzékeli a felhasználó kontinensét (pl. Európa vagy Észak-Amerika)
@@ -214,7 +474,7 @@ echo "=========================================="
 echo "✅ TELEPÍTÉS UTÁNI BEÁLLÍTÁSOK KÉSZEN!"
 echo "=========================================="
 
-# 10. ÖNGYILKOS MECHANIZMUS
+# 11. ÖNGYILKOS MECHANIZMUS
 # Letiltjuk a szolgáltatást, hogy többet ne fusson le
 echo "--> Szolgáltatás letiltása a következő bootra..."
 systemctl disable manjaro-first-run.service
