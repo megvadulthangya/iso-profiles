@@ -307,8 +307,9 @@ jobs:
       CURRENT_RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
     steps:
       - name: Prune old releases in current stack
+        shell: bash
         run: |
-          set -u
+          set -euo pipefail
 
           if [ -z "${SF_USER:-}" ]; then
             echo "HIBA: Az SF_USER változó üres!"
@@ -328,7 +329,7 @@ jobs:
             sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$batch_file" "$SF_USER@frs.sourceforge.net"
           }
 
-          sftp_ls() {
+          sftp_ls_raw() {
             local remote_path="$1"
             local tmp_batch
             tmp_batch="$(mktemp)"
@@ -337,9 +338,16 @@ jobs:
             rm -f "$tmp_batch"
           }
 
-          parse_names() {
-            # kiszedi az sftp promptot és az üres sorokat
-            sed 's/^sftp> //' | sed '/^$/d'
+          # SFTP outputból csak a "név" (basename) maradjon.
+          # Kezeli a teljes path-os listát is.
+          sftp_ls_names() {
+            local remote_path="$1"
+            sftp_ls_raw "$remote_path" \
+              | sed 's/^sftp> //' \
+              | sed '/^$/d' \
+              | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' \
+              | awk -F'/' 'NF{print $NF}' \
+              | sed '/^$/d'
           }
 
           echo "=============================================="
@@ -349,63 +357,58 @@ jobs:
           echo "Remote stack path: $STACK_REMOTE"
           echo "=============================================="
 
-          RAW_TAGS="$(sftp_ls "$STACK_REMOTE")"
-          echo "$RAW_TAGS"
+          echo "=== Nyers lista a stack rootból (debug) ==="
+          sftp_ls_raw "$STACK_REMOTE" || true
+          echo ""
 
           mapfile -t TAGS < <(
-            printf '%s\n' "$RAW_TAGS" \
-            | parse_names \
-            | grep -E '^[0-9]{12}$' \
-            | sort
+            sftp_ls_names "$STACK_REMOTE" \
+              | grep -E '^[0-9]{12}$' \
+              | sort
           )
 
           TAG_COUNT=${#TAGS[@]}
-          echo ""
           echo "Talált release mappák száma ebben a stack-ben: $TAG_COUNT"
 
           echo ""
           echo "=== Részletes lista (verziók / scope-ok / fájlok) ==="
           if [ "$TAG_COUNT" -eq 0 ]; then
             echo "Nincs release mappa a stack alatt."
-          else
-            for tag in "${TAGS[@]}"; do
-              echo ""
-              echo "[Release] $STACK_SLUG / $tag"
+            exit 0
+          fi
 
-              RAW_SCOPES="$(sftp_ls "$STACK_REMOTE/$tag")"
-              mapfile -t SCOPES < <(
-                printf '%s\n' "$RAW_SCOPES" \
-                | parse_names \
+          for tag in "${TAGS[@]}"; do
+            echo ""
+            echo "[Release] $STACK_SLUG / $tag"
+
+            mapfile -t SCOPES < <(
+              sftp_ls_names "$STACK_REMOTE/$tag" \
                 | grep -E '^[A-Za-z0-9._-]+$' \
                 | sort
+            )
+
+            if [ "${#SCOPES[@]}" -eq 0 ]; then
+              echo "  (nincs scope vagy nem olvasható)"
+              continue
+            fi
+
+            for scope in "${SCOPES[@]}"; do
+              echo "  [Scope] $scope"
+
+              mapfile -t FILES < <(
+                sftp_ls_names "$STACK_REMOTE/$tag/$scope" || true
               )
 
-              if [ "${#SCOPES[@]}" -eq 0 ]; then
-                echo "  (nincs scope vagy nem olvasható)"
+              if [ "${#FILES[@]}" -eq 0 ]; then
+                echo "    (üres)"
                 continue
               fi
 
-              for scope in "${SCOPES[@]}"; do
-                echo "  [Scope] $scope"
-
-                RAW_FILES="$(sftp_ls "$STACK_REMOTE/$tag/$scope")"
-                mapfile -t FILES < <(
-                  printf '%s\n' "$RAW_FILES" \
-                  | parse_names \
-                  | grep -Ev '^(sftp>|Can't |No such file|not found)'
-                )
-
-                if [ "${#FILES[@]}" -eq 0 ]; then
-                  echo "    (üres)"
-                  continue
-                fi
-
-                for f in "${FILES[@]}"; do
-                  echo "    /Releases/$STACK_SLUG/$tag/$scope/$f"
-                done
+              for f in "${FILES[@]}"; do
+                echo "    /Releases/$STACK_SLUG/$tag/$scope/$f"
               done
             done
-          fi
+          done
 
           echo ""
           echo "=== Megtartási szabály / Retention policy ==="
@@ -416,7 +419,7 @@ jobs:
             exit 0
           fi
 
-          # Rendezve növekvőben vannak; az utolsó 2 marad
+          # Növekvő sorrendben vannak -> az utolsó 2 marad
           mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
 
           echo "Törlendő release mappák:"
@@ -426,23 +429,18 @@ jobs:
             echo ""
             echo ">>> Törlés előkészítése: $STACK_SLUG / $old_tag"
 
-            RAW_SCOPES="$(sftp_ls "$STACK_REMOTE/$old_tag")"
             mapfile -t SCOPES < <(
-              printf '%s\n' "$RAW_SCOPES" \
-              | parse_names \
-              | grep -E '^[A-Za-z0-9._-]+$' \
-              | sort
+              sftp_ls_names "$STACK_REMOTE/$old_tag" \
+                | grep -E '^[A-Za-z0-9._-]+$' \
+                | sort
             )
 
             BATCH_DEL="$(mktemp)"
 
             # scope-onként fájlok törlése, majd scope dir törlése
             for scope in "${SCOPES[@]}"; do
-              RAW_FILES="$(sftp_ls "$STACK_REMOTE/$old_tag/$scope")"
               mapfile -t FILES < <(
-                printf '%s\n' "$RAW_FILES" \
-                | parse_names \
-                | grep -Ev '^(sftp>|Can't |No such file|not found)'
+                sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true
               )
 
               for f in "${FILES[@]}"; do
@@ -452,7 +450,7 @@ jobs:
               printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
             done
 
-            # végül a release tag mappa
+            # README / checksum / ISO után release tag mappa törlése
             printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
 
             echo "--- SFTP delete batch ($old_tag) ---"
@@ -464,4 +462,4 @@ jobs:
 
           echo ""
           echo "=== Törlés utáni lista / Post-prune inventory ==="
-          sftp_ls "$STACK_REMOTE" || true
+          sftp_ls_raw "$STACK_REMOTE" || true
