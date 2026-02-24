@@ -278,7 +278,32 @@ jobs:
           echo "" >> "$README_PATH"
           echo "README generálva: $README_PATH"
 
-          # --- 5. Feltöltés ---
+          # --- 5. ISO becsomagolása split ZIP-be (4.8 GB darabok) ---
+          echo "Split ZIP készítése az ISO-ból..."
+
+          ISO_BASENAME="$(basename "$ISO_FILE")"
+          ISO_STEM="${ISO_BASENAME%.iso}"
+          ZIP_NAME="${ISO_STEM}.zip"
+
+          ZIP_PART_SIZE="4800m"
+
+          (
+            cd "$SOURCE_DIR"
+
+            rm -f "${ISO_STEM}.zip" "${ISO_STEM}".z[0-9][0-9] "${ISO_STEM}".z[0-9][0-9][0-9] || true
+
+            zip -0 -s "$ZIP_PART_SIZE" "$ZIP_NAME" "$ISO_BASENAME"
+
+            {
+              find . -maxdepth 1 -type f \( -name "${ISO_STEM}.z*" -o -name "${ZIP_NAME}" \) -printf '%f\n' | sort | while read -r f; do
+                sha256sum "$f"
+              done
+            } > "${ISO_STEM}.split.zip.sha256"
+          )
+
+          echo "Split ZIP elkészült: $SOURCE_DIR/$ZIP_NAME (+ .z01, .z02, ...)"
+
+          # --- 6. Feltöltés ---
           echo "Feltoltes inditasa..."
 
           BASE_REMOTE="/home/frs/project/$SF_PROJECT"
@@ -294,8 +319,16 @@ jobs:
 
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
 
+          shopt -s nullglob
+          UPLOAD_FILES=(
+            "$SOURCE_DIR"/*.z[0-9][0-9]
+            "$SOURCE_DIR"/*.zip
+            "$SOURCE_DIR"/*.sha*
+            "$README_PATH"
+          )
+
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
-            "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
+            "${UPLOAD_FILES[@]}" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
   prune-stack-history:
