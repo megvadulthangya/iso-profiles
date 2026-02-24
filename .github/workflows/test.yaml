@@ -292,7 +292,7 @@ jobs:
 
             rm -f "${ISO_STEM}.zip" "${ISO_STEM}".z[0-9][0-9] "${ISO_STEM}".z[0-9][0-9][0-9] || true
 
-            zip -0 -s "$ZIP_PART_SIZE" "$ZIP_NAME" "$ISO_BASENAME"
+            zip -v -0 -s "$ZIP_PART_SIZE" "$ZIP_NAME" "$ISO_BASENAME"
 
             {
               find . -maxdepth 1 -type f \( -name "${ISO_STEM}.z*" -o -name "${ZIP_NAME}" \) -printf '%f\n' | sort | while read -r f; do
@@ -303,7 +303,6 @@ jobs:
 
           echo "Split ZIP elkészült: $SOURCE_DIR/$ZIP_NAME (+ .z01, .z02, ...)"
 
-          # --- 6. Feltöltés ---
           echo "Feltoltes inditasa..."
 
           BASE_REMOTE="/home/frs/project/$SF_PROJECT"
@@ -319,16 +318,8 @@ jobs:
 
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
 
-          shopt -s nullglob
-          UPLOAD_FILES=(
-            "$SOURCE_DIR"/*.z[0-9][0-9]
-            "$SOURCE_DIR"/*.zip
-            "$SOURCE_DIR"/*.sha*
-            "$README_PATH"
-          )
-
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
-            "${UPLOAD_FILES[@]}" \
+            "$SOURCE_DIR"/*.z[0-9][0-9] "$SOURCE_DIR"/*.zip "$SOURCE_DIR"/*.sha* "$README_PATH" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
   prune-stack-history:
