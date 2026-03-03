@@ -165,6 +165,8 @@ setup_cachyos_repos_first_run() {
   ' "$PACMAN_CONF" > "$tmp_conf"
 
   mv "$tmp_conf" "$PACMAN_CONF"
+  # Javítás: megfelelő jogosultság beállítása, hogy ne root-only legyen
+  chmod 644 "$PACMAN_CONF"
 
   # --- 6) CPU-specifikus blokk összeállítása (ha nem generic) ---
   local tier_block_file=""
@@ -217,6 +219,8 @@ EOF
       ' "$PACMAN_CONF" > "$tmp_insert"
 
       mv "$tmp_insert" "$PACMAN_CONF"
+      # Javítás: ismét megfelelő jogosultság
+      chmod 644 "$PACMAN_CONF"
       echo "CACHYOS: inserted CPU-specific repos before existing [cachyos]"
     else
       # nincs generic repo -> appendeljük a CPU-specifikus blokkot + generic blokkot
@@ -232,6 +236,8 @@ SigLevel = PackageRequired
 Server = https://mirror.cachyos.org/repo/x86_64/cachyos/
 
 EOF
+      # Itt nem használtunk mv-t, de a jogosultság lehet, hogy helyes, de biztos, ami biztos:
+      chmod 644 "$PACMAN_CONF"
       echo "CACHYOS: generic [cachyos] was missing -> added"
     fi
   else
@@ -249,6 +255,7 @@ SigLevel = PackageRequired
 Server = https://mirror.cachyos.org/repo/x86_64/cachyos/
 
 EOF
+      chmod 644 "$PACMAN_CONF"
       echo "CACHYOS: generic [cachyos] was missing -> added"
     else
       echo "CACHYOS: existing generic [cachyos] kept as-is"
