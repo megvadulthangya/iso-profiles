@@ -476,14 +476,14 @@ else
 fi
 
 
-# Add all normal users to sdwebui-forge group for write access
-if getent group sdwebui-forge >/dev/null; then
+# Add all normal users to diffusion group for write access
+if getent group diffusion >/dev/null; then
     # Hozzáad minden felhasználót, akinek UID-ja 1000 és 65534 között van
     for user in $(getent passwd | awk -F: '$3>=1000 && $3<65534 {print $1}'); do
-        usermod -aG sdwebui-forge "$user" 2>/dev/null || true
+        usermod -aG diffusion "$user" 2>/dev/null || true
     done
     # Biztosítja a megfelelő jogosultságokat a könyvtáron
-    chown -R :sdwebui-forge /opt/stable-diffusion-webui-forge
+    chown -R :diffusion /opt/stable-diffusion-webui-forge
     chmod -R g+w /opt/stable-diffusion-webui-forge
     find /opt/stable-diffusion-webui-forge -type d -exec chmod g+s {} \;
 fi
