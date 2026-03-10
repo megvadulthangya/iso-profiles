@@ -478,16 +478,43 @@ fi
 
 # Add all normal users to diffusion group for write access
 if getent group diffusion >/dev/null; then
-    # Hozzáad minden felhasználót, akinek UID-ja 1000 és 65534 között van
+    echo "Configuring group memberships and permissions for diffusion tools..."
+    
+    # Hozzáad minden felhasználót (UID 1000-65534) a diffusion csoporthoz
     for user in $(getent passwd | awk -F: '$3>=1000 && $3<65534 {print $1}'); do
         usermod -aG diffusion "$user" 2>/dev/null || true
     done
-    # Biztosítja a megfelelő jogosultságokat a könyvtáron
-    chown -R :diffusion /opt/stable-diffusion-webui-forge
-    chmod -R g+w /opt/stable-diffusion-webui-forge
-    find /opt/stable-diffusion-webui-forge -type d -exec chmod g+s {} \;
-fi
 
+    # Könyvtárak listája, amiken elvégezzük a jogosultság javítást
+    _apps=("/opt/stable-diffusion-webui-forge" "/opt/kohya_ss")
+
+    for _appdir in "${_apps[@]}"; do
+        if [ -d "$_appdir" ]; then
+            echo "Setting permissions on: $_appdir"
+            
+            # Tulajdonos beállítása
+            chown -R diffusion:diffusion "$_appdir"
+            
+            # Könyvtárak: rwxrwxr-x + SGID
+            find "$_appdir" -type d -exec chmod 2775 {} +
+            
+            # Fájlok: rw-rw-r--
+            find "$_appdir" -type f -exec chmod 664 {} +
+            
+            # Script és venv binárisok: rwxrwxr-x
+            find "$_appdir" -type f -name "*.sh" -exec chmod 775 {} +
+            if [ -d "$_appdir/venv/bin" ]; then
+                find "$_appdir/venv/bin" -type f -exec chmod 775 {} +
+            fi
+            
+            # ACL-ek beállítása az öröklődéshez és csoportos íráshoz
+            if command -v setfacl >/dev/null; then
+                setfacl -R -m g:diffusion:rwX "$_appdir"
+                setfacl -R -d -m g:diffusion:rwX "$_appdir"
+            fi
+        fi
+    done
+fi
 
 echo "=========================================="
 echo "✅ TELEPÍTÉS UTÁNI BEÁLLÍTÁSOK KÉSZEN!"
