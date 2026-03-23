@@ -238,6 +238,9 @@ awesome-freedesktop-git
 awesome-copycats-manjaro
 awesome-rofi
 lain-git
+rlwrap
+xcb-util-errors
+librsvg
 ## Themes
 ##>extra manjaro-wallpapers-18.0
 ##gnome-themes-standard
