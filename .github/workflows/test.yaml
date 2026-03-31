@@ -1,9 +1,9 @@
-name: Stable-NVIDIA-Stack
+name: Testing-NVIDIA-Stack
 on:
   workflow_dispatch:
 
 env:
-  STACK_SLUG: stable-nvidia-stack
+  STACK_SLUG: testing-nvidia-stack
   VERSION_SUFFIX: Respin
   ISO_PROFILES_BRANCH: XLibre
 
@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         EDITION: [awesome]
-        BRANCH: [stable]
+        BRANCH: [testing]
         SCOPE: [full]
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -54,7 +54,7 @@ jobs:
       - uses: styfle/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ github.token }}
-       
+        
       - id: time
         uses: nanzm/get-time-action@v1.1
         with:
@@ -82,7 +82,6 @@ jobs:
           SF_PROJECT: "manjaro-awesome-iso"
           SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
-          # --- 1. Alapvető ellenőrzések és beállítások ---
           if [ -z "$SF_USER" ]; then
             echo "HIBA: Az SF_USER változó üres!"
             exit 1
@@ -100,12 +99,10 @@ jobs:
             echo "HIBA: Nem található ISO fájl!"
             exit 1
           fi
-          echo "Forrás mappa: $SOURCE_DIR"
 
           README_PATH="$SOURCE_DIR/README.md"
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
             
-          # --- 2. README Generálása (Dinamikus Fejléc) ---
           {
             echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
             echo ""
@@ -115,11 +112,11 @@ jobs:
             echo "- **Date:** $BUILD_DATE"
             echo "- **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}"
             echo "- **Kernel:** linux618"
+            echo "- **Branch:** Manjaro Testing"
             echo ""
             echo "## 🔐 Checksums"
           } > "$README_PATH"
 
-          # Checksum loop
           for ext in sha1 sha256 sha512; do
             hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
             if [ -f "$hash_file" ]; then
@@ -129,159 +126,89 @@ jobs:
             fi
           done
 
-          # --- 3. Statikus Tartalom (A lényeg!) ---
-          # Itt fűzzük hozzá a leírást, beleértve a hálózati javítást is
           cat <<EOF >> "$README_PATH"
 
-          ---
+---
 
-          ## ✅ STABIL KIADÁS / STABLE RELEASE
+## 🛠️ TESTING KIADÁS / TESTING RELEASE
 
-          ### **🚀 EZ A NORMÁL KIADÁS, TELJES NVIDIA STACK TÁMOGATÁSSAL 🚀**
-          ### **🚀 THIS IS THE STANDARD RELEASE WITH FULL NVIDIA STACK SUPPORT 🚀**
+### **🚀 NORMÁL NVIDIA VERZIÓ (NEM AI/ML) 🚀**
+### **🚀 STANDARD NVIDIA VERSION (NON-AI/ML) 🚀**
 
-          **Ez a kiadás NVIDIA stackkel érkezik (driver + AI/ML használathoz szükséges komponensek), és out-of-the-box használatra készült.**
+**Ez a verzió az NVIDIA kártyát használóknak készült, tartalmazza a szükséges drivereket. Mostantól a Manjaro TESTING ágát használja a frissebb csomagok érdekében.**
 
-          **This release includes the NVIDIA stack (driver + components required for AI/ML workflows) and is intended for out-of-the-box use.**
+**This version is designed for NVIDIA users and includes the necessary drivers. It now uses the Manjaro TESTING branch for more up-to-date packages.**
 
-          ---
+---
 
-          ## ⚙️ Overview / Áttekintés
+### 📥 Alternatív letöltések / Alternative downloads:
 
-          This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
+* **AI/ML munkához (teljes stack):** [ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
+* **Intel/AMD vagy VM teszteléshez:** [lite-no-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/lite-no-nvidia-stack/)
 
-          **New in this release:** The installation process is now seamless. **No post-install scripts, no hacks.** Just install via Calamares, reboot, and the system is fully configured and ready to use.
+---
 
-          Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+## ⚙️ Overview / Áttekintés
 
-          **Újdonság:** A telepítési folyamat mostantól teljesen zökkenőmentes. **Nincsenek utólagos scriptek, nincsenek "hack"-ek.** Csak telepítsd a szokásos módon, indítsd újra, és a rendszer azonnal használatra kész.
+This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
 
-          ---
+**New in this release:** The system now tracks the **Manjaro Testing branch**. Installation is seamless via Calamares—no post-install scripts required.
 
-          ## 🤖 AI/ML READY ENVIRONMENT / AI/ML-RE FELKÉSZÍTETT KÖRNYEZET
+Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
 
-          **Ez az ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
+**Újdonság:** A rendszer mostantól a **Manjaro Testing ágat** használja. A telepítés zökkenőmentes a Calamares segítségével—nincs szükség utólagos scriptekre.
 
-          1. **Teljes NVIDIA támogatás** - minden driver készen áll:
-             - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
-             - **Komplett CUDA/CUDNN stack** pre-installálva
-             - Nem kell a driver-ekkel foglalkozni, minden készen van
+---
 
-          2. **AI/ML alkalmazások könnyű telepítése:**
-             - Csak fel kell telepíteni az alkalmazásokat, a rendszer már támogatja őket
-             - **Stable Diffusion Forge** (AI képgenerálás)
-             - **Kohya_ss** (LoRA/Dreambooth képzés)
-             - **Ollama** (lokális LLM futtatás)
+## 🚀 Key Features / Főbb jellemzők
 
-          3. **Docker konténerek támogatása:**
-             - NVIDIA Container Toolkit már konfigurálva
-             - Könnyű telepíthető: **Ollama konténer** + **OpenWebUI**
+### 🖥️ Desktop Environment
+* **Window Manager:** AwesomeWM 4.x (Github version)
+* **Theme:** Unified **Nordic** color scheme.
+* **Applets:** **Awesome-rofi** fork integration.
 
-          4. **Teljes NVIDIA fejlesztői környezet:**
-             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
-             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
-             - python-torch python-torchvision python-torchtext
+### 📸 Creative Suite (Photography)
+* **Darktable:** Pre-populated database with Stefano Ferro's styles and t3mujinpack film emulations.
 
-          **This ISO provides an out-of-the-box AI/ML development environment:**
+### 🛠️ System Core
+* **Base:** Manjaro Testing (x86_64)
+* **Filesystem:** BTRFS + Timeshift.
+* **Shell:** Fish (root), Zsh/Bash (user).
 
-          1. **Full NVIDIA support** - all drivers ready:
-             - **Legacy 575** and **modern 590 NVIDIA driver** support
-             - **Complete CUDA/CUDNN stack** pre-installed
-             - No need to worry about drivers, everything is set up
+### 🌐 Connectivity & Stability Fixes / Hálózati Stabilitás
+Unlike standard Manjaro, this ISO **fixes the "Limited Connectivity" false positives** by using Cloudflare (`cp.cloudflare.com` and `1.1.1.1`) for status checks.
 
-          2. **Easy installation of AI/ML applications:**
-             - Just install the applications, the system already supports them
-             - **Stable Diffusion Forge** (AI image generation)
-             - **Kohya_ss** (LoRA/Dreambooth training)
-             - **Ollama** (local LLM running)
+A standard Manjaróval ellentétben ez az ISO **javítja a téves "Korlátozott kapcsolat" hibaüzeneteket** a Cloudflare hálózatának használatával az ellenőrzések során.
 
-          3. **Docker container support:**
-             - NVIDIA Container Toolkit already configured
-             - Easy to install: **Ollama container** + **OpenWebUI**
+---
 
-          4. **Complete NVIDIA developer environment:**
-             - nvidia cudnn nvidia-container-toolkit nvidia-utils opencl-nvidia
-             - python-pycuda python-cuda-bindings python-cuda-core python-cuda-pathfinder
-             - python-torch python-torchvision python-torchtext
+## 📺 Video Walkthrough / Videós bemutató
 
-          ---
+[![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
 
-          ## 🚀 Key Features / Főbb jellemzők
+---
 
-          ### 🖥️ Desktop Environment
-          * **Window Manager:** AwesomeWM 4.x (Github version)
-          * **Theme:** Unified **Nordic** color scheme across GTK, Kvantum, LightDM, and AwesomeWM.
-          * **Applets:** **Awesome-rofi** fork, patched for seamless integration.
+## ☕ Support / Támogatás
+👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
 
-          ### 📸 Creative Suite (Photography)
-          The ISO comes with a pre-populated **Darktable database**.
-          * **Stefano Ferro's Styles:** Includes Traveller, Vintage, Dark Tones, Dodge & Burn.
-          * **t3mujinpack:** Extensive film emulation pack.
+---
 
-          ### 🛠️ System Core
-          * **Base:** Manjaro Stable
-          * **Filesystem:** BTRFS + Timeshift (automatic snapshot management).
-          * **Shell:** Fish (root), Zsh/Bash (user).
+## 🧠 Credits / Készítette
+* **Base:** [Manjaro Linux](https://manjaro.org/)
+* **Theme:** [Nordic Theme](https://github.com/EliverLara/Nordic)
+* **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
 
-          ### 🌐 Connectivity & Stability Fixes / Hálózati Stabilitás
-          Unlike standard Manjaro, this ISO **fixes the infamous "Limited Connectivity" / "No Internet" false positives**.
-          
-          * **The Problem:** Manjaro's upstream servers often have expired SSL certificates or strict firewall rules, causing NetworkManager and Calamares to report connection failures even when your internet is working perfectly.
-          * **The Fix:** I have overridden the connectivity checks to bypass Manjaro's infrastructure entirely.
-            * **NetworkManager:** Configured to ping **Cloudflare** (\`cp.cloudflare.com\`) for instant, reliable status detection.
-            * **Calamares Installer:** Verifies connection via \`1.1.1.1\` instead of unreliable mirrors.
-          * **Result:** No more confusing error icons or stalled installations due to upstream server issues.
+---
 
-          A standard Manjaróval ellentétben ez az ISO **javítja a hírhedt "Korlátozott kapcsolat" / "Nincs Internet" téves hibaüzeneteket**.
-          
-          * **A probléma:** A Manjaro saját szerverei gyakran küzdenek lejárt SSL tanúsítványokkal vagy túl szigorú tűzfal szabályokkal, ami miatt a NetworkManager és a telepítő akkor is hibát jelez, ha az interneted tökéletesen működik.
-          * **A megoldás:** Felülbíráltam a kapcsolódási ellenőrzéseket, így a rendszer teljesen megkerüli a Manjaro instabil infrastruktúráját.
-             * **NetworkManager:** A **Cloudflare** globális hálózatát (\`cp.cloudflare.com\`) használja a gyors és megbízható állapotjelzéshez.
-             * **Calamares Telepítő:** A \`1.1.1.1\` címen ellenőrzi a kapcsolatot a megbízhatatlan tükörszerverek helyett.
-          * **Eredmény:** Nincs több megtévesztő hibaüzenet, kérdőjeles wifi ikon vagy emiatt megakadó telepítés.
+## 📜 Recent Changes (Git Log)
+EOF
 
-          ---
-
-          ## 📺 Video Walkthrough / Videós bemutató
-
-          [![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
-
-          ---
-
-          ## ☕ Support / Támogatás
-
-          If you find this project useful, please support the development: / Ha hasznosnak találod a projektet, támogasd a fejlesztést:
-
-          👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
-
-          ---
-
-          ## 🧠 Credits / Készítette
-
-          * **Base:** [Manjaro Linux](https://manjaro.org/)
-          * **Theme:** [Nordic Theme](https://github.com/EliverLara/Nordic)
-          * **WM:** [Awesome Copycats Manjaro](https://github.com/megvadulthangya/awesome-copycats-manjaro) & [Luca CPZ](https://github.com/lcpz)
-          * **Photo:** [Stefano Ferro (MEL365)](https://mel365.com/) & [t3mujinpack](https://t3mujinpack.github.io/)
-          * **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
-
-          ---
-          
-          ## 📜 Recent Changes (Git Log)
-          EOF
-
-          # --- 4. Git Log hozzáadása a végére ---
           git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
-            
           echo "" >> "$README_PATH"
-          echo "README generálva: $README_PATH"
-
-          # --- 5. Feltöltés ---
-          echo "Feltoltes inditasa..."
 
           BASE_REMOTE="/home/frs/project/$SF_PROJECT"
           REMOTE_TARGET="$BASE_REMOTE/$SF_DIR"
 
-          # SFTP batch: '-' prefix = hiba ignorálása (pl. ha a mappa már létezik)
           cat > sftp_commands.txt <<SFTP
           -mkdir $BASE_REMOTE/Releases
           -mkdir $BASE_REMOTE/Releases/$STACK_SLUG
@@ -296,7 +223,7 @@ jobs:
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
   prune-stack-history:
-    name: List & keep only current + previous release (per stack)
+    name: List & keep only current + previous release
     runs-on: ubuntu-latest
     needs: [prepare-release, build-release]
     if: success()
@@ -304,18 +231,13 @@ jobs:
       SF_USER: ${{ secrets.SF_USERNAME }}
       SF_KEY: ${{ secrets.SF_SSH_KEY }}
       SF_PROJECT: "manjaro-awesome-iso"
+      STACK_SLUG: testing-nvidia-stack
       CURRENT_RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
     steps:
-      - name: Prune old releases in current stack
+      - name: Prune old releases
         shell: bash
         run: |
           set -euo pipefail
-
-          if [ -z "${SF_USER:-}" ]; then
-            echo "HIBA: Az SF_USER változó üres!"
-            exit 1
-          fi
-
           mkdir -p ~/.ssh
           echo "$SF_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
@@ -325,141 +247,38 @@ jobs:
           STACK_REMOTE="$BASE_REMOTE/Releases/$STACK_SLUG"
 
           sftp_run() {
-            local batch_file="$1"
-            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$batch_file" "$SF_USER@frs.sourceforge.net"
+            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$1" "$SF_USER@frs.sourceforge.net"
           }
 
-          sftp_ls_raw() {
-            local remote_path="$1"
+          sftp_ls_names() {
             local tmp_batch
             tmp_batch="$(mktemp)"
-            printf 'ls -1 %s\n' "$remote_path" > "$tmp_batch"
-            sftp_run "$tmp_batch" 2>&1 || true
+            printf 'ls -1 %s\n' "$1" > "$tmp_batch"
+            sftp_run "$tmp_batch" 2>&1 | sed 's/^sftp> //' | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' | awk -F'/' 'NF{print $NF}' | sed '/^$/d' || true
             rm -f "$tmp_batch"
           }
 
-          # SFTP outputból csak a "név" (basename) maradjon.
-          # Kezeli a teljes path-os listát is.
-          sftp_ls_names() {
-            local remote_path="$1"
-            sftp_ls_raw "$remote_path" \
-              | sed 's/^sftp> //' \
-              | sed '/^$/d' \
-              | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' \
-              | awk -F'/' 'NF{print $NF}' \
-              | sed '/^$/d'
-          }
-
-          echo "=============================================="
-          echo "STACK ellenőrzés / Stack inventory"
-          echo "Stack: $STACK_SLUG"
-          echo "Current release tag: $CURRENT_RELEASE_TAG"
-          echo "Remote stack path: $STACK_REMOTE"
-          echo "=============================================="
-
-          echo "=== Nyers lista a stack rootból (debug) ==="
-          sftp_ls_raw "$STACK_REMOTE" || true
-          echo ""
-
-          mapfile -t TAGS < <(
-            sftp_ls_names "$STACK_REMOTE" \
-              | grep -E '^[0-9]{12}$' \
-              | sort
-          )
-
+          mapfile -t TAGS < <(sftp_ls_names "$STACK_REMOTE" | grep -E '^[0-9]{12}$' | sort)
           TAG_COUNT=${#TAGS[@]}
-          echo "Talált release mappák száma ebben a stack-ben: $TAG_COUNT"
-
-          echo ""
-          echo "=== Részletes lista (verziók / scope-ok / fájlok) ==="
-          if [ "$TAG_COUNT" -eq 0 ]; then
-            echo "Nincs release mappa a stack alatt."
-            exit 0
-          fi
-
-          for tag in "${TAGS[@]}"; do
-            echo ""
-            echo "[Release] $STACK_SLUG / $tag"
-
-            mapfile -t SCOPES < <(
-              sftp_ls_names "$STACK_REMOTE/$tag" \
-                | grep -E '^[A-Za-z0-9._-]+$' \
-                | sort
-            )
-
-            if [ "${#SCOPES[@]}" -eq 0 ]; then
-              echo "  (nincs scope vagy nem olvasható)"
-              continue
-            fi
-
-            for scope in "${SCOPES[@]}"; do
-              echo "  [Scope] $scope"
-
-              mapfile -t FILES < <(
-                sftp_ls_names "$STACK_REMOTE/$tag/$scope" || true
-              )
-
-              if [ "${#FILES[@]}" -eq 0 ]; then
-                echo "    (üres)"
-                continue
-              fi
-
-              for f in "${FILES[@]}"; do
-                echo "    /Releases/$STACK_SLUG/$tag/$scope/$f"
-              done
-            done
-          done
-
-          echo ""
-          echo "=== Megtartási szabály / Retention policy ==="
-          echo "Csak az utolsó 2 release marad meg ebben a stack-ben (előző + aktuális)."
 
           if [ "$TAG_COUNT" -le 2 ]; then
-            echo "Nincs mit törölni (<= 2 release van)."
+            echo "Nincs mit törölni."
             exit 0
           fi
 
-          # Növekvő sorrendben vannak -> az utolsó 2 marad
           mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
 
-          echo "Törlendő release mappák:"
-          printf ' - %s\n' "${DELETE_TAGS[@]}"
-
           for old_tag in "${DELETE_TAGS[@]}"; do
-            echo ""
-            echo ">>> Törlés előkészítése: $STACK_SLUG / $old_tag"
-
-            mapfile -t SCOPES < <(
-              sftp_ls_names "$STACK_REMOTE/$old_tag" \
-                | grep -E '^[A-Za-z0-9._-]+$' \
-                | sort
-            )
-
+            mapfile -t SCOPES < <(sftp_ls_names "$STACK_REMOTE/$old_tag" | sort)
             BATCH_DEL="$(mktemp)"
-
-            # scope-onként fájlok törlése, majd scope dir törlése
             for scope in "${SCOPES[@]}"; do
-              mapfile -t FILES < <(
-                sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true
-              )
-
+              mapfile -t FILES < <(sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true)
               for f in "${FILES[@]}"; do
                 printf '%s\n' "-rm $STACK_REMOTE/$old_tag/$scope/$f" >> "$BATCH_DEL"
               done
-
               printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
             done
-
-            # végül a release tag mappa
             printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
-
-            echo "--- SFTP delete batch ($old_tag) ---"
-            cat "$BATCH_DEL"
-
             sftp_run "$BATCH_DEL" || true
             rm -f "$BATCH_DEL"
           done
-
-          echo ""
-          echo "=== Törlés utáni lista / Post-prune inventory ==="
-          sftp_ls_raw "$STACK_REMOTE" || true
