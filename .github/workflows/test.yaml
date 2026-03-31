@@ -74,22 +74,13 @@ jobs:
           kernel: linux618
           code-name: "Nordic"
 
-  publish-release:
-    runs-on: ubuntu-latest
-    needs: [prepare-release, build-release]
-    if: success()
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Generate README & Upload to SourceForge
+        if: success()
         env:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/full"
+          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
         run: |
           if [ -z "$SF_USER" ]; then
             echo "HIBA: Az SF_USER változó üres!"
@@ -101,97 +92,87 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
 
-          # Megkeressük az ISO fájlt (ha lefutott a build-release job és letöltöttük az artifactot, de itt most egyszerűsítve a scriptet folytatjuk)
-          # Megjegyzés: A build-release után le kellene tölteni az artifactokat, de a logikát az eredeti szerint hagyjuk
-          
-          README_PATH="README.md"
+          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
+          SOURCE_DIR=$(dirname "$ISO_FILE")
+          README_PATH="$SOURCE_DIR/README.md"
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
-            
-          {
-            echo "# 🏔️ Manjaro Awesome Respin - Nordic Themed"
-            echo ""
-            echo "![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)"
-            echo ""
-            echo "## 📦 Build Info"
-            echo "- **Date:** $BUILD_DATE"
-            echo "- **Kernel:** linux618"
-            echo "- **Branch:** Manjaro Testing"
-            echo ""
-          } > "$README_PATH"
 
-          cat <<EOF >> "$README_PATH"
+          cat <<EOF > "$README_PATH"
+          # 🏔️ Manjaro Awesome Respin - Nordic Themed
 
----
+          ![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20via%20automated%20CI%2FCD%20pipeline-brightgreen)
 
-## ✅ TESTING KIADÁS / TESTING RELEASE
+          ## 📦 Build Info
+          - **Date:** $BUILD_DATE
+          - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          - **Branch:** Manjaro TESTING
+          - **Kernel:** linux618
 
-### **🚀 EZ A NORMÁL VERZIÓ, NVIDIA DRIVEREKKEL 🚀**
-### **🚀 THIS IS THE STANDARD VERSION WITH NVIDIA DRIVERS 🚀**
+          ---
 
-**Ez a verzió az NVIDIA kártyát használóknak készült, tartalmazza a szükséges zárt drivereket az optimális teljesítményhez. Ez NEM az AI/ML verzió, hanem a mindennapi használatra szánt stabilabb alap.**
+          ## 🛠️ TESTING KIADÁS / TESTING RELEASE
 
-**Mostantól a rendszer a Manjaro TESTING ágát használja a frissebb csomagok és jobb hardvertámogatás érdekében.**
+          ### **🚀 NORMÁL NVIDIA VERZIÓ 🚀**
+          ### **🚀 STANDARD NVIDIA VERSION 🚀**
 
-**This is the standard version for NVIDIA users, including proprietary drivers for optimal performance. This is NOT the AI/ML version, but a standard base for daily use.**
+          **Ez a verzió az NVIDIA kártyát használóknak készült, tartalmazza a szükséges zárt drivereket az optimális teljesítményhez. Ez NEM az AI/ML verzió, hanem a mindennapi használatra szánt alaprendszer.**
 
-**From now on, the system tracks the Manjaro TESTING branch for newer packages and better hardware support.**
+          **Mostantól a rendszer a Manjaro TESTING ágát használja a frissebb csomagok érdekében.**
 
----
+          **This version is designed for NVIDIA card users and includes the necessary proprietary drivers for optimal performance. This is NOT the AI/ML version, but the standard base for daily use.**
 
-### 📥 Egyéb verziók / Other versions:
+          **From now on, the system tracks the Manjaro TESTING branch for more up-to-date packages.**
 
-**AI/ML munkához / For AI/ML work:**
-[ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
+          ---
 
-**Intel/AMD kártyákhoz vagy VM teszthez / For Intel/AMD or VM:**
-[lite-no-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/lite-no-nvidia-stack/)
+          ### 📥 Alternatív letöltések / Alternative downloads:
 
----
+          * **AI/ML munkához (teljes stack):** [ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
+          * **Intel/AMD vagy VM teszteléshez:** [lite-no-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/lite-no-nvidia-stack/)
 
-## ⚙️ Overview / Áttekintés
+          ---
 
-This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
+          ## ⚙️ Overview / Áttekintés
 
-Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
+          This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment. Now based on the **Manjaro Testing branch**.
 
----
+          Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem. Mostantól a **Manjaro Testing ágra** épül.
 
-## 🚀 Key Features / Főbb jellemzők
+          ---
 
-### 🖥️ Desktop Environment
-* **Window Manager:** AwesomeWM 4.x (Github version)
-* **Theme:** Unified **Nordic** color scheme.
+          ## 🚀 Key Features / Főbb jellemzők
 
-### 🛠️ System Core
-* **Base:** Manjaro Testing
-* **Filesystem:** BTRFS + Timeshift.
-* **Shell:** Fish (root), Zsh/Bash (user).
+          ### 🖥️ Desktop Environment
+          * **Window Manager:** AwesomeWM 4.x (Github version)
+          * **Theme:** Unified **Nordic** color scheme.
 
----
+          ### 🛠️ System Core
+          * **Base:** Manjaro Testing
+          * **Filesystem:** BTRFS + Timeshift (automata snapshotok).
+          * **Shell:** Fish (root), Zsh/Bash (user).
 
-## 📺 Video Walkthrough / Videós bemutató
+          ---
 
-[![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
+          ## 📺 Video Walkthrough / Videós bemutató
+          [![Manjaro Awesome Respin Showcase](https://img.youtube.com/vi/7Z-CN08_2U8/maxresdefault.jpg)](https://youtu.be/7Z-CN08_2U8)
 
----
+          ---
 
-## ☕ Support / Támogatás
-👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
+          ## ☕ Support / Támogatás
+          👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
 
----
+          ---
 
-## 🧠 Credits / Készítette
-* **Base:** [Manjaro Linux](https://manjaro.org/)
-* **Theme:** [Nordic Theme](https://github.com/EliverLara/Nordic)
-* **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
+          ## 🧠 Credits / Készítette
+          * **Base:** [Manjaro Linux](https://manjaro.org/)
+          * **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
 
----
+          ---
 
-## 📜 Recent Changes (Git Log)
-EOF
+          ## 📜 Recent Changes (Git Log)
+          EOF
 
           git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
-          echo "" >> "$README_PATH"
 
           BASE_REMOTE="/home/frs/project/$SF_PROJECT"
           REMOTE_TARGET="$BASE_REMOTE/$SF_DIR"
@@ -205,9 +186,8 @@ EOF
 
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
 
-          # Megjegyzés: Itt az ISO fájlokat is fel kellene tölteni, de a kérés a leírás javítására vonatkozott.
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
-            "$README_PATH" \
+            "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
   prune-stack-history:
