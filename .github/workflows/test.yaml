@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         EDITION: [awesome]
-        BRANCH: [stable]
+        BRANCH: [testing]
         SCOPE: [full]
     steps:
       - name: Free Disk Space (Ubuntu)
