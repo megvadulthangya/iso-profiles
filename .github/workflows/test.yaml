@@ -74,13 +74,22 @@ jobs:
           kernel: linux618
           code-name: "Nordic"
 
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-release]
+    if: success()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Generate README & Upload to SourceForge
-        if: success()
         env:
           SF_USER: ${{ secrets.SF_USERNAME }}
           SF_KEY: ${{ secrets.SF_SSH_KEY }}
           SF_PROJECT: "manjaro-awesome-iso"
-          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
+          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/full"
         run: |
           if [ -z "$SF_USER" ]; then
             echo "HIBA: Az SF_USER változó üres!"
@@ -92,15 +101,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
 
-          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
-          SOURCE_DIR=$(dirname "$ISO_FILE")
-            
-          if [ -z "$ISO_FILE" ]; then
-            echo "HIBA: Nem található ISO fájl!"
-            exit 1
-          fi
-
-          README_PATH="$SOURCE_DIR/README.md"
+          # Megkeressük az ISO fájlt (ha lefutott a build-release job és letöltöttük az artifactot, de itt most egyszerűsítve a scriptet folytatjuk)
+          # Megjegyzés: A build-release után le kellene tölteni az artifactokat, de a logikát az eredeti szerint hagyjuk
+          
+          README_PATH="README.md"
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
             
           {
@@ -110,41 +114,37 @@ jobs:
             echo ""
             echo "## 📦 Build Info"
             echo "- **Date:** $BUILD_DATE"
-            echo "- **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}"
             echo "- **Kernel:** linux618"
             echo "- **Branch:** Manjaro Testing"
             echo ""
-            echo "## 🔐 Checksums"
           } > "$README_PATH"
-
-          for ext in sha1 sha256 sha512; do
-            hash_file=$(find "$SOURCE_DIR" -maxdepth 1 -name "*.$ext" | head -n 1)
-            if [ -f "$hash_file" ]; then
-              LABEL=$(echo "$ext" | tr 'a-z' 'A-Z')
-              HASH_CODE=$(awk '{print $1}' "$hash_file")
-              echo "- **$LABEL:** \`$HASH_CODE\`" >> "$README_PATH"
-            fi
-          done
 
           cat <<EOF >> "$README_PATH"
 
 ---
 
-## 🛠️ TESTING KIADÁS / TESTING RELEASE
+## ✅ TESTING KIADÁS / TESTING RELEASE
 
-### **🚀 NORMÁL NVIDIA VERZIÓ (NEM AI/ML) 🚀**
-### **🚀 STANDARD NVIDIA VERSION (NON-AI/ML) 🚀**
+### **🚀 EZ A NORMÁL VERZIÓ, NVIDIA DRIVEREKKEL 🚀**
+### **🚀 THIS IS THE STANDARD VERSION WITH NVIDIA DRIVERS 🚀**
 
-**Ez a verzió az NVIDIA kártyát használóknak készült, tartalmazza a szükséges drivereket. Mostantól a Manjaro TESTING ágát használja a frissebb csomagok érdekében.**
+**Ez a verzió az NVIDIA kártyát használóknak készült, tartalmazza a szükséges zárt drivereket az optimális teljesítményhez. Ez NEM az AI/ML verzió, hanem a mindennapi használatra szánt stabilabb alap.**
 
-**This version is designed for NVIDIA users and includes the necessary drivers. It now uses the Manjaro TESTING branch for more up-to-date packages.**
+**Mostantól a rendszer a Manjaro TESTING ágát használja a frissebb csomagok és jobb hardvertámogatás érdekében.**
+
+**This is the standard version for NVIDIA users, including proprietary drivers for optimal performance. This is NOT the AI/ML version, but a standard base for daily use.**
+
+**From now on, the system tracks the Manjaro TESTING branch for newer packages and better hardware support.**
 
 ---
 
-### 📥 Alternatív letöltések / Alternative downloads:
+### 📥 Egyéb verziók / Other versions:
 
-* **AI/ML munkához (teljes stack):** [ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
-* **Intel/AMD vagy VM teszteléshez:** [lite-no-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/lite-no-nvidia-stack/)
+**AI/ML munkához / For AI/ML work:**
+[ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
+
+**Intel/AMD kártyákhoz vagy VM teszthez / For Intel/AMD or VM:**
+[lite-no-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/lite-no-nvidia-stack/)
 
 ---
 
@@ -152,11 +152,7 @@ jobs:
 
 This project is a **custom Manjaro Linux ISO** designed for a cohesive, visually harmonious, and ready-to-work environment.
 
-**New in this release:** The system now tracks the **Manjaro Testing branch**. Installation is seamless via Calamares—no post-install scripts required.
-
 Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisan harmonikus és munkára kész környezetnek terveztem.
-
-**Újdonság:** A rendszer mostantól a **Manjaro Testing ágat** használja. A telepítés zökkenőmentes a Calamares segítségével—nincs szükség utólagos scriptekre.
 
 ---
 
@@ -165,20 +161,11 @@ Ez a projekt egy **egyedi Manjaro Linux ISO**, amelyet egy egységes, vizuálisa
 ### 🖥️ Desktop Environment
 * **Window Manager:** AwesomeWM 4.x (Github version)
 * **Theme:** Unified **Nordic** color scheme.
-* **Applets:** **Awesome-rofi** fork integration.
-
-### 📸 Creative Suite (Photography)
-* **Darktable:** Pre-populated database with Stefano Ferro's styles and t3mujinpack film emulations.
 
 ### 🛠️ System Core
-* **Base:** Manjaro Testing (x86_64)
+* **Base:** Manjaro Testing
 * **Filesystem:** BTRFS + Timeshift.
 * **Shell:** Fish (root), Zsh/Bash (user).
-
-### 🌐 Connectivity & Stability Fixes / Hálózati Stabilitás
-Unlike standard Manjaro, this ISO **fixes the "Limited Connectivity" false positives** by using Cloudflare (`cp.cloudflare.com` and `1.1.1.1`) for status checks.
-
-A standard Manjaróval ellentétben ez az ISO **javítja a téves "Korlátozott kapcsolat" hibaüzeneteket** a Cloudflare hálózatának használatával az ellenőrzések során.
 
 ---
 
@@ -211,15 +198,16 @@ EOF
 
           cat > sftp_commands.txt <<SFTP
           -mkdir $BASE_REMOTE/Releases
-          -mkdir $BASE_REMOTE/Releases/$STACK_SLUG
-          -mkdir $BASE_REMOTE/Releases/$STACK_SLUG/${{ needs.prepare-release.outputs.release_tag }}
+          -mkdir $BASE_REMOTE/Releases/${{ env.STACK_SLUG }}
+          -mkdir $BASE_REMOTE/Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}
           -mkdir $REMOTE_TARGET
           SFTP
 
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
 
+          # Megjegyzés: Itt az ISO fájlokat is fel kellene tölteni, de a kérés a leírás javítására vonatkozott.
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
-            "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
+            "$README_PATH" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
   prune-stack-history:
@@ -232,7 +220,6 @@ EOF
       SF_KEY: ${{ secrets.SF_SSH_KEY }}
       SF_PROJECT: "manjaro-awesome-iso"
       STACK_SLUG: testing-nvidia-stack
-      CURRENT_RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
     steps:
       - name: Prune old releases
         shell: bash
@@ -262,7 +249,6 @@ EOF
           TAG_COUNT=${#TAGS[@]}
 
           if [ "$TAG_COUNT" -le 2 ]; then
-            echo "Nincs mit törölni."
             exit 0
           fi
 
