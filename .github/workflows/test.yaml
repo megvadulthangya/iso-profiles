@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         EDITION: [awesome]
-        BRANCH: [stable]
+        BRANCH: [testing]
         SCOPE: [full, minimal]
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -146,11 +146,23 @@ jobs:
           **Do NOT try to use “Boot with proprietary drivers” in the live ISO.**
           **Only “Boot with open source drivers” is supported in this build.**
 
-          **Akinek out-of-the-box szüksége van NVIDIA driverre, használja a stabil verziót:**
+          **Akinek out-of-the-box szüksége van NVIDIA driverre, használja a latest verziót:**
           [Stabil verzió letöltése](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
 
-          **If you need NVIDIA drivers out of the box, use the stable version:**
-          [Download stable version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+          **If you need NVIDIA drivers out of the box, use the latest version:**
+          [Download latest version](https://sourceforge.net/projects/manjaro-awesome-iso/files/latest/download)
+          
+          
+          **From now on, the system tracks the Manjaro TESTING branch for more up-to-date packages.**
+
+          ---
+
+          ### 📥 Alternatív letöltések / Alternative downloads:
+
+          * **AI/ML munkához (teljes stack):** [ai-ml-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/ai-ml-stack/)
+          * **Intel/AMD vagy VM teszteléshez:** [testing-nvidia-stack](https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/testing-nvidia-stack/)
+
+          ---
 
           ---
 
@@ -170,9 +182,9 @@ jobs:
 
           ---
 
-          ## 🧪 TESZT VERZIÓ CÉLJA / TEST VERSION PURPOSE
+          ## 🧪  VERZIÓ CÉLJA / VERSION PURPOSE
 
-          **Ez a teszt ISO a NO-NVIDIA build ág ellenőrzésére szolgál, és nyílt forráskódú driverekkel használható live környezetet ad:**
+          **Ez a ISO Intel/AMD Rendszerek VM-ben való teszteléshez van :**
 
           1. **NVIDIA driver stack nélkül készül**
              - Nincs proprietary NVIDIA driver stack ebben a kiadásban
@@ -188,7 +200,7 @@ jobs:
              - Ha valakinek out-of-the-box NVIDIA támogatás kell, ezt a buildet ne használja
              - Helyette a stabil kiadást töltse le és használja
 
-          **This test ISO is intended to validate the NO-NVIDIA build branch and provides a live environment for use with open source drivers only:**
+          **This ISO is intended to use with Intel/AMD Systmes or VM Usage:**
 
           1. **Built without an NVIDIA driver stack**
              - No proprietary NVIDIA driver stack is included in this release
