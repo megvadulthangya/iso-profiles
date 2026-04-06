@@ -1,0 +1,43 @@
+services:  
+  open-webui:  
+    container_name: open-webui  
+    image: ghcr.io/open-webui/open-webui:main  
+    restart: unless-stopped  
+    depends_on:  
+      - tika  
+    ports:  
+      - 8080:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:  
+      - /docker/open-webui:/app/backend/data  
+    environment:  
+      # Ollama connection  
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      # Web search  
+      OPENWEBUI_ENABLE_SEARCH: "true"  
+      # Document content extraction - Tika  
+      CONTENT_EXTRACTION_ENGINE: tika
+      TIKA_SERVER_URL: http://tika:9998
+      # Image generation - Automatic1111  
+      ENABLE_IMAGE_GENERATION: "true"  
+      IMAGE_GENERATION_ENGINE: automatic1111
+      AUTOMATIC1111_BASE_URL: http://automatic1111:7860
+      AUTOMATIC1111_API_AUTH: "username:password"  
+      # --- ComfyUI image generation (uncomment to use instead of Automatic1111) ---  
+      # To switch to ComfyUI, comment out the Automatic1111 lines above  
+      # and uncomment the lines below.  
+      # IMAGE_GENERATION_ENGINE: comfyui  
+      # COMFYUI_BASE_URL: http://comfyui:8188
+      # COMFYUI_API_KEY: ""  
+      # COMFYUI_WORKFLOW: ""  
+      # COMFYUI_WORKFLOW_NODES: ""  
+    env_file:  
+      - .env  
+  tika:  
+    container_name: tika  
+    image: apache/tika:latest  
+    restart: unless-stopped  
+    ports:  
+      - 9998:9998  
+networks: {}
