@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+marker="$HOME/.config/picom-detect.done"
+autostart="$HOME/.config/autostart/picom-detect-once.desktop"
+
+if [[ -f "$marker" ]]; then
+  exit 0
+fi
+
+/usr/bin/picom-detect
+
+mkdir -p "$HOME/.config"
+touch "$marker"
+rm -f "$autostart"

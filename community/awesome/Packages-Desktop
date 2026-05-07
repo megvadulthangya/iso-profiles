@@ -341,7 +341,7 @@ rofi
 ##(2026-02-21): nem kötelező a minimál működéshez → FULL-only (>extra) (non-destructive).
 #flameshot
 >extra flameshot
-picom
+picom-pijulius-next-git
 scrot
 unclutter
 xorg-xbacklight
