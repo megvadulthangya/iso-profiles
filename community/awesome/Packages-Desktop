@@ -236,7 +236,7 @@ evince
 dmenu
 rofi
 flameshot
-picom
+picom-pijulius-next-git
 scrot
 unclutter
 xorg-xbacklight
