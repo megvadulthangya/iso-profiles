@@ -1,4 +1,4 @@
-name: Lite-No-NVIDIA-Stack
+name: Lite-No-NVIDIA-Stack-testing
 on:
   workflow_dispatch:
 
