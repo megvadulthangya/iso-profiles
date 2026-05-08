@@ -476,6 +476,15 @@ else
 fi
 
 
+# Ensure docker group exists and add eligible human users (UID >= 1000)
+# Service users like 'diffusion' are excluded for security reasons.
+groupadd -f docker
+for user in $(awk -F: '$3 >= 1000 && $3 <= 60000 {print $1}' /etc/passwd); do
+    if [[ "$user" != "diffusion" && "$user" != "nobody" ]]; then
+        usermod -aG docker "$user"
+    fi
+done
+
 # Add all normal users to diffusion group for write access
 if getent group diffusion >/dev/null; then
     echo "Configuring group memberships and permissions for diffusion tools..."

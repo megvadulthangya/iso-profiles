@@ -1,4 +1,4 @@
-name: AI-ML-Edition
+name: AI-ML-Edition-testing
 on:
   workflow_dispatch:
 
