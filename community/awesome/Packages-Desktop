@@ -99,7 +99,7 @@ accountsservice  # Enhanced user accounts handling
 ##garcon
 thunar
 thunar-volman
-gtkhash-thunar
+gtkhash-thunar-git
 tumbler
 ##xfce4-appfinder
 ##xfce4-panel
