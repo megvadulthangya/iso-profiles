@@ -279,6 +279,9 @@ ugrep
 expac
 meld
 tldr
+fd
+ripgrep
+ripgrep-all
 
 # Optional dependencies engrampa
 p7zip  # 7Z and ARJ archive support
