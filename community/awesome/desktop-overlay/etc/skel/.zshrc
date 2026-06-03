@@ -5,6 +5,10 @@
 # PATH beállítások
 export PATH="$HOME/.local/bin:$HOME/Applications/depot_tools:$PATH"
 
+# Alapértelmezett szerkesztő
+export EDITOR=nano
+export VISUAL=nano
+
 # Manpager (bat használata man olvasáshoz)
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANROFFOPT="-c"
@@ -13,6 +17,13 @@ export MANROFFOPT="-c"
 if command -v qtile > /dev/null 2>&1; then
     export QT_QPA_PLATFORMTHEME="qt5ct"
 fi
+
+# =============================================================================
+# HISTORY BEÁLLÍTÁSOK (egységes, nagy előzmény, duplikátumok nélkül)
+# =============================================================================
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_ALL_DUPS
 
 # =============================================================================
 # MANJARO ALAPBEÁLLÍTÁSOK
@@ -32,6 +43,10 @@ fi
 # =============================================================================
 # PLUGINEK ÉS PROMPT
 # =============================================================================
+
+# FZF környezet beállítása (fd + bat előnézet)
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always {}'"
 
 # 1. Zsh Autosuggestions (Szürke javaslatok)
 if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
@@ -116,6 +131,22 @@ alias please="sudo"
 alias tb="nc termbin.com 9999"
 alias helpme="echo 'To print basic information about a command use helpme <command>'"
 
+# --- Reflector tükörfrissítés (Fish-ből átvéve) ---
+alias mirror='sudo reflector -f 30 -l 30 --number 10 --verbose --save /etc/pacman.d/mirrorlist'
+alias mirrora='sudo reflector --latest 50 --number 20 --sort age --save /etc/pacman.d/mirrorlist'
+alias mirrord='sudo reflector --latest 50 --number 20 --sort delay --save /etc/pacman.d/mirrorlist'
+alias mirrors='sudo reflector --latest 50 --number 20 --sort score --save /etc/pacman.d/mirrorlist'
+
+# --- Új modern eszköz aliasok (egységes) ---
+alias top='btop'
+alias htop='btop'
+alias help='tldr'
+alias json='jq .'
+alias rpdf='rga'
+
+# Midnight Commander wrapper (megtartja a munkakönyvtárat)
+alias mc='source /usr/lib/mc/mc-wrapper.sh'
+
 # =============================================================================
 # FUNKCIÓK
 # =============================================================================
@@ -160,7 +191,23 @@ if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
     source /etc/profile.d/vte.sh
 fi
 
-# Fastfetch indítása (kivéve Quake módban)
+# Welcome reminder (always, English, with Nord ASCII art border)
+if [[ -o interactive ]] && [[ -z "$QUAKE_MODE" ]]; then
+    # Színek definiálása (Nord kék és szürke ANSI RGB kódokkal)
+    nord_blue='\e[38;2;136;192;208m'
+    nord_dim='\e[38;2;76;86;106m'
+    nord_reset='\e[0m'
+
+    echo -e ""
+    echo -e "  ${nord_dim}┌────────────────────────────────────────────────────────┐${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}╭──────────╮${nord_reset}                                         ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}│  ℹ INFO  │${nord_reset}  New to the terminal?                   ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}╰──────────╯${nord_reset}  Type ${nord_blue}'tutor'${nord_reset} for a quick guide.      ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}└────────────────────────────────────────────────────────┘${nord_reset}"
+    echo -e ""
+fi
+
+# 5. Fastfetch indítása (kivéve Quake módban)
 if [[ -o interactive ]] && [[ -z "$QUAKE_MODE" ]] && command -v fastfetch > /dev/null 2>&1; then
     fastfetch --config neofetch.jsonc 2>/dev/null || fastfetch
 fi

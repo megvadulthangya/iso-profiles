@@ -7,8 +7,10 @@ set -x SHELL /usr/bin/fish
 # Use bat for man pages
 set -xU MANPAGER "sh -c 'col -bx | bat -l man -p'"
 set -xU MANROFFOPT "-c"
-set -Ux EDITOR nano
-set -Ux VISUAL nano
+
+# Editor
+set -gx EDITOR nano
+set -gx VISUAL nano
 
 ## Export variable need for qt-theme
 if type -q qtile
@@ -18,6 +20,10 @@ end
 # Set settings for https://github.com/franciscolourenco/done
 set -U __done_min_cmd_duration 10000
 set -U __done_notification_urgency_level low
+
+## FZF defaults (fd + bat preview)
+set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git'
+set -gx FZF_CTRL_T_OPTS "--preview 'bat --color=always {}'"
 
 ## Environment setup
 # Apply .profile: use this to put fish compatible .profile stuff in
@@ -104,6 +110,20 @@ function cleanup
     end
 end
 
+
+
+function mc --description 'Midnight Commander with working directory preservation'
+    set -l tmpdir /tmp/mc-$USER
+    mkdir -p $tmpdir
+    set -l MC_PWD_FILE (mktemp $tmpdir/mc.pwd.XXXXXX)
+    /usr/bin/mc -P "$MC_PWD_FILE" $argv
+    if test -s "$MC_PWD_FILE"
+        cd (cat "$MC_PWD_FILE")
+    end
+    rm -f "$MC_PWD_FILE"
+end
+
+
 ## Useful aliases
 
 # Replace ls with eza
@@ -162,6 +182,13 @@ alias jctl 'journalctl -p 3 -xb'
 # Recent installed packages
 alias rip 'expac --timefmt="%Y-%m-%d %T" "%l\t%n %v" | sort | tail -200 | nl'
 
+# New modern tool aliases (unified)
+alias top 'btop'
+alias htop 'btop'
+alias help 'tldr'
+alias json 'jq .'
+alias rpdf 'rga'
+
 ## ============================================================================
 ## INTERACTIVE SESSION SETTINGS
 ## ============================================================================
@@ -178,17 +205,36 @@ if status --is-interactive
         fzf --fish | source
     end
 
-    # 3. Oh My Posh prompt (POWERLEVEL10K CLASSIC - Fish specific)
+    # 3. Oh My Posh prompt – unified Nordtron theme
     if type -q oh-my-posh
-        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/powerlevel10k_classic.omp.json | source
+        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/nordtron.omp.json | source
     end
 
-    # 4. Fastfetch
-    if type -q fastfetch
-       fastfetch --config neofetch.jsonc
+    
+    # 4. Welcome reminder (always, English, with Nord ASCII art border)
+    if not set -q QUAKE_MODE
+        # Színek definiálása (Nord kék és szürke)
+        set -l nord_blue (set_color 88c0d0)
+        set -l nord_dim (set_color 4c566a)
+        set -l nord_reset (set_color normal)
+
+        echo ""
+        echo "  $nord_dim┌────────────────────────────────────────────────────────┐$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue╭──────────╮$nord_reset                                         $nord_dim│$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue│  ℹ INFO  │$nord_reset  New to the terminal?                   $nord_dim│$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue╰──────────╯$nord_reset  Type $nord_blue'tutor'$nord_reset for a quick guide.        $nord_dim│$nord_reset"
+        echo "  $nord_dim└────────────────────────────────────────────────────────┘$nord_reset"
+        echo ""
+    end
+    
+        
+    # 5. Fastfetch – skip if QUAKE_MODE is set
+    if type -q fastfetch; and not set -q QUAKE_MODE
+        fastfetch --config neofetch.jsonc
     end
 end
 
+    
 
 ## ============================================================================
 ## VTE & TILIX FIX (Directory Tracking)
@@ -207,3 +253,34 @@ function __vte_osc7 --on-variable PWD
     end
   end
 end
+
+# Nord Theme Colors
+set -g fish_color_autosuggestion 4c566a
+set -g fish_color_cancel --reverse
+set -g fish_color_command 88c0d0
+set -g fish_color_comment 4c566a --italics
+set -g fish_color_cwd 5e81ac
+set -g fish_color_cwd_root bf616a
+set -g fish_color_end 81a1c1
+set -g fish_color_error bf616a
+set -g fish_color_escape ebcb8b
+set -g fish_color_history_current e5e9f0 --bold
+set -g fish_color_host a3be8c
+set -g fish_color_host_remote ebcb8b
+set -g fish_color_keyword 81a1c1
+set -g fish_color_normal normal
+set -g fish_color_operator 81a1c1
+set -g fish_color_option 8fbcbb
+set -g fish_color_param d8dee9
+set -g fish_color_quote a3be8c
+set -g fish_color_redirection b48ead --bold
+set -g fish_color_search_match --background=434c5e --bold
+set -g fish_color_selection d8dee9 --background=434c5e --bold
+set -g fish_color_status bf616a
+set -g fish_color_user a3be8c
+set -g fish_color_valid_path --underline
+set -g fish_pager_color_completion e5e9f0
+set -g fish_pager_color_description ebcb8b --italics
+set -g fish_pager_color_prefix --bold --underline
+set -g fish_pager_color_progress 3b4252 --background=d08770 --bold
+set -g fish_pager_color_selected_background --background=434c5e

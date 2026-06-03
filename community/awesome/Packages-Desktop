@@ -386,6 +386,10 @@ ugrep
 expac
 meld
 tldr
+fd
+ripgrep
+ripgrep-all
+terminal-tutor
 
 # Optional dependencies engrampa
 p7zip  # 7Z and ARJ archive support
