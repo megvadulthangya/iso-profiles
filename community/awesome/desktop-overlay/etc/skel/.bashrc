@@ -43,6 +43,10 @@ shopt -s checkwinsize
 # MODERN ESZKÖZÖK INTEGRÁCIÓJA (Zoxide, FZF, Prompt)
 # =============================================================================
 
+# FZF alapértelmezett kereső parancs (fd + rejtett fájlok, kivéve .git)
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always {}'"
+
 # 1. FZF (Fuzzy Finder) - A Ctrl+R keresés "javítása"
 # Bash alatt ezeket a fájlokat kell betölteni:
 if [ -f /usr/share/fzf/key-bindings.bash ]; then
@@ -65,10 +69,8 @@ else
     PS1='\[\033[01;32m\][\u@\h\[\033[00m\] \w\[\033[01;32m\]]\$\[\033[00m\] '
 fi
 
-# 4. Command-not-found hook (Hogy szóljon, mit telepíts, ha nincs parancs)
-if [ -f /usr/share/doc/pkgfile/command-not-found.bash ]; then
-    source /usr/share/doc/pkgfile/command-not-found.bash
-elif [ -f /usr/share/doc/find-the-command/ftc.bash ]; then
+# 4. Command-not-found hook (csak find-the-command, egységes a Zsh/Fish viselkedéssel)
+if [ -f /usr/share/doc/find-the-command/ftc.bash ]; then
     source /usr/share/doc/find-the-command/ftc.bash
 fi
 
@@ -95,6 +97,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+alias ......="cd ../../../../.."
 
 # --- Rendszerkarbantartás (Arch/Manjaro) ---
 alias upd="pamac update --no-confirm"
@@ -115,6 +118,29 @@ alias untar="tar -zxvf "
 alias wget="wget -c"
 alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 alias please="sudo"
+
+# --- Aliasok Zsh/Fish szinkronizálásból átvéve ---
+alias vdir="vdir --color=auto"
+alias tb="nc termbin.com 9999"
+alias helpme="echo 'To print basic information about a command use helpme <command>'"
+alias apt="man pacman"
+alias apt-get="man pacman"
+
+# --- Reflector tükörfrissítés (Fish-ből átvéve) ---
+alias mirror='sudo reflector -f 30 -l 30 --number 10 --verbose --save /etc/pacman.d/mirrorlist'
+alias mirrora='sudo reflector --latest 50 --number 20 --sort age --save /etc/pacman.d/mirrorlist'
+alias mirrord='sudo reflector --latest 50 --number 20 --sort delay --save /etc/pacman.d/mirrorlist'
+alias mirrors='sudo reflector --latest 50 --number 20 --sort score --save /etc/pacman.d/mirrorlist'
+
+# --- Új modern eszköz aliasok (egységes) ---
+alias top='btop'
+alias htop='btop'
+alias help='tldr'
+alias json='jq .'
+alias rpdf='rga'
+
+# Midnight Commander wrapper (megtartja a munkakönyvtárat kilépés után)
+alias mc='. /usr/lib/mc/mc-wrapper.sh'
 
 # =============================================================================
 # FUNKCIÓK
@@ -154,12 +180,27 @@ cleanup() {
 # =============================================================================
 # EGYÉB ÉS INDÍTÁS
 # =============================================================================
-
 # Bash completion betöltése (fontos a Tab kiegészítéshez)
 [ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
 
-# Fastfetch (rendszerinfó) indításkor
-if [[ $- == *i* ]] && command -v fastfetch > /dev/null 2>&1; then
+# 4. Welcome reminder (always, English, with Nord ASCII art border)
+if [[ $- == *i* ]] && [[ -z "$QUAKE_MODE" ]]; then
+    # Színek definiálása (Nord kék és szürke ANSI RGB kódokkal)
+    nord_blue='\e[38;2;136;192;208m'
+    nord_dim='\e[38;2;76;86;106m'
+    nord_reset='\e[0m'
+
+    echo -e ""
+    echo -e "  ${nord_dim}┌────────────────────────────────────────────────────────┐${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}╭──────────╮${nord_reset}                                         ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}│  ℹ INFO  │${nord_reset}  New to the terminal?                   ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}│${nord_reset}   ${nord_blue}╰──────────╯${nord_reset}  Type ${nord_blue}'tutor'${nord_reset} for a quick guide.        ${nord_dim}│${nord_reset}"
+    echo -e "  ${nord_dim}└────────────────────────────────────────────────────────┘${nord_reset}"
+    echo -e ""
+fi
+
+# Fastfetch (rendszerinfó) indításkor – kihagyva Quake módban
+if [[ $- == *i* ]] && [[ -z "$QUAKE_MODE" ]] && command -v fastfetch > /dev/null 2>&1; then
     fastfetch --config neofetch.jsonc 2>/dev/null || fastfetch
 fi
 
