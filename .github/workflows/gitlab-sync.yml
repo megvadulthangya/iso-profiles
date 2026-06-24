@@ -30,7 +30,7 @@ jobs:
 
       - name: Merge GitLab master into GitHub master
         run: |
-          git checkout master
+          git checkout -B master origin/master
           git merge gitlab/master --no-edit || true
 
       - name: Push changes to GitHub
