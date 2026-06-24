@@ -15,11 +15,11 @@ jobs:
   prepare-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: styfle/cancel-workflow-action@0.12.1
+      - uses: styfle/cancel-workflow-action@0.13.1
         with:
           access_token: ${{ github.token }}
       - id: time
-        uses: nanzm/get-time-action@v1.1
+        uses: nanzm/get-time-action@v2.0
         with:
           format: 'YYYYMMDDHHmm'
     outputs:
@@ -47,16 +47,16 @@ jobs:
           swap-storage: true
 
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: styfle/cancel-workflow-action@0.12.1
+      - uses: styfle/cancel-workflow-action@0.13.1
         with:
           access_token: ${{ github.token }}
        
       - id: time
-        uses: nanzm/get-time-action@v1.1
+        uses: nanzm/get-time-action@v2.0
         with:
           format: 'YY.MM'
 
