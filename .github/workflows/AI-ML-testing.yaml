@@ -71,7 +71,7 @@ jobs:
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
-          kernel: linux618
+          kernel: linux71
           code-name: "Nordic"
 
       - name: Generate README & Upload to SourceForge
@@ -114,7 +114,7 @@ jobs:
             echo "## 📦 Build Info"
             echo "- **Date:** $BUILD_DATE"
             echo "- **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}"
-            echo "- **Kernel:** linux618"
+            echo "- **Kernel:** linux71"
             echo ""
             echo "## 🔐 Checksums"
           } > "$README_PATH"
@@ -166,7 +166,7 @@ jobs:
           **Ez az ISO egy out-of-the-box működőképes AI/ML fejlesztői környezetet biztosít:**
 
           1. **Teljes NVIDIA támogatás** - minden driver készen áll:
-             - **Legacy 575** és **modern 590 NVIDIA driver** támogatás
+             - **Legacy 580** és **modern 590 NVIDIA driver** támogatás
              - **Komplett CUDA/CUDNN stack** pre-installálva
              - Nem kell a driver-ekkel foglalkozni, minden készen van
 
@@ -188,7 +188,7 @@ jobs:
           **This ISO provides an out-of-the-box AI/ML development environment:**
 
           1. **Full NVIDIA support** - all drivers ready:
-             - **Legacy 575** and **modern 590 NVIDIA driver** support
+             - **Legacy 580** and **modern 590 NVIDIA driver** support
              - **Complete CUDA/CUDNN stack** pre-installed
              - No need to worry about drivers, everything is set up
 
