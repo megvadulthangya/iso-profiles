@@ -71,7 +71,7 @@ jobs:
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
-          kernel: linux618
+          kernel: linux71
           code-name: "Nordic"
 
       - name: Generate README & Upload to SourceForge
@@ -106,7 +106,7 @@ jobs:
           - **Date:** $BUILD_DATE
           - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
           - **Branch:** Manjaro TESTING
-          - **Kernel:** linux618
+          - **Kernel:** linux71
 
           ---
 
