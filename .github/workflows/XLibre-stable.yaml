@@ -1,4 +1,4 @@
-name: Stable-NVIDIA-Stack
+name: XLibre-Stable
 on:
   workflow_dispatch:
 

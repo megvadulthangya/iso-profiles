@@ -1,4 +1,4 @@
-name: Testing-NVIDIA-Stack
+name: XLibre-Testing
 on:
   workflow_dispatch:
 
