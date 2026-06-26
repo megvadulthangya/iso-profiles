@@ -19,8 +19,9 @@ jobs:
         with:
           access_token: ${{ github.token }}
       - id: time
-        shell: bash
-        run: echo "time=$(date -u +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
+        uses: nanzm/get-time-action@v2.0
+        with:
+          format: 'YYYYMMDDHHmm'
     outputs:
       release_tag: ${{ steps.time.outputs.time }}
 
@@ -57,7 +58,7 @@ jobs:
       - id: time
         uses: nanzm/get-time-action@v2.0
         with:
-          format: 'YY.MM'
+          format: 'YYMM'
 
       - name: image-build-upload
         uses: megvadulthangya/manjaro-iso-action@awesome
