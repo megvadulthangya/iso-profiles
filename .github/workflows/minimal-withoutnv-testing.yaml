@@ -282,16 +282,7 @@ jobs:
           EOF
 
           # --- 4. Git Log hozzáadása a végére ---
-          # || echo "Git history not available." >> "$README_PATH"
-          # Klónozzuk az iso-profiles repót, csak a kívánt branch-et és sekélyen
-          git clone --depth 50 --branch "$ISO_PROFILES_BRANCH" \
-            "https://github.com/megvadulthangya/iso-profiles.git" /tmp/iso-profiles
-            
-          # Használjuk a klónozott repó git logját
-          git -C /tmp/iso-profiles log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH"
-
-          # Opcionális: takarítás, ha spórolni akarsz a tárhellyel
-          rm -rf /tmp/iso-profiles
+          git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
             
           echo "" >> "$README_PATH"
           echo "README generálva: $README_PATH"
