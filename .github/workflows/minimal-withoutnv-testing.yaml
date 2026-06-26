@@ -58,7 +58,7 @@ jobs:
       - id: time
         uses: nanzm/get-time-action@v2.0
         with:
-          format: 'YYMM'
+          format: 'YYYYMM'
 
       - name: image-build-upload
         uses: megvadulthangya/manjaro-iso-action@awesome
