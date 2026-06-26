@@ -19,10 +19,8 @@ jobs:
         with:
           access_token: ${{ github.token }}
       - id: time
-        uses: nanzm/get-time-action@v2.0
-        with:
-          #format: 'YYYYMMDDHHmm'
-          format: 'YYYY-MM-DD-HH-mm'
+        shell: bash
+        run: echo "time=$(date -u +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
     outputs:
       release_tag: ${{ steps.time.outputs.time }}
 
