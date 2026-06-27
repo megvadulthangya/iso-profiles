@@ -58,7 +58,7 @@ jobs:
       - id: time
         uses: nanzm/get-time-action@v2.0
         with:
-          format: 'YY.MM'
+          format: 'YYYY-MM'
 
       - name: image-build-upload
         uses: megvadulthangya/manjaro-iso-action@awesome
@@ -172,16 +172,11 @@ jobs:
           ## 📜 Recent Changes (Git Log)
           EOF
 
-          # || echo "Git history not available." >> "$README_PATH"
-          # Klónozzuk az iso-profiles repót, csak a kívánt branch-et és sekélyen
-          git clone --depth 50 --branch "$ISO_PROFILES_BRANCH" \
-            "https://github.com/megvadulthangya/iso-profiles.git" /tmp/iso-profiles
+          # --- 4. Git Log hozzáadása a végére ---
+          git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
             
-          # Használjuk a klónozott repó git logját
-          git -C /tmp/iso-profiles log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH"
-
-          # Opcionális: takarítás, ha spórolni akarsz a tárhellyel
-          rm -rf /tmp/iso-profiles
+          echo "" >> "$README_PATH"
+          echo "README generálva: $README_PATH"
 
           BASE_REMOTE="/home/frs/project/$SF_PROJECT"
           REMOTE_TARGET="$BASE_REMOTE/$SF_DIR"
