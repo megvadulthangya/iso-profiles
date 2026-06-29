@@ -200,7 +200,7 @@ inxi
 #>extra microsoft-office-online-jak
 #>extra freeoffice
 #>extra onlyoffice-desktopeditors
-manjaro-hello
+##manjaro-hello
 manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
@@ -277,6 +277,7 @@ fd
 ripgrep
 ripgrep-all
 terminal-tutor
+compiz-easy-patch-git
 
 
 
