@@ -11,9 +11,14 @@ modemmanager
 openssh
 samba
 usb_modeswitch
+ethtool
+wavemon
+openbsd-netcat
 
 ## Btrfs
 grub-btrfs
+btrfs-assistant
+btrfsmaintenance
 >extra timeshift-autosnap-manjaro
 
 ## Libraries for Sound/Audio/Video
@@ -30,6 +35,10 @@ manjaro-alsa
 manjaro-gstreamer
 >extra manjaro-modem
 manjaro-pipewire
+mpd
+mpc
+mpv
+playerctl
 
 ## Connect Packages
 android-tools
@@ -43,6 +52,7 @@ gvfs-smb
 mtpfs
 udiskie
 udisks2
+gsconnect
 
 ## Fonts
 ttf-dejavu
@@ -62,6 +72,12 @@ ttf-meslo-nerd-font-powerlevel10k  # default font for manjaro-zsh-config
 >extra ttf-indic-otf
 >extra ttf-liberation
 >extra ttf-droid
+ttf-roboto
+woff2-font-awesome
+ttf-firacode-nerd
+xorg-fonts-misc
+ttf-font-awesome-5
+tamzen-font
 
 ## Package management
 >extra apparmor
@@ -96,6 +112,7 @@ xfce4-terminal
 xfconf
 xfdesktop
 xfwm4
+gtkhash-thunar-git
 
 ## XFCE Extras
 blueman
@@ -139,6 +156,7 @@ xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
 xfce4-pulseaudio-plugin
 pavucontrol
+raw-thumbnailer
 
 ## Themes
 >extra manjaro-wallpapers-18.0
@@ -151,6 +169,17 @@ xcursor-vanilla-dmz-aa
 plymouth
 plymouth-theme-manjaro
 illyria-wallpaper
+awesome-rofi
+manjaro-distro-grub-theme
+nordic-theme
+nordic-darker-theme
+nordic-darker-standard-buttons-theme
+nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme
+nordic-bluish-accent-theme
+nordic-bluish-accent-standard-buttons-theme
+geany-nord-theme
+nordzy-icon-theme
 
 ## Applications
 bash-completion
@@ -189,6 +218,68 @@ evince
 ##---> >extra viewnior <---
 >extra xfburn
 >extra yelp
+brave-browser
+gghelper
+gpick
+gthumb
+btop
+fastfetch
+mc
+awesome-welcome
+##>extra pidgin
+##---> dmenu <---
+rofi
+flameshot
+##---> picom-pijulius-next-git <---
+scrot
+##---> unclutter <---
+##---> xorg-xbacklight <---
+arandr
+lxappearance
+kvantum
+##---> polkit-gnome <---
+##lxqt-policykit
+xorg-xev
+##---> xss-lock <---
+##---> feh <---
+qt5ct
+qt5-styleplugins
+kvantum-qt5
+qt6ct
+##---> xsettingsd <---
+geany
+fish
+##starship
+bat
+eza
+jq
+fzf
+zoxide
+##---> dex <---
+nano-syntax-highlighting
+>extra grayjay-bin
+tilix-git
+rxvt-unicode
+xsel
+urxvt-perls
+urxvt-resize-font-git
+##---> i3lock-fancy-git <---
+##---> betterlockscreen <---
+oh-my-posh-bin
+fish-done
+find-the-command
+p7zip-gui
+ugrep
+expac
+meld
+tldr
+fd
+ripgrep
+ripgrep-all
+terminal-tutor
+
+
+
 
 # Optional dependencies engrampa
 p7zip  # 7Z and ARJ archive support
@@ -235,3 +326,5 @@ xdg-utils
 ## Misc
 xiccd # enable color profile settings
 #tlp
+zram-generator
+libinput-gestures
