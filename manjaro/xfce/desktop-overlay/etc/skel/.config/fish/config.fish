@@ -1,0 +1,286 @@
+## Set values
+# Hide welcome message & ensure we are reporting fish as shell
+set fish_greeting
+set VIRTUAL_ENV_DISABLE_PROMPT "1"
+set -x SHELL /usr/bin/fish
+
+# Use bat for man pages
+set -xU MANPAGER "sh -c 'col -bx | bat -l man -p'"
+set -xU MANROFFOPT "-c"
+
+# Editor
+set -gx EDITOR nano
+set -gx VISUAL nano
+
+## Export variable need for qt-theme
+if type -q qtile
+    set -x QT_QPA_PLATFORMTHEME "qt5ct"
+end
+
+# Set settings for https://github.com/franciscolourenco/done
+set -U __done_min_cmd_duration 10000
+set -U __done_notification_urgency_level low
+
+## FZF defaults (fd + bat preview)
+set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git'
+set -gx FZF_CTRL_T_OPTS "--preview 'bat --color=always {}'"
+
+## Environment setup
+# Apply .profile: use this to put fish compatible .profile stuff in
+if test -f ~/.fish_profile
+  source ~/.fish_profile
+end
+
+# Add ~/.local/bin to PATH
+if test -d ~/.local/bin
+    if not contains -- ~/.local/bin $PATH
+        set -p PATH ~/.local/bin
+    end
+end
+
+# Add depot_tools to PATH
+if test -d ~/Applications/depot_tools
+    if not contains -- ~/Applications/depot_tools $PATH
+        set -p PATH ~/Applications/depot_tools
+    end
+end
+
+## Advanced command-not-found hook
+if test -f /usr/share/doc/find-the-command/ftc.fish
+    source /usr/share/doc/find-the-command/ftc.fish
+end
+
+## Functions
+# Functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
+function __history_previous_command
+  switch (commandline -t)
+  case "!"
+    commandline -t $history[1]; commandline -f repaint
+  case "*"
+    commandline -i !
+  end
+end
+
+function __history_previous_command_arguments
+  switch (commandline -t)
+  case "!"
+    commandline -t ""
+    commandline -f history-token-search-backward
+  case "*"
+    commandline -i '$'
+  end
+end
+
+if test "$fish_key_bindings" = "fish_vi_key_bindings"
+  bind -Minsert ! __history_previous_command
+  bind -Minsert '$' __history_previous_command_arguments
+else
+  bind ! __history_previous_command
+  bind '$' __history_previous_command_arguments
+end
+
+# Fish command history
+function history
+    builtin history --show-time='%F %T '
+end
+
+function backup --argument filename
+    cp $filename $filename.bak
+end
+
+# Copy DIR1 DIR2
+function copy
+    set count (count $argv | tr -d \n)
+    if test "$count" = 2; and test -d "$argv[1]"
+        set from (echo $argv[1] | string trim --right --chars=/)
+        set to (echo $argv[2])
+        command cp -r $from $to
+    else
+        command cp $argv
+    end
+end
+
+# Cleanup local orphaned packages
+function cleanup
+    while pacman -Qdtq
+        sudo pacman -R (pacman -Qdtq)
+        if test "$status" -eq 1
+            break
+        end
+    end
+end
+
+
+
+function mc --description 'Midnight Commander with working directory preservation'
+    set -l tmpdir /tmp/mc-$USER
+    mkdir -p $tmpdir
+    set -l MC_PWD_FILE (mktemp $tmpdir/mc.pwd.XXXXXX)
+    /usr/bin/mc -P "$MC_PWD_FILE" $argv
+    if test -s "$MC_PWD_FILE"
+        cd (cat "$MC_PWD_FILE")
+    end
+    rm -f "$MC_PWD_FILE"
+end
+
+
+## Useful aliases
+
+# Replace ls with eza
+alias ls 'eza -al --color=always --group-directories-first --icons' # preferred listing
+alias lsz 'eza -al --color=always --total-size --group-directories-first --icons' # include file size
+alias la 'eza -a --color=always --group-directories-first --icons'  # all files and dirs
+alias ll 'eza -l --color=always --group-directories-first --icons'  # long format
+alias lt 'eza -aT --color=always --group-directories-first --icons' # tree listing
+alias l. 'eza -ald --color=always --group-directories-first --icons .*' # show only dotfiles
+
+# Replace some more things with better alternatives
+alias cat 'bat --style header --style snip --style changes --style header'
+
+# Common use
+alias .. 'cd ..'
+alias ... 'cd ../..'
+alias .... 'cd ../../..'
+alias ..... 'cd ../../../..'
+alias ...... 'cd ../../../../..'
+alias big 'expac -H M "%m\t%n" | sort -h | nl'      # Sort installed packages according to size in MB (expac must be installed)
+alias dir 'dir --color=auto'
+alias fixpacman 'sudo rm /var/lib/pacman/db.lck'
+alias gitpkg 'pacman -Q | grep -i "\-git" | wc -l' # List amount of -git packages
+alias grep 'ugrep --color=auto'
+alias egrep 'ugrep -E --color=auto'
+alias fgrep 'ugrep -F --color=auto'
+alias grubup 'sudo update-grub'
+alias hw 'hwinfo --short'                          # Hardware Info
+alias ip 'ip -color'
+alias psmem 'ps auxf | sort -nr -k 4'
+alias psmem10 'ps auxf | sort -nr -k 4 | head -10'
+alias rmpkg 'sudo pacman -Rdd'
+alias tarnow 'tar -acf '
+alias untar 'tar -zxvf '
+alias upd 'pamac update --no-confirm'
+alias vdir 'vdir --color=auto'
+alias wget 'wget -c '
+
+# Get fastest mirrors
+alias mirror 'sudo reflector -f 30 -l 30 --number 10 --verbose --save /etc/pacman.d/mirrorlist'
+alias mirrora 'sudo reflector --latest 50 --number 20 --sort age --save /etc/pacman.d/mirrorlist'
+alias mirrord 'sudo reflector --latest 50 --number 20 --sort delay --save /etc/pacman.d/mirrorlist'
+alias mirrors 'sudo reflector --latest 50 --number 20 --sort score --save /etc/pacman.d/mirrorlist'
+
+# Help people new to Arch
+alias apt 'man pacman'
+alias apt-get 'man pacman'
+alias please 'sudo'
+alias tb 'nc termbin.com 9999'
+alias helpme 'echo "To print basic information about a command use helpme <command>"'
+alias pacdiff 'sudo -H DIFFPROG=meld pacdiff'
+
+# Get the error messages from journalctl
+alias jctl 'journalctl -p 3 -xb'
+
+# Recent installed packages
+alias rip 'expac --timefmt="%Y-%m-%d %T" "%l\t%n %v" | sort | tail -200 | nl'
+
+# New modern tool aliases (unified)
+alias top 'btop'
+alias htop 'btop'
+alias help 'tldr'
+alias json 'jq .'
+alias rpdf 'rga'
+
+## ============================================================================
+## INTERACTIVE SESSION SETTINGS
+## ============================================================================
+
+if status --is-interactive
+
+    # 1. Zoxide (Smart cd)
+    if type -q zoxide
+        zoxide init fish | source
+    end
+
+    # 2. FZF (Fuzzy Finder)
+    if type -q fzf
+        fzf --fish | source
+    end
+
+    # 3. Oh My Posh prompt – unified Nordtron theme
+    if type -q oh-my-posh
+        oh-my-posh init fish --config /usr/share/oh-my-posh/themes/nordtron.omp.json | source
+    end
+
+    
+    # 4. Welcome reminder (always, English, with Nord ASCII art border)
+    if not set -q QUAKE_MODE
+        # Színek definiálása (Nord kék és szürke)
+        set -l nord_blue (set_color 88c0d0)
+        set -l nord_dim (set_color 4c566a)
+        set -l nord_reset (set_color normal)
+
+        echo ""
+        echo "  $nord_dim┌────────────────────────────────────────────────────────┐$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue╭──────────╮$nord_reset                                         $nord_dim│$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue│  ℹ INFO  │$nord_reset  New to the terminal?                   $nord_dim│$nord_reset"
+        echo "  $nord_dim│$nord_reset   $nord_blue╰──────────╯$nord_reset  Type $nord_blue'tutor'$nord_reset for a quick guide.        $nord_dim│$nord_reset"
+        echo "  $nord_dim└────────────────────────────────────────────────────────┘$nord_reset"
+        echo ""
+    end
+    
+        
+    # 5. Fastfetch – skip if QUAKE_MODE is set
+    if type -q fastfetch; and not set -q QUAKE_MODE
+        fastfetch --config neofetch.jsonc
+    end
+end
+
+    
+
+## ============================================================================
+## VTE & TILIX FIX (Directory Tracking)
+## ============================================================================
+# Ez biztosítja, hogy ha új lapot nyitsz (Ctrl+Shift+T), 
+# ugyanabban a mappában maradjon.
+
+function __vte_osc7 --on-variable PWD
+  if status --is-interactive
+    if type -q vte_osc7
+        # Ha a rendszer alapból ad VTE támogatást Fish-hez
+        vte_osc7
+    else if test -n "$VTE_VERSION" -o -n "$TILIX_ID"
+        # Ha nincs, kézzel küldjük a jelet a terminálnak
+        printf "\033]7;file://%s%s\033\\" (hostname) (string escape --style=url $PWD)
+    end
+  end
+end
+
+# Nord Theme Colors
+set -g fish_color_autosuggestion 4c566a
+set -g fish_color_cancel --reverse
+set -g fish_color_command 88c0d0
+set -g fish_color_comment 4c566a --italics
+set -g fish_color_cwd 5e81ac
+set -g fish_color_cwd_root bf616a
+set -g fish_color_end 81a1c1
+set -g fish_color_error bf616a
+set -g fish_color_escape ebcb8b
+set -g fish_color_history_current e5e9f0 --bold
+set -g fish_color_host a3be8c
+set -g fish_color_host_remote ebcb8b
+set -g fish_color_keyword 81a1c1
+set -g fish_color_normal normal
+set -g fish_color_operator 81a1c1
+set -g fish_color_option 8fbcbb
+set -g fish_color_param d8dee9
+set -g fish_color_quote a3be8c
+set -g fish_color_redirection b48ead --bold
+set -g fish_color_search_match --background=434c5e --bold
+set -g fish_color_selection d8dee9 --background=434c5e --bold
+set -g fish_color_status bf616a
+set -g fish_color_user a3be8c
+set -g fish_color_valid_path --underline
+set -g fish_pager_color_completion e5e9f0
+set -g fish_pager_color_description ebcb8b --italics
+set -g fish_pager_color_prefix --bold --underline
+set -g fish_pager_color_progress 3b4252 --background=d08770 --bold
+set -g fish_pager_color_selected_background --background=434c5e

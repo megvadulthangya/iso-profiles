@@ -1,0 +1,133 @@
+/*
+ * Copyright (c) 2017 Sergey Zadorozhniy. The content presented herein may not, under any circumstances,
+ * be reproduced in whole or in any part or form without written permission from Sergey Zadorozhniy.
+ * Zadorozhniy.Sergey@gmail.com
+ */
+/**
+ *
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class PageStateRestoreController {
+    TIMEOUT = 7000;
+    tabMap = {}; /* Key - actualTabId, Value - {timestamp: expectedTime, storedAsTabId: storedTabId, url: url} */
+    constructor() {
+        setInterval(this.cleanup, 60000);
+    }
+    /**
+     *
+     */
+    async getFormRestoreDataAndRemove(actualTabId) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        const targetMapEntry = this.getTargetMapEntry(actualTabId);
+        if (targetMapEntry == null)
+            return null;
+        //void LocalStore.remove(key);
+        const storedTabIdInt = parseInt(targetMapEntry.storedAsTabId);
+        return new Promise((resolve, reject) => {
+            database.queryIndex({
+                IDB: {
+                    // @ts-ignore
+                    table: FD_DB_NAME,
+                },
+                params: [storedTabIdInt]
+            }, function (fields) {
+                if (fields == null) {
+                    console.warn(`FD Fields list from BD is null, storedTabIdInt: ${storedTabIdInt}`);
+                    resolve(null);
+                    return;
+                }
+                if (debugScreenCache)
+                    console.log('getScreen result: ', Date.now());
+                void self.deleteDataRecord(actualTabId);
+                resolve({ formData: fields.data, url: targetMapEntry.url });
+            });
+        });
+    }
+    ;
+    async deleteDataRecord(tabId) {
+        database.executeDelete({
+            IDB: {
+                // @ts-ignore
+                table: FD_DB_NAME,
+                params: [tabId],
+                ignoreNotFound: true,
+            }
+        });
+    }
+    /**
+     *
+     */
+    getTargetMapEntry(actualTabId) {
+        const tabMapEntry = this.tabMap[actualTabId];
+        if (tabMapEntry != null) {
+            if (this.isTabMapEntryOutdated(tabMapEntry))
+                return null;
+            else
+                return tabMapEntry;
+        }
+    }
+    ;
+    /**
+     *
+     */
+    async collectPageState(tabId) {
+        let finished = false;
+        return new Promise(resolve => {
+            chrome.tabs.sendMessage(tabId, { method: '[AutomaticTabCleaner:CollectPageState]' }, function (response /*{ formData, videoTime }*/) {
+                if (debug)
+                    console.log('FData: ', response.formData);
+                if (response.formData && Object.keys(response.formData).length !== 0 && response.formData.constructor === Object) {
+                    /* !TODO-v3: Make auto cleanup Important!
+                            Also cleanup old created keys in old localStorage - to free up user space
+                     */
+                    const data = {
+                        tabId: tabId,
+                        data: response.formData,
+                    };
+                    database.putV2([
+                        {
+                            IDB: {
+                                // @ts-ignore
+                                table: FD_DB_NAME,
+                                data: data
+                            }
+                        }
+                    ]);
+                }
+                finished = true;
+                resolve({ videoTime: response.videoTime });
+            });
+            setTimeout(() => {
+                if (!finished)
+                    resolve({});
+            }, 500);
+        });
+    }
+    ;
+    /**
+     *
+     */
+    expectRestore(actualTabId, storedAsTabId, url) {
+        if (actualTabId != null && storedAsTabId != null)
+            this.tabMap[actualTabId] = { 'timestamp': new Date().getTime(), 'storedAsTabId': storedAsTabId, 'url': url };
+    }
+    ;
+    /**
+     *
+     */
+    cleanup() {
+        for (const key in this.tabMap)
+            if (this.tabMap.hasOwnProperty(key))
+                if (this.isTabMapEntryOutdated(this.tabMap[key]))
+                    delete this.tabMap[key];
+    }
+    ;
+    /**
+     *
+     */
+    isTabMapEntryOutdated(tabMapEntry) {
+        return Date.now() - tabMapEntry.timestamp > this.TIMEOUT;
+    }
+}
+//# sourceMappingURL=PageStateRestoreController.js.map

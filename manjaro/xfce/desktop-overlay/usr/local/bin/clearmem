@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Cache ürítés
+sudo sync
+echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+sleep 1
+
+# ZRAM swap újraindítása
+echo "ZRAM swap újraindítása..."
+sudo swapoff /dev/zram0
+sleep 5
+
+echo 1 | sudo tee /sys/block/zram0/reset
+sleep 5
+sudo systemctl restart systemd-zram-setup@zram0.service
+sleep 5
+
+sudo swapon /dev/zram0
+
+# Ellenőrzés
+echo "Aktív swap állapot:"
+swapon --show=NAME,SIZE,USED,PRIO
