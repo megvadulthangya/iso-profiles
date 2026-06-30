@@ -187,6 +187,36 @@ jobs:
             "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
+      - name: Upload to Internet Archive
+        if: success()
+        uses: nick2bad4u/internet-archive-upload@1cdb640f1bd8b06c29ef86a7d323d8c2e51eda89
+        with:
+          access-key: ${{ secrets.IA_ACCESS_KEY }}
+          secret-key: ${{ secrets.IA_SECRET_KEY }}
+
+          # Egyedi azonosító stack-enként
+          identifier: manjaro-xfce-respin-${{ env.STACK_SLUG }}
+
+          # Fájlok a SourceForge lépésben megtalált könyvtárból
+          files: |
+            ${{ steps.sf-upload.outputs.iso_dir }}/*.iso
+            ${{ steps.sf-upload.outputs.iso_dir }}/*.sha*
+            ${{ steps.sf-upload.outputs.iso_dir }}/README.md
+
+          # Profi angol metaadatok (a README alapján)
+          title: Manjaro XFCE Respin - Nordic Themed
+          creator: megvadulthangya
+          date: ${{ needs.prepare-release.outputs.release_tag }}
+          language: eng
+          description: |
+            Custom Manjaro Linux XFCE respin with a unified Nordic theme.
+            Based on the Manjaro Testing branch.
+            Includes NVIDIA proprietary drivers, BTRFS filesystem, Timeshift snapshots.
+            Version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          subject: Linux, Manjaro, XFCE, Nordic, Respin
+          mediatype: software
+          collection: opensource
+
   prune-stack-history:
     name: List & keep only current + previous release
     runs-on: ubuntu-latest
