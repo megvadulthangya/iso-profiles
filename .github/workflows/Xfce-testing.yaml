@@ -190,6 +190,13 @@ jobs:
 
           echo "iso_dir=$SOURCE_DIR" >> $GITHUB_OUTPUT
 
+      - name: Locate build artifacts for IA
+        id: locate-iso
+        if: success()
+        run: |
+          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
+          echo "iso_dir=$(dirname "$ISO_FILE")" >> $GITHUB_OUTPUT
+
       - name: Upload to Internet Archive
         if: success()
         continue-on-error: true
@@ -198,10 +205,7 @@ jobs:
           access-key: ${{ secrets.IA_ACCESS_KEY }}
           secret-key: ${{ secrets.IA_SECRET_KEY }}
           identifier: manjaro-xfce-respin-${{ env.STACK_SLUG }}
-          files: |
-            ${{ steps.sf-upload.outputs.iso_dir }}/*.iso
-            ${{ steps.sf-upload.outputs.iso_dir }}/*.sha*
-            ${{ steps.sf-upload.outputs.iso_dir }}/README.md
+          files: ${{ steps.locate-iso.outputs.iso_dir }}/
           title: "Manjaro XFCE Respin - Nordic Themed"
           creator: "megvadulthangya"
           date: ${{ needs.prepare-release.outputs.release_tag }}
