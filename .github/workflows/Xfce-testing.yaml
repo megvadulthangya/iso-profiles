@@ -88,14 +88,27 @@ jobs:
             exit 1
           fi
 
+          # --- ÚJ: release mappa létrehozása ---
+          RELEASE_DIR="release"
+          mkdir -p "$RELEASE_DIR"
+
           mkdir -p ~/.ssh
           echo "$SF_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
 
-          ISO_FILE=$(find . -maxdepth 2 -name "*.iso" | head -n 1)
-          SOURCE_DIR=$(dirname "$ISO_FILE")
-          README_PATH="$SOURCE_DIR/README.md"
+          # ISO megkeresése a workspace rootban
+          ISO_FILE=$(find . -maxdepth 1 -name "*.iso" | head -n 1)
+          if [ -z "$ISO_FILE" ]; then
+            echo "HIBA: Nem található ISO fájl!"
+            exit 1
+          fi
+
+          # Fájlok áthelyezése a release mappába
+          mv "$ISO_FILE" "$RELEASE_DIR/"
+          mv "${ISO_FILE}".sha* "$RELEASE_DIR/" 2>/dev/null || true
+
+          README_PATH="$RELEASE_DIR/README.md"
           BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
 
           cat <<EOF > "$README_PATH"
@@ -184,11 +197,13 @@ jobs:
 
           sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
 
+          # Feltöltés a release mappából
           rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
-            "$SOURCE_DIR"/*.iso "$SOURCE_DIR"/*.sha* "$README_PATH" \
+            "$RELEASE_DIR"/*.iso "$RELEASE_DIR"/*.sha* "$RELEASE_DIR"/README.md \
             "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
 
-          echo "iso_dir=$SOURCE_DIR" >> $GITHUB_OUTPUT
+          # Az output a tiszta release mappa
+          echo "iso_dir=$RELEASE_DIR" >> $GITHUB_OUTPUT
 
       - name: Upload to Internet Archive
         if: success()
