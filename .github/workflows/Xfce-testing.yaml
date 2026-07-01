@@ -271,9 +271,5 @@ jobs:
           creator: "megvadulthangya"
           date: ${{ needs.prepare-release.outputs.release_tag }}
           language: "eng"
-          description: >
-            Custom Manjaro Linux XFCE respin with a unified Nordic theme.
-            Based on the Manjaro Testing branch.
-            Includes NVIDIA proprietary drivers, BTRFS filesystem, Timeshift snapshots.
-            Version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          description: "Custom Manjaro Linux XFCE respin with a unified Nordic theme. Based on the Manjaro Testing branch. Includes NVIDIA proprietary drivers, BTRFS filesystem, Timeshift snapshots. Version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}"
           subject: "Linux; Manjaro; XFCE; Nordic; Respin"
