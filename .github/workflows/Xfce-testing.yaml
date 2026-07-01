@@ -1,30 +1,3 @@
-name: Xfce-Testing
-on:
-  workflow_dispatch:
-
-env:
-  STACK_SLUG: testing-nvidia-stack
-  VERSION_SUFFIX: Respin
-  ISO_PROFILES_BRANCH: xfce
-
-permissions:
-  contents: write
-  actions: read
-
-jobs:
-  prepare-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.13.1
-        with:
-          access_token: ${{ github.token }}
-      - id: time
-        uses: nanzm/get-time-action@v2.0
-        with:
-          format: 'YYYYMMDDHHmm'
-    outputs:
-      release_tag: ${{ steps.time.outputs.time }}
-
   build-release:
     runs-on: ubuntu-latest
     needs: [prepare-release]
@@ -74,6 +47,7 @@ jobs:
           kernel: linux71
           code-name: "Nordic"
 
+      # ==================== EREDETI SF FELTÖLTÉS + README GENERÁLÁS ====================
       - name: Generate README & Upload to SourceForge
         id: sf-upload
         if: success()
@@ -205,6 +179,62 @@ jobs:
           # Az output a tiszta release mappa
           echo "iso_dir=$RELEASE_DIR" >> $GITHUB_OUTPUT
 
+      # ==================== FORRÁSFORGALMI TAKARÍTÁS ====================
+      - name: Prune SourceForge – keep only 2 latest releases
+        if: success()
+        env:
+          SF_USER: ${{ secrets.SF_USERNAME }}
+          SF_KEY: ${{ secrets.SF_SSH_KEY }}
+          SF_PROJECT: "manjaro-xfce-respin"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$SF_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
+
+          BASE_REMOTE="/home/frs/project/$SF_PROJECT"
+          STACK_REMOTE="$BASE_REMOTE/Releases/${{ env.STACK_SLUG }}"
+
+          sftp_run() {
+            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$1" "$SF_USER@frs.sourceforge.net"
+          }
+
+          sftp_ls_names() {
+            local tmp_batch="$(mktemp)"
+            printf 'ls -1 %s\n' "$1" > "$tmp_batch"
+            sftp_run "$tmp_batch" 2>&1 | sed 's/^sftp> //' | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' | awk -F'/' 'NF{print $NF}' | sed '/^$/d' || true
+            rm -f "$tmp_batch"
+          }
+
+          mapfile -t TAGS < <(sftp_ls_names "$STACK_REMOTE" | grep -E '^[0-9]{12}$' | sort)
+          TAG_COUNT=${#TAGS[@]}
+
+          if [ "$TAG_COUNT" -le 2 ]; then
+            echo "Nincs törölnivaló, a release-ek száma <= 2"
+            exit 0
+          fi
+
+          mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
+
+          for old_tag in "${DELETE_TAGS[@]}"; do
+            echo "Törlés: $old_tag"
+            mapfile -t SCOPES < <(sftp_ls_names "$STACK_REMOTE/$old_tag" | sort)
+            BATCH_DEL="$(mktemp)"
+            for scope in "${SCOPES[@]}"; do
+              mapfile -t FILES < <(sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true)
+              for f in "${FILES[@]}"; do
+                printf '%s\n' "-rm $STACK_REMOTE/$old_tag/$scope/$f" >> "$BATCH_DEL"
+              done
+              printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
+            done
+            printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
+            sftp_run "$BATCH_DEL" || true
+            rm -f "$BATCH_DEL"
+          done
+
+      # ==================== INTERNET ARCHIVE FELTÖLTÉS CSAK EZUTÁN ====================
       - name: Upload to Internet Archive
         if: success()
         continue-on-error: true
@@ -224,62 +254,3 @@ jobs:
             Includes NVIDIA proprietary drivers, BTRFS filesystem, Timeshift snapshots.
             Version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
           subject: "Linux; Manjaro; XFCE; Nordic; Respin"
-
-  prune-stack-history:
-    name: List & keep only current + previous release
-    runs-on: ubuntu-latest
-    needs: [prepare-release, build-release]
-    if: success()
-    env:
-      SF_USER: ${{ secrets.SF_USERNAME }}
-      SF_KEY: ${{ secrets.SF_SSH_KEY }}
-      SF_PROJECT: "manjaro-xfce-respin"
-      STACK_SLUG: testing-nvidia-stack
-    steps:
-      - name: Prune old releases
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          echo "$SF_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
-
-          BASE_REMOTE="/home/frs/project/$SF_PROJECT"
-          STACK_REMOTE="$BASE_REMOTE/Releases/$STACK_SLUG"
-
-          sftp_run() {
-            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$1" "$SF_USER@frs.sourceforge.net"
-          }
-
-          sftp_ls_names() {
-            local tmp_batch
-            tmp_batch="$(mktemp)"
-            printf 'ls -1 %s\n' "$1" > "$tmp_batch"
-            sftp_run "$tmp_batch" 2>&1 | sed 's/^sftp> //' | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' | awk -F'/' 'NF{print $NF}' | sed '/^$/d' || true
-            rm -f "$tmp_batch"
-          }
-
-          mapfile -t TAGS < <(sftp_ls_names "$STACK_REMOTE" | grep -E '^[0-9]{12}$' | sort)
-          TAG_COUNT=${#TAGS[@]}
-
-          if [ "$TAG_COUNT" -le 2 ]; then
-            exit 0
-          fi
-
-          mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
-
-          for old_tag in "${DELETE_TAGS[@]}"; do
-            mapfile -t SCOPES < <(sftp_ls_names "$STACK_REMOTE/$old_tag" | sort)
-            BATCH_DEL="$(mktemp)"
-            for scope in "${SCOPES[@]}"; do
-              mapfile -t FILES < <(sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true)
-              for f in "${FILES[@]}"; do
-                printf '%s\n' "-rm $STACK_REMOTE/$old_tag/$scope/$f" >> "$BATCH_DEL"
-              done
-              printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
-            done
-            printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
-            sftp_run "$BATCH_DEL" || true
-            rm -f "$BATCH_DEL"
-          done
