@@ -266,12 +266,12 @@ jobs:
           access-key: ${{ secrets.IA_ACCESS_KEY }}
           secret-key: ${{ secrets.IA_SECRET_KEY }}
           identifier: manjaro-xfce-respin-${{ env.STACK_SLUG }}
-          files: ${{ steps.sf-upload.outputs.iso_dir }}/
+          files: ${{ steps.sf-upload.outputs.iso_dir }}
           title: "Manjaro XFCE Respin - Nordic Themed"
           creator: "megvadulthangya"
           date: ${{ needs.prepare-release.outputs.release_tag }}
           language: "eng"
-          description: |
+          description: >
             Custom Manjaro Linux XFCE respin with a unified Nordic theme.
             Based on the Manjaro Testing branch.
             Includes NVIDIA proprietary drivers, BTRFS filesystem, Timeshift snapshots.
