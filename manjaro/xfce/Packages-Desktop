@@ -296,6 +296,7 @@ unrar  # RAR archive support
 manjaro-browser-settings
 
 ## Xorg Input Drivers
+nvidia-driver-assistant
 xlibre-input-elographics
 xlibre-input-evdev
 xlibre-input-libinput
