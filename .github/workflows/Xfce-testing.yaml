@@ -28,7 +28,7 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     needs: [prepare-release]
-    timeout-minutes: 120
+    timeout-minutes: 360
     strategy:
       matrix:
         EDITION: [xfce]
