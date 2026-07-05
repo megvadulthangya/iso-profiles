@@ -193,8 +193,21 @@ pacman-key --lsign-key "${XLIBRE_KEYID}"
 echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
 
 
-# 9. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
-echo "--> 9. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
+# 9. --- Háttérkép fallback felülírása ---
+echo "--> 9. Háttérkép fallback beállítása..."
+TARGET_IMG="/usr/share/backgrounds/nordic-backgrounds/ign_manjaro.jpg"
+FALLBACK_LINK="/usr/share/backgrounds/xfce/xfce-x.svg"
+
+if [[ -f "$TARGET_IMG" ]]; then
+    ln -sf "$TARGET_IMG" "$FALLBACK_LINK"
+    echo "✅ Fallback háttérkép beállítva: $FALLBACK_LINK -> $TARGET_IMG"
+else
+    echo "⚠️ A cél háttérkép nem található: $TARGET_IMG - a fallback nem lett módosítva."
+fi
+
+
+# 10. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
+echo "--> 10. Mirrorok frissítése (Helyi kontinens szervereinek keresése)..."
 
 if command -v pacman-mirrors &> /dev/null; then
     # --continent:   Érzékeli a felhasználó kontinensét (pl. Európa vagy Észak-Amerika)
@@ -214,7 +227,7 @@ echo "=========================================="
 echo "✅ TELEPÍTÉS UTÁNI BEÁLLÍTÁSOK KÉSZEN!"
 echo "=========================================="
 
-# 10. ÖNGYILKOS MECHANIZMUS
+# 11. ÖNGYILKOS MECHANIZMUS
 # Letiltjuk a szolgáltatást, hogy többet ne fusson le
 echo "--> Szolgáltatás letiltása a következő bootra..."
 systemctl disable manjaro-first-run.service
