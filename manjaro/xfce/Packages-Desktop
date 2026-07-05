@@ -108,7 +108,7 @@ xfce4-panel
 xfce4-power-manager
 xfce4-session
 xfce4-settings
-xfce4-terminal
+###xfce4-terminal
 xfconf
 xfdesktop
 xfwm4
@@ -164,8 +164,8 @@ raw-thumbnailer
 ##---> >extra wallpapers-juhraya <---
 ##---> grub-theme-manjaro <---
 ##---> matcha-gtk-theme <---
-xcursor-simpleandsoft
-xcursor-vanilla-dmz-aa
+##xcursor-simpleandsoft
+##xcursor-vanilla-dmz-aa
 plymouth
 plymouth-theme-manjaro
 illyria-wallpaper
@@ -293,10 +293,10 @@ unrar  # RAR archive support
 ## Settings packages
 >extra manjaro-xfce-settings
 >basic manjaro-xfce-minimal-settings
-manjaro-browser-settings
+##manjaro-browser-settings
 
 ## Xorg Input Drivers
-nvidia-driver-assistant
+##nvidia-driver-assistant
 xlibre-input-elographics
 xlibre-input-evdev
 xlibre-input-libinput
