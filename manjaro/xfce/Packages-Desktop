@@ -237,7 +237,7 @@ scrot
 arandr
 lxappearance
 kvantum
-##---> polkit-gnome <---
+polkit-gnome
 ##lxqt-policykit
 xorg-xev
 ##---> xss-lock <---
