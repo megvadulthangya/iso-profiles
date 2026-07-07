@@ -128,7 +128,7 @@ echo "--> 7 Repo kulcsok hozzáadása (arch, manjaro, manjaro-awesome)..."
 KEYS=(
     "B97F7C613F359424" # arch
     "D1445F51BC0A8969" # manjaro
-    "A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C" # manjaro-awesome
+#    "A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C" # manjaro-awesome
 )
 
 for KEYID in "${KEYS[@]}"; do
