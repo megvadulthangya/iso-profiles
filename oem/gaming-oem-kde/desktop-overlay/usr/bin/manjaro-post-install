@@ -27,7 +27,7 @@ fi
 # Pacman Init
 if [[ -e /usr/bin/pacman-key ]]; then
 	pacman-key --init
-	pacman-key --populate archlinux manjaro
+	pacman-key --populate archlinux manjaro manjaro-awesome
 fi
 
 # Disable the root login

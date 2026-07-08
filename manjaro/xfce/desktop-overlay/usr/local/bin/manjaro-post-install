@@ -1,0 +1,7 @@
+#!/bin/sh
+# Pacman Init
+pacman-key --init
+pacman-key --populate manjaro-awesome
+
+# Disable this service, so it only gets run on first boot
+systemctl disable manjaro-post-install.service
