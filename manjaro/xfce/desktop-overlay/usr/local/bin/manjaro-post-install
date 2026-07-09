@@ -1,7 +1,10 @@
 #!/bin/sh
-# Pacman Init
+# Pacman Init and XLibre keyring population for first boot.
+# This service runs once to initialize the pacman keyring and
+# trust the XLibre repository signing keys.
+
 pacman-key --init
-pacman-key --populate manjaro-awesome
+pacman-key --populate xlibre manjaro-awesome
 
 # Disable this service, so it only gets run on first boot
 systemctl disable manjaro-post-install.service
