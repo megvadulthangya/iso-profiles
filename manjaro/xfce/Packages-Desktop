@@ -88,6 +88,7 @@ pamac-gtk3
 >extra pamac-snap-plugin
 >extra pamac-flatpak-plugin
 manjaro-awesome-keyring
+xlibre-keyring
 
 ## Printing
 >extra manjaro-printer
