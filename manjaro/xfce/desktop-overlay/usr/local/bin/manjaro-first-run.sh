@@ -123,26 +123,26 @@ systemctl enable --now udisks2.service
 
 
 # 7 Repo kulcsok hozzáadása (arch, manjaro, manjaro-awesome) - keyserver.ubuntu.com használatával
-echo "--> 7 Repo kulcsok hozzáadása (arch, manjaro, manjaro-awesome)..."
+#echo "--> 7 Repo kulcsok hozzáadása (arch, manjaro, manjaro-awesome)..."
 
-KEYS=(
+#KEYS=(
 #    "B97F7C613F359424" # arch
 #    "D1445F51BC0A8969" # manjaro
 #    "A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C" # manjaro-awesome
-)
-
-for KEYID in "${KEYS[@]}"; do
-    echo "--> Kulcs feldolgozása: ${KEYID}"
-    if pacman-key --list-keys "${KEYID}" &>/dev/null; then
-        echo "✅ Kulcs már létezik a keyringben: ${KEYID}"
-    else
-        echo "--> Letöltés keyserver.ubuntu.com-ról..."
-        pacman-key --keyserver keyserver.ubuntu.com --recv-keys "${KEYID}"
-        echo "✅ Kulcs importálva: ${KEYID}"
-    fi
-    pacman-key --lsign-key "${KEYID}"
-    echo "✅ Kulcs locally signed: ${KEYID}"
-done
+#)
+#
+#for KEYID in "${KEYS[@]}"; do
+#    echo "--> Kulcs feldolgozása: ${KEYID}"
+#    if pacman-key --list-keys "${KEYID}" &>/dev/null; then
+#        echo "✅ Kulcs már létezik a keyringben: ${KEYID}"
+#    else
+#        echo "--> Letöltés keyserver.ubuntu.com-ról..."
+#        pacman-key --keyserver keyserver.ubuntu.com --recv-keys "${KEYID}"
+#        echo "✅ Kulcs importálva: ${KEYID}"
+#    fi
+#    pacman-key --lsign-key "${KEYID}"
+#    echo "✅ Kulcs locally signed: ${KEYID}"
+#done
 
 
 
