@@ -353,7 +353,7 @@ mesa-utils
 manjaro-base-skel
 ##manjaro-browser-settings
 >extra manjaro-gnome-extension-settings
-manjaro-gnome-settings
+##manjaro-gnome-settings
 >extra manjaro-settings-samba
 
 
