@@ -1,0 +1,1 @@
+{"version":3,"file":"WindowManager.js","sourceRoot":"","sources":["../../modules/WindowManager.ts"],"names":[],"mappings":"AAAA,6DAA6D;AAC7D,MAAM,aAAa;IAClB;QACC,MAAM,CAAC,OAAO,CAAC,SAAS,CAAC,WAAW,CAAC;YACpC,WAAW,CAAC,eAAe,EAAE,CAAC;QAC/B,CAAC,CAAC,CAAC;IACJ,CAAC;CACD"}

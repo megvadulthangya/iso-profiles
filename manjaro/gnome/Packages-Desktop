@@ -11,13 +11,17 @@ networkmanager                     # optional for gnome-control-center
 >extra nss-mdns                    # optional for avahi; avahi required by gvfs
 #ntp
 >extra openssh                     # optional for gnome-control-center
-#usb_modeswitch                    # required by manjaro-modem; optional for modemmanager
+usb_modeswitch                    # required by manjaro-modem; optional for modemmanager (activated from Awesome-wm)
+avahi                             # from Awesome-wm
+>extra mobile-broadband-provider-info  # from Awesome-wm
+samba                             # from Awesome-wm
 
 
 ## Btrfs
 
 btrfsmaintenance
 grub-btrfs
+>extra btrfs-assistant            # from Awesome-wm
 >extra timeshift-autosnap-manjaro
 
 
@@ -27,6 +31,14 @@ grub-btrfs
 >extra manjaro-alsa
 >extra manjaro-gstreamer
 >extra manjaro-pipewire
+alsa-firmware                      # from Awesome-wm
+alsa-utils                         # from Awesome-wm
+ffmpeg                             # from Awesome-wm
+gst-libav                          # from Awesome-wm
+gst-plugins-bad                    # from Awesome-wm
+gst-plugins-base                   # from Awesome-wm
+gst-plugins-good                   # from Awesome-wm
+gst-plugins-ugly                   # from Awesome-wm
 
 
 ## Fonts
@@ -40,6 +52,14 @@ noto-fonts                         # default font, provides ttf-font
 ttf-hack-nerd                      # default monospace font
 ttf-meslo-nerd-font-powerlevel10k  # default GNOME Console font for manjaro-zsh-config
 >extra ttf-indic-otf               # India fonts
+adobe-source-sans-pro-fonts        # from Awesome-wm
+>extra ttf-inconsolata             # from Awesome-wm
+>extra ttf-liberation              # from Awesome-wm
+>extra ttf-droid                   # from Awesome-wm
+ttf-roboto                         # from Awesome-wm
+woff2-font-awesome                 # from Awesome-wm
+ttf-font-awesome-5                 # from Awesome-wm
+ttf-firacode-nerd                  # from Awesome-wm
 
 
 ## Package management
@@ -74,7 +94,7 @@ gnome-console
 gnome-control-center
 gnome-disk-utility
 >extra gnome-font-viewer
-#gnome-keyring                     # required by xdg-desktop-portal-gnome
+gnome-keyring                     # required by xdg-desktop-portal-gnome (activated from Awesome-wm)
 gnome-logs
 >extra gnome-maps
 #gnome-menus                       # required by gnome-shell-extension-arc-menu
@@ -230,20 +250,28 @@ gnome-shell-extensions
 
 
 ## Themes
-
-adw-gtk-theme
-bibata-cursor-theme
-gnome-themes-extra
-#gnome-wallpapers
-grub-theme-manjaro
-kvantum-manjaro
-#>extra illyria-wallpaper
-manjaro-gnome-backgrounds
-#>extra manjaro-wallpapers-18.0
-papirus-icon-theme
-plymouth-theme-manjaro
+# adw-gtk-theme                                         # not nordic -> commented
+## bibata-cursor-theme                                   # not nordic cursor -> commented
+## gnome-themes-extra                                    # not nordic -> commented
+manjaro-distro-grub-theme                               # nordic grub theme from XFCE
+nordic-theme
+nordic-darker-theme
+nordic-darker-standard-buttons-theme
+nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme
+nordic-bluish-accent-theme
+nordic-bluish-accent-standard-buttons-theme
+geany-nord-theme
+nordzy-icon-theme
+kvantum                                                 # from XFCE (for Qt theming)
+kvantum-qt5                                             # from XFCE
+qt5-styleplugins                                        # from XFCE
 qt5ct
 qt6ct
+plymouth-theme-manjaro
+manjaro-gnome-backgrounds
+#>extra illyria-wallpaper
+#>extra manjaro-wallpapers-18.0
 #>extra wallpapers-2018
 #>extra wallpapers-juhraya
 
@@ -255,7 +283,8 @@ qt6ct
 #evolution                         # thunderbird included instead
 >extra ffmpegthumbnailer
 >extra ffmpeg-audio-thumbnailer
-firefox
+##firefox                           # denied!! (Brave is default browser)
+brave-browser                       # default browser from XFCE
 fprintd                            # needed for fingerprint reader, optional for gdm
 #fwupd                             # required by gnome-firmware, optional for gnome-control-center
 #gedit                             # using gnome-text-editor
@@ -269,7 +298,7 @@ gnome-firmware
 #>extra gthumb
 >extra gtksourceview-pkgbuild      # syntax highlighting for PKGBUILDs
 >extra gufw
-htop
+##htop
 >extra iagno
 #ibus                              # required by gnome-shell
 inxi
@@ -277,7 +306,7 @@ inxi
 #lollypop
 manjaro-application-utility        # optional for manjaro-hello
 #manjaro-gnome-vanilla             # unmaintained, needs updating
-manjaro-hello
+awesome-welcome                     # from XFCE (used instead of manjaro-hello)
 manjaro-settings-manager
 manjaro-settings-manager-notifier
 #mousetweaks
@@ -285,7 +314,7 @@ manjaro-settings-manager-notifier
 nautilus-empty-file
 nautilus-open-any-terminal
 #>extra onlyoffice-desktopeditors  # office program is chosen during install
-#polkit-gnome                      # deprecated
+##polkit-gnome                      # denied!! (GNOME uses own auth agent)
 power-profiles-daemon              # optional for gnome-control-center
 >extra seahorse
 >extra thunderbird
@@ -319,9 +348,87 @@ mesa-utils
 ## Settings packages
 #>extra lighter-gnome
 manjaro-base-skel
-manjaro-browser-settings
+##manjaro-browser-settings
 >extra manjaro-gnome-extension-settings
 manjaro-gnome-settings
 >extra manjaro-settings-samba
 
 
+## Terminal tools from XFCE (CLI utilities, shell enhancements, default terminal)
+bash-completion                   # from XFCE
+>extra fish                       # from XFCE
+oh-my-posh-bin                    # from XFCE (AUR)
+>extra bat                        # from XFCE
+>extra eza                        # from XFCE
+>extra jq                         # from XFCE
+>extra fzf                        # from XFCE
+>extra zoxide                     # from XFCE
+>extra btop                       # from XFCE
+>extra fastfetch                  # from XFCE
+>extra mc                         # from XFCE (Midnight Commander)
+nano-syntax-highlighting          # from XFCE (AUR)
+>extra tldr                       # from XFCE
+>extra fd                         # from XFCE
+>extra ripgrep                    # from XFCE
+ripgrep-all                       # from XFCE (AUR)
+>extra ugrep                      # from XFCE
+>extra expac                      # from XFCE
+terminal-tutor                    # from XFCE (AUR)
+fish-done                         # from XFCE (AUR)
+find-the-command                  # from XFCE (AUR)
+##>extra xsel                      # denied!! (wl-clipboard already in use on Wayland)
+tilix-git                         # from XFCE (AUR) – default terminal emulator
+>extra wavemon                    # from XFCE
+ethtool                           # from XFCE
+openbsd-netcat                    # from XFCE
+>extra playerctl                  # from XFCE
+##>extra scrot                     # denied!! (Flameshot is the screenshot tool)
+##>extra rofi                      # denied!! (GNOME Shell overview replaces it)
+##>extra mpd                       # denied!! (no use in standard GNOME desktop)
+##>extra mpc                       # denied!! (no use in standard GNOME desktop)
+>extra mpv                        # from XFCE
+
+
+## Additional packages from Awesome-wm (laptop support, drivers, fonts, multimedia codecs, etc.)
+
+# Multimedia and sound
+>extra pavucontrol                # from Awesome-wm
+>extra blueman                    # from Awesome-wm
+raw-thumbnailer                   # from Awesome-wm
+
+# Android and mobile connectivity
+##>extra android-tools             # denied!! (redundant on typical GNOME desktop)
+##>extra android-udev              # denied!! (redundant on typical GNOME desktop)
+##>extra mtpfs                     # denied!! (gvfs-mtp is sufficient)
+>extra udisks2                    # from Awesome-wm
+
+# Color pickers and image tools
+##gcolor3                          # denied!! (unnecessary, one color picker is enough)
+gpick
+##>extra viewnior                  # denied!! (GNOME has loupe)
+flameshot                         # from Awesome-wm (screenshot, kept as requested)
+xnviewmp
+
+# Laptop backlight, power, and input
+##xorg-xbacklight                  # denied!! (does not work on Wayland)
+##unclutter                         # denied!! (no function on Wayland)
+##numlockx                          # denied!! (GNOME handles it)
+##libinput-gestures                 # denied!! (GNOME has own gesture engine)
+##xiccd                             # denied!! (GNOME has own color manager)
+zram-generator                    # from Awesome-wm
+
+# Xorg input drivers (for full hardware support, especially on laptops)
+##xlibre-input-elographics         # denied!! (not needed for Wayland sessions)
+##xlibre-input-evdev               # denied!! (not needed for Wayland sessions)
+##xlibre-input-libinput            # denied!! (not needed for Wayland sessions)
+##xlibre-input-void                # denied!! (not needed for Wayland sessions)
+
+
+# System utilities and interface
+accountsservice                   # from Awesome-wm
+##menulibre                         # from Awesome-wm (menu editor)
+##lxappearance                      # denied!! (use GNOME Tweaks/Settings)
+##arandr                            # denied!! (use GNOME Settings for displays)
+xdg-user-dirs                     # from Awesome-wm
+perl-file-mimeinfo                # from Awesome-wm
+p7zip-gui                         # from Awesome-wm (7-Zip GUI)

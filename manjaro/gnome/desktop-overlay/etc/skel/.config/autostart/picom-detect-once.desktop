@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Picom detect once
+Exec=/usr/local/bin/picom-detect-once
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

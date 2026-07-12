@@ -1,0 +1,14 @@
+[Unit]
+Description=Manjaro Custom First Run Setup
+# Csak akkor induljon el, ha a fájlrendszer már fel van csatolva
+After=local-fs.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/manjaro-first-run.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

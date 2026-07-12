@@ -1,0 +1,124 @@
+! ================================
+! CURSOR AND BASIC X SETTINGS
+! ================================
+
+! Cursor theme and size
+Xcursor.theme: Nordic-cursors
+!Xcursor.size: 24
+
+! ================================
+! FONT RENDERING SETTINGS
+! ================================
+
+! Font anti-aliasing and hinting
+Xft.antialias: 1
+Xft.hinting: 1
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+Xft.lcdfilter: lcddefault
+
+! DPI settings for proper scaling
+Xft.dpi: 96
+
+! ================================
+! URXVT TERMINAL CONFIGURATION
+! (Nordic Theme + Performance)
+! ================================
+
+! Betűtípus beállítása
+URxvt.font: xft:FiraCode Nerd Font:size=12
+URxvt.boldFont: xft:FiraCode Nerd Font:bold:size=12
+
+! Gördítősáv kikapcsolása
+URxvt.scrollBar: false
+
+! Kurzor villogás kikapcsolása
+URxvt.cursorBlink: true
+
+! Perl bővítmények
+! FONTOS: az eval legyen explicit, különben az eval:* akciók nem biztos hogy működnek
+URxvt.perl-ext-common: default,matcher,eval,selection-to-clipboard,resize-font
+URxvt.url-launcher: brave
+URxvt.matcher.button: 1
+
+! Puffer méret
+URxvt.saveLines: 5000
+
+! ================================
+! CLIPBOARD & KEYBINDINGS (FIX)
+! ================================
+
+! ISO 14755 tiltás (Ctrl+Shift ne indítson special módot)
+URxvt.iso14755: false
+URxvt.iso14755_52: false
+
+! Ctrl+Shift+C / V (stabil keysym forma)
+URxvt.keysym.Control-Shift-C: eval:selection_to_clipboard
+URxvt.keysym.Control-Shift-V: eval:paste_clipboard
+
+! Fallback (sok helyen “klasszikus” X11 paste/copy)
+URxvt.keysym.Shift-Insert:    eval:paste_clipboard
+URxvt.keysym.Control-Insert:  eval:selection_to_clipboard
+
+! ================================
+! RESIZE-FONT PLUGIN CONFIGURATION
+! ================================
+
+URxvt.keysym.C-minus:     resize-font:smaller
+URxvt.keysym.C-plus:      resize-font:bigger
+URxvt.keysym.C-equal:     resize-font:reset
+URxvt.keysym.C-question:  resize-font:show
+
+URxvt.resize-font.step: 1
+URxvt.resize-font.min: 6
+URxvt.resize-font.max: 32
+
+! ================================
+! NORD COLOR SCHEME & TRANSPARENCY
+! ================================
+
+URxvt.depth: 32
+
+URxvt.background:   [85]#2E3440
+URxvt.foreground:   #D8DEE9
+URxvt.cursorColor:  #D8DEE9
+
+! Black
+URxvt.color0:       #3B4252
+URxvt.color8:       #4C566A
+
+! Red
+URxvt.color1:       #BF616A
+URxvt.color9:       #BF616A
+
+! Green
+URxvt.color2:       #A3BE8C
+URxvt.color10:      #A3BE8C
+
+! Yellow
+URxvt.color3:       #EBCB8B
+URxvt.color11:      #EBCB8B
+
+! Blue
+URxvt.color4:       #81A1C1
+URxvt.color12:      #81A1C1
+
+! Magenta
+URxvt.color5:       #B48EAD
+URxvt.color13:      #B48EAD
+
+! Cyan
+URxvt.color6:       #88C0D0
+URxvt.color14:      #8FBCBB
+
+! White
+URxvt.color7:       #E5E9F0
+URxvt.color15:      #ECEFF4
+
+! ================================
+! LEGACY / UNUSED SETTINGS
+! ================================
+! XTerm*faceName: Monospace
+! XTerm*faceSize: 12
+! XTerm*saveLines: 1000
+! XTerm*jumpScroll: true

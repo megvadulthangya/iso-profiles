@@ -6,3 +6,4 @@
 
 # Manjaro defaults are now in /etc/profile.d/
 
+export EDITOR=nano
