@@ -68,6 +68,8 @@ pamac-gnome-integration
 >extra pamac-flatpak-plugin
 pamac-gtk
 #>extra pamac-snap-plugin
+manjaro-awesome-keyring
+xlibre-keyring
 
 
 ## Printing
