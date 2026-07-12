@@ -313,6 +313,7 @@ manjaro-settings-manager-notifier
 >extra nautilus-admin
 nautilus-empty-file
 nautilus-open-any-terminal
+gtkhash-nautilus-gtk4-git
 #>extra onlyoffice-desktopeditors  # office program is chosen during install
 ##polkit-gnome                      # denied!! (GNOME uses own auth agent)
 power-profiles-daemon              # optional for gnome-control-center
