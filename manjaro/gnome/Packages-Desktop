@@ -352,8 +352,8 @@ mesa-utils
 #>extra lighter-gnome
 manjaro-base-skel
 ##manjaro-browser-settings
-##>extra manjaro-gnome-extension-settings
-##manjaro-gnome-settings
+>extra manjaro-gnome-extension-settings
+manjaro-gnome-settings
 >extra manjaro-settings-samba
 
 
