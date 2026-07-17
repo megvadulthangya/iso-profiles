@@ -91,7 +91,7 @@ gnome-calendar
 gnome-clocks
 #gnome-color-manager               # required by gnome-control-center
 >extra gnome-connections
-gnome-console
+##gnome-console
 >extra gnome-contacts
 gnome-control-center
 gnome-disk-utility
@@ -256,13 +256,13 @@ gnome-shell-extensions
 ## bibata-cursor-theme                                   # not nordic cursor -> commented
 ## gnome-themes-extra                                    # not nordic -> commented
 manjaro-distro-grub-theme                               # nordic grub theme from XFCE
-nordic-theme
-nordic-darker-theme
-nordic-darker-standard-buttons-theme
-nordic-polar-standard-buttons-theme
-nordic-standard-buttons-theme
-nordic-bluish-accent-theme
-nordic-bluish-accent-standard-buttons-theme
+##nordic-theme
+##nordic-darker-theme
+nordic-darker-standard-buttons-theme-git
+##nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme-git
+##nordic-bluish-accent-theme
+##nordic-bluish-accent-standard-buttons-theme
 geany-nord-theme
 nordzy-icon-theme
 kvantum                                                 # from XFCE (for Qt theming)
