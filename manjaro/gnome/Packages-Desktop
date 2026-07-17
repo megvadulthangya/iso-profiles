@@ -84,7 +84,7 @@ xlibre-keyring
 decibels
 #epiphany                          # Firefox included as default browser
 gdm
-gnome-backgrounds
+##gnome-backgrounds
 gnome-calculator
 gnome-calendar
 >extra gnome-characters
@@ -271,7 +271,7 @@ qt5-styleplugins                                        # from XFCE
 qt5ct
 qt6ct
 plymouth-theme-manjaro
-manjaro-gnome-backgrounds
+##manjaro-gnome-backgrounds
 #>extra illyria-wallpaper
 #>extra manjaro-wallpapers-18.0
 #>extra wallpapers-2018
@@ -406,8 +406,8 @@ raw-thumbnailer                   # from Awesome-wm
 >extra udisks2                    # from Awesome-wm
 
 # Color pickers and image tools
-##gcolor3                          # denied!! (unnecessary, one color picker is enough)
-gpick
+gcolor3
+##gpick                            #nem működött valamiért?
 ##>extra viewnior                  # denied!! (GNOME has loupe)
 flameshot                         # from Awesome-wm (screenshot, kept as requested)
 xnviewmp
