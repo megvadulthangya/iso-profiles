@@ -168,8 +168,8 @@ raw-thumbnailer
 ##---> matcha-gtk-theme <---
 ##xcursor-simpleandsoft
 ##xcursor-vanilla-dmz-aa
-plymouth
-plymouth-theme-manjaro
+#plymouth # seems there are issues with plymouth and XFCE
+#plymouth-theme-manjaro
 illyria-wallpaper
 awesome-rofi
 manjaro-distro-grub-theme
