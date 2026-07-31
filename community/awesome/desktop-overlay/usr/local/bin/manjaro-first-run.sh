@@ -123,74 +123,74 @@ systemctl enable --now udisks2.service
 
 
 # 7 Repo kulcs hozzáadása (manjaro-awesome) - hogy a pacman -Syy ne akadjon el
-echo "--> 7 Manjaro-awesome repo kulcs hozzáadása..."
-
-KEYID="A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C"
-REPO_PUB_URL="https://repo.gshoots.hu/manjaro-awesome/x86_64/manjaro-awesome.pub"
-KOO_URL="https://keys.openpgp.org/vks/v1/by-fingerprint/${KEYID}"
-
+#echo "--> 7 Manjaro-awesome repo kulcs hozzáadása..."
+#
+#KEYID="A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C"
+#REPO_PUB_URL="https://repo.gshoots.hu/manjaro-awesome/x86_64/manjaro-awesome.pub"
+#KOO_URL="https://keys.openpgp.org/vks/v1/by-fingerprint/${KEYID}"
+#
 # Ha már megvan, nem csinálunk semmit
-if pacman-key --list-keys "${KEYID}" &>/dev/null; then
-    echo "✅ Kulcs már létezik a keyringben: ${KEYID}"
-else
-    echo "--> Kulcs letöltése és importálása..."
-
-    TMPKEY="$(mktemp)"
-
+#if pacman-key --list-keys "${KEYID}" &>/dev/null; then
+#    echo "✅ Kulcs már létezik a keyringben: ${KEYID}"
+#else
+#    echo "--> Kulcs letöltése és importálása..."
+#
+#    TMPKEY="$(mktemp)"
+#
     # 1) Első körben a saját repo publikus kulcs (stabilabb)
-    if command -v curl &>/dev/null; then
-        curl -fsSL "${REPO_PUB_URL}" -o "${TMPKEY}" || true
-    else
-        wget -qO "${TMPKEY}" "${REPO_PUB_URL}" || true
-    fi
-
+#    if command -v curl &>/dev/null; then
+#        curl -fsSL "${REPO_PUB_URL}" -o "${TMPKEY}" || true
+#    else
+#        wget -qO "${TMPKEY}" "${REPO_PUB_URL}" || true
+#    fi
+#
     # Ha üres/hibás lett, fallback keys.openpgp.org
-    if [ ! -s "${TMPKEY}" ]; then
-        echo "⚠️ Repo kulcs letöltés nem sikerült, fallback: keys.openpgp.org"
-        if command -v curl &>/dev/null; then
-            curl -fsSL "${KOO_URL}" -o "${TMPKEY}"
-        else
-            wget -qO "${TMPKEY}" "${KOO_URL}"
-        fi
-    fi
-
-    pacman-key --add "${TMPKEY}"
-    rm -f "${TMPKEY}"
-
-    echo "✅ Kulcs importálva: ${KEYID}"
-fi
-
+#    if [ ! -s "${TMPKEY}" ]; then
+#        echo "⚠️ Repo kulcs letöltés nem sikerült, fallback: keys.openpgp.org"
+#        if command -v curl &>/dev/null; then
+#            curl -fsSL "${KOO_URL}" -o "${TMPKEY}"
+#        else
+#            wget -qO "${TMPKEY}" "${KOO_URL}"
+#        fi
+#    fi
+#
+#    pacman-key --add "${TMPKEY}"
+#    rm -f "${TMPKEY}"
+#
+#    echo "✅ Kulcs importálva: ${KEYID}"
+#fi
+#
 # Trust: locally sign
-pacman-key --lsign-key "${KEYID}"
-echo "✅ Kulcs locally signed: ${KEYID}"
-
-
+#pacman-key --lsign-key "${KEYID}"
+#echo "✅ Kulcs locally signed: ${KEYID}"
+#
+#
 # 8 XLibre repo kulcs hozzáadása
-echo "--> 8 XLibre repo kulcs hozzáadása..."
-
-XLIBRE_KEYID="73580DE2EDDFA6D6"
-XLIBRE_KEY_URL="https://x11libre.net/repo/arch_based/x86_64/0x73580DE2EDDFA6D6.gpg"
-
-if pacman-key --list-keys "${XLIBRE_KEYID}" &>/dev/null; then
-    echo "✅ XLibre kulcs már létezik a keyringben: ${XLIBRE_KEYID}"
-else
-    echo "--> XLibre kulcs letöltése és importálása: ${XLIBRE_KEY_URL}"
-    TMPKEY="$(mktemp)"
-
-    if command -v curl &>/dev/null; then
-        curl -fsSL "${XLIBRE_KEY_URL}" -o "${TMPKEY}"
-    else
-        wget -qO "${TMPKEY}" "${XLIBRE_KEY_URL}"
-    fi
-
-    pacman-key --add "${TMPKEY}"
-    rm -f "${TMPKEY}"
-
-    echo "✅ XLibre kulcs importálva: ${XLIBRE_KEYID}"
-fi
-
-pacman-key --lsign-key "${XLIBRE_KEYID}"
-echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
+#echo "--> 8 XLibre repo kulcs hozzáadása..."
+#
+#XLIBRE_KEYID="73580DE2EDDFA6D6"
+#XLIBRE_KEY_URL="https://x11libre.net/repo/arch_based/x86_64/0x73580DE2EDDFA6D6.gpg"
+#
+#if pacman-key --list-keys "${XLIBRE_KEYID}" &>/dev/null; then
+#    echo "✅ XLibre kulcs már létezik a keyringben: ${XLIBRE_KEYID}"
+#else
+#    echo "--> XLibre kulcs letöltése és importálása: ${XLIBRE_KEY_URL}"
+#    TMPKEY="$(mktemp)"
+#
+#    if command -v curl &>/dev/null; then
+#        curl -fsSL "${XLIBRE_KEY_URL}" -o "${TMPKEY}"
+#    else
+#        wget -qO "${TMPKEY}" "${XLIBRE_KEY_URL}"
+#    fi
+#
+#    pacman-key --add "${TMPKEY}"
+#    rm -f "${TMPKEY}"
+#
+#    echo "✅ XLibre kulcs importálva: ${XLIBRE_KEYID}"
+#fi
+#
+#pacman-key --lsign-key "${XLIBRE_KEYID}"
+#echo "✅ XLibre kulcs locally signed: ${XLIBRE_KEYID}"
 
 
 # 9. Mirrorok frissítése (KONTINENS ALAPJÁN - Biztonságos és Gyors)
