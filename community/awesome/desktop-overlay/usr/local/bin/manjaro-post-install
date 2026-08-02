@@ -4,7 +4,8 @@
 # trust the XLibre repository signing keys.
 
 pacman-key --init
-pacman-key --populate manjaro-awesome xlibre
+#pacman-key --populate manjaro-awesome xlibre
+pacman-key --populate xlibre
 #pacman-key --populate xlibre
 # Disable this service, so it only gets run on first boot
 systemctl disable manjaro-post-install.service
