@@ -1,34 +1,35 @@
 #!/bin/sh
-# Pacman Init and XLibre keyring population for first boot.
-# This service runs once to initialize the pacman keyring and
-# trust the XLibre repository signing keys.
+# First-boot script to initialize the pacman keyring and populate
+# the manjaro-awesome and xlibre repository signing keys.
+# This service runs once and disables itself upon success.
 
-# Segédfüggvény a naplózáshoz
 log_msg() {
     echo "manjaro-post-install: $*"
 }
 
-# 1. Pacman kulcstartó inicializálása, ha még nem történt meg
-if ! pacman-key -l >/dev/null 2>&1; then
-    log_msg "Initializing pacman keyring..."
-    if ! pacman-key --init; then
-        log_msg "ERROR: pacman-key --init failed."
+# Ensure the pacman master key exists; if not, generate it.
+# pacman-key --init will fail if a master key already exists, so we ignore that specific error.
+init_output=$(pacman-key --init 2>&1)
+init_ret=$?
+if [ $init_ret -ne 0 ]; then
+    if echo "$init_output" | grep -q "A master key already exists"; then
+        log_msg "Pacman master key already present."
+    else
+        log_msg "ERROR: pacman-key --init failed: $init_output"
         exit 1
     fi
 else
-    log_msg "Pacman keyring already initialized."
+    log_msg "Pacman keyring initialized successfully."
 fi
 
-# 2. Keyring fájlok ellenőrzése és szükség szerinti újratelepítés
-#    (ha a csomag sérült, a --populate hibát dob, érdemes javítani)
+# Function to populate a given keyring, with fallback to reinstall from cache if keyring files are missing.
 populate_keyring() {
     local kr="$1"
     local pkg="${kr}-keyring"
 
     if [ ! -f "/usr/share/pacman/keyrings/${kr}.gpg" ] || \
        [ ! -f "/usr/share/pacman/keyrings/${kr}-trusted" ]; then
-        log_msg "WARNING: ${kr} keyring files missing. Trying to reinstall ${pkg}..."
-        # Keressük a csomagot a cache-ben (csak akkor, ha van elérhető pacman)
+        log_msg "WARNING: ${kr} keyring files missing. Trying to reinstall ${pkg} from cache..."
         if command -v pacman >/dev/null && ls /var/cache/pacman/pkg/${pkg}-*.pkg.tar* &>/dev/null; then
             pacman -U --noconfirm /var/cache/pacman/pkg/${pkg}-*.pkg.tar*
             if [ $? -ne 0 ]; then
@@ -41,7 +42,6 @@ populate_keyring() {
         fi
     fi
 
-    # Kulcstartó feltöltése és helyi aláírása (local signing, trust)
     log_msg "Populating ${kr} keyring..."
     pacman-key --populate "$kr"
     local ret=$?
@@ -57,13 +57,13 @@ populate_keyring() {
     return 0
 }
 
-# 3. Az összes szükséges keyring feldolgozása
+# Process both keyrings
 FAILED=0
 for KEYRING in manjaro-awesome xlibre; do
     populate_keyring "$KEYRING" || FAILED=1
 done
 
-# 4. Csak sikeres feltöltés után tiltjuk le a szolgáltatást
+# Disable service only if all keyrings were populated successfully
 if [ $FAILED -eq 0 ]; then
     log_msg "All keyrings populated successfully. Disabling manjaro-post-install.service."
     systemctl disable manjaro-post-install.service
@@ -71,10 +71,3 @@ else
     log_msg "WARNING: Some keyrings could not be populated. Service will remain enabled for next boot."
     exit 1
 fi
-
-# Eredeti sorok (megtartva, kommentben jelezve, hogy most a fenti logika fut)
-#pacman-key --init
-#pacman-key --populate manjaro-awesome xlibre
-#pacman-key --populate xlibre
-# Disable this service, so it only gets run on first boot
-#systemctl disable manjaro-post-install.service
