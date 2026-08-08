@@ -1,0 +1,6 @@
+   [org/gnome/desktop/interface]
+   gtk-theme='Nordic-standard-buttons'
+   icon-theme='Nordzy-dark'
+
+   [org/gnome/shell]
+   theme='Nordic-standard-buttons'
