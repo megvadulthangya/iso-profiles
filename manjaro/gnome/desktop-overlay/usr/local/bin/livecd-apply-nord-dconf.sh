@@ -26,12 +26,18 @@ fi
 mkdir -p "$HOME_DIR/.config/dconf"
 chown -R ${USER}:${USER} "$HOME_DIR/.config"
 
-# Hozzuk létre a futásidejű könyvtárat a dbus-launch számára
+# Hozzuk létre a futásidejű könyvtárat (bár most már nincs rá szükség a kamu D‑Bus miatt, de biztonságból megtartjuk)
 mkdir -p "$RUNTIME_DIR"
 chown ${USER}:${USER} "$RUNTIME_DIR"
 chmod 700 "$RUNTIME_DIR"
 
-# Alkalmazzuk a dump fájlt a manjaro felhasználó dconf adatbázisába
-sudo -u ${USER} env XDG_RUNTIME_DIR="$RUNTIME_DIR" dconf load / < "$DUMP"
+# Alkalmazzuk a dump fájlt kamu D‑Bus címmel, ami rákényszeríti a dconf-ot a közvetlen fájlírásra
+sudo -u ${USER} env XDG_RUNTIME_DIR="$RUNTIME_DIR" DBUS_SESSION_BUS_ADDRESS=unix:path=/dev/null dconf load / < "$DUMP"
+RET=$?
 
-echo "Nord dconf settings applied for user ${USER}"
+if [ $RET -eq 0 ]; then
+    echo "Nord dconf settings applied for user ${USER}"
+else
+    echo "ERROR: dconf load failed with exit code $RET"
+    exit 1
+fi
