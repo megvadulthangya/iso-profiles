@@ -1,8 +1,0 @@
-[org/gnome/desktop/interface]
-gtk-theme='Nordic-standard-buttons'
-icon-theme='Nordzy-dark'
-cursor-theme='Capitaine Nord Dark'
-
-[org/gnome/shell]
-enabled-extensions=['user-theme@gnome-shell-extensions.gcampax.github.com']
-theme='Nordic-standard-buttons'
