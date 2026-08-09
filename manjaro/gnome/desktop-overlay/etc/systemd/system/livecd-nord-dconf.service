@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply Nord dconf settings for live user
+After=local-fs.target
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/livecd-apply-nord-dconf.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
