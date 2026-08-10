@@ -168,18 +168,20 @@ raw-thumbnailer
 ##---> matcha-gtk-theme <---
 ##xcursor-simpleandsoft
 ##xcursor-vanilla-dmz-aa
+capitaine-cursors-nord-git
 plymouth
 plymouth-theme-manjaro
 illyria-wallpaper
 awesome-rofi
 manjaro-distro-grub-theme
-nordic-theme
-nordic-darker-theme
-nordic-darker-standard-buttons-theme
-nordic-polar-standard-buttons-theme
-nordic-standard-buttons-theme
-nordic-bluish-accent-theme
-nordic-bluish-accent-standard-buttons-theme
+#nordic-theme
+#nordic-darker-theme
+#nordic-darker-standard-buttons-theme
+#nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme-git
+#nordic-standard-buttons-theme
+#nordic-bluish-accent-theme
+#nordic-bluish-accent-standard-buttons-theme
 geany-nord-theme
 nordzy-icon-theme
 

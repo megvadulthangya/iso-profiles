@@ -5,7 +5,7 @@ include "$HOME/.gtkrc-2.0.mine"
 gtk-theme-name="Nordic-standard-buttons"
 gtk-icon-theme-name="Nordzy-dark"
 gtk-font-name="FiraCode Nerd Font 12"
-gtk-cursor-theme-name="Nordic-cursors"
+gtk-cursor-theme-name="capitaine-cursors-nord"
 gtk-cursor-theme-size=16
 gtk-toolbar-style=GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
