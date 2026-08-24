@@ -71,7 +71,7 @@ jobs:
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
-          kernel: linux71
+          kernel: linux618
           code-name: "Nordic"
 
       - name: Generate README & Upload to SourceForge
@@ -120,8 +120,7 @@ jobs:
           - **Date:** $BUILD_DATE
           - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
           - **Branch:** Manjaro TESTING
-          - **Kernel:** linux71
-
+          - **Kernel:** linux6.18 LTS
           ---
 
           ## 🛠️ TESTING KIADÁS / TESTING RELEASE
@@ -157,6 +156,16 @@ jobs:
           * **Base:** Manjaro Testing
           * **Filesystem:** BTRFS + Timeshift (automata snapshotok).
           * **Shell:** Fish (root), Zsh/Bash (user).
+
+          ### 🎮 NVIDIA & Kernel Support / NVIDIA és kernel támogatás
+
+          A disztribúció alapból tartalmazza az NVIDIA drivereket, és az MHWD automatikusan felismeri és betölti a megfelelő drivert a hardverhez. A következő NVIDIA ágak érhetők el: legacy 340, 390, 470, 580, valamint a legújabb 610. Minden szükséges csomag előre telepítve van, így felhasználói beavatkozás nélkül működnek.
+
+          This distribution includes NVIDIA drivers out of the box, and MHWD automatically detects and loads the appropriate driver for your hardware. The following NVIDIA branches are available: legacy 340, 390, 470, 580, and the latest 610. All necessary packages are preinstalled, so they work without user intervention.
+
+          A következő Manjaro kernelek érhetők el és használhatók felhasználói beavatkozás nélkül: linux61, linux61-rt, linux66, linux66-rt, linux612, linux612-rt, linux618, linux71, linux72.
+
+          The following Manjaro kernels are available and can be used without user intervention: linux61, linux61-rt, linux66, linux66-rt, linux612, linux612-rt, linux618, linux71, linux72.
 
           ---
 
