@@ -28,6 +28,7 @@ libxvmc
 >nonfree_x86_64 KERNEL-nvidia
 >nonfree_x86_64 KERNEL-nvidia-open
 >nonfree_x86_64 libxnvctrl
+>nonfree_x86_64 libxnvctrl-340xx
 >nonfree_x86_64 libxnvctrl-390xx
 >nonfree_x86_64 libxnvctrl-470xx
 >nonfree_x86_64 libxnvctrl-580xx
