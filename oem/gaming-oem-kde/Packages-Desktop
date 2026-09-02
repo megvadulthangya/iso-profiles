@@ -141,13 +141,13 @@ kwin
 maliit-keyboard
 plasma-browser-integration
 plasma-desktop
+plasma-keyboard
 plasma-nm
 plasma-pa
 plasma-thunderbolt
 plasma-workspace
 plymouth-kcm
 powerdevil
-qt5-virtualkeyboard
 qt6-multimedia-ffmpeg
 qt6-virtualkeyboard
 sddm-breath-theme
