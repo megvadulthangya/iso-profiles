@@ -316,7 +316,7 @@ mesa-utils
 >multilib lib32-mesa-utils
 numlockx
 xdg-user-dirs
-xlibre-xserver
+xlibre-xserver-legacyabi
 xorg-twm
 xorg-xinit
 xorg-xkill
