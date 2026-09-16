@@ -1,38 +1,56 @@
-name: Sync master from Manjaro GitLab (safe)
+name: Sync master from Manjaro Forgejo (safe)
 
 on:
   schedule:
-    - cron: '0 5 * * *'
-  workflow_dispatch:
+    - cron: '0 5 * * *'   # Runs daily at 05:00 UTC
+  workflow_dispatch:       # Allows manual trigger
 
 permissions:
-  contents: write
+  contents: write          # Needed to push changes back to the repository
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
+    env:
+      # Git HTTP timeout settings (in seconds)
+      GIT_HTTP_TIMEOUT: 300                  # Max time to wait for an HTTP response
+      GIT_HTTP_LOW_SPEED_LIMIT: 500         # Minimum acceptable transfer speed (bytes/sec)
+      GIT_HTTP_LOW_SPEED_TIME: 60            # Time (seconds) below the speed limit before aborting
+
     steps:
       - name: Checkout GitHub repo
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 0                     # Fetch all history and branches
 
-      - name: Add GitLab remote
+      - name: Add Forgejo remote (idempotent)
         run: |
-          git remote add gitlab https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git || true
-          git fetch gitlab
+          git remote remove forgejo 2>/dev/null || true   # Remove any existing remote to avoid conflicts
+          git remote add forgejo https://code.manjaro.org/profiles/iso-profiles.git
+
+      - name: Fetch Forgejo with retry
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 5               # Overall time limit for all retries (like FlashGet's total timeout)
+          max_attempts: 100                   # Maximum number of attempts (including the first)
+          retry_wait_seconds: 30            # Delay between retries (like FlashGet's "Retry Delay")
+          command: git fetch forgejo         # Command to execute; will be retried on failure
 
       - name: Configure git user
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Merge GitLab master into GitHub master
+      - name: Merge Forgejo master into GitHub master
         run: |
           git checkout -B master origin/master
-          git merge gitlab/master --no-edit || true
+          git merge forgejo/master --no-edit || true   # Continue even if merge reports "already up to date"
 
-      - name: Push changes to GitHub
-        run: |
-          git push origin master
+      - name: Push changes to GitHub with retry
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 5
+          max_attempts: 100
+          retry_wait_seconds: 30
+          command: git push origin master
