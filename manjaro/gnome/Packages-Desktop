@@ -274,7 +274,6 @@ gnome-firmware
 htop
 #ibus                              # required by gnome-shell
 inxi
-#>extra libappindicator-gtk3       # no longer required?
 #lollypop
 manjaro-application-utility        # optional for manjaro-hello
 #manjaro-gnome-vanilla             # unmaintained, needs updating
