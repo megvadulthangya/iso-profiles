@@ -279,8 +279,8 @@ inxi
 manjaro-application-utility        # optional for manjaro-hello
 #manjaro-gnome-vanilla             # unmaintained, needs updating
 manjaro-hello
-manjaro-settings-manager
-manjaro-settings-manager-notifier
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 #mousetweaks
 >extra nautilus-admin
 nautilus-empty-file
