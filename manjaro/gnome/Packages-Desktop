@@ -91,10 +91,11 @@ gnome-user-docs
 >extra gnome-user-share            # optional for gnome-control-center
 gnome-weather
 #>extra grilo-plugins               # required by gnome-music, optional for totem
+gst-thumbnailers
 gvfs
 >extra gvfs-afc
 >extra gvfs-dnssd
->extra gvfs-goa                   # optional for gnome-online-accounts
+>extra gvfs-goa                   # required by gvfs-onedrive, optional for gnome-online-accounts
 >extra gvfs-gphoto2
 >extra gvfs-mtp
 >extra gvfs-nfs
@@ -255,8 +256,8 @@ qt6ct
 >extra apparmor
 #evince                            # required by sushi
 #evolution                         # thunderbird included instead
->extra ffmpegthumbnailer
->extra ffmpeg-audio-thumbnailer
+#>extra ffmpegthumbnailer          # Using gst-thumbnailers
+#>extra ffmpeg-audio-thumbnailer   # Using gst-thumbnailers
 firefox
 fprintd                            # needed for fingerprint reader, optional for gdm
 #fwupd                             # required by gnome-firmware, optional for gnome-control-center
