@@ -132,6 +132,7 @@ file-roller
 #gnome-sound-recorder
 gnome-tweaks
 #gnome-usage
+#manuals
 #sysprof                           # developer tools
 
 
@@ -142,6 +143,7 @@ gnome-tweaks
 #gnome-nibbles
 #gnome-robots
 #gnome-sudoku
+>extra iagno
 #lightsoff
 >extra quadrapassel
 #swell-foop
@@ -270,7 +272,6 @@ gnome-firmware
 >extra gtksourceview-pkgbuild      # syntax highlighting for PKGBUILDs
 >extra gufw
 htop
->extra iagno
 #ibus                              # required by gnome-shell
 inxi
 #>extra libappindicator-gtk3       # no longer required?
