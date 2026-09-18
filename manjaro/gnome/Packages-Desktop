@@ -74,7 +74,7 @@ gnome-console
 gnome-control-center
 gnome-disk-utility
 >extra gnome-font-viewer
-#gnome-keyring                     # required by xdg-desktop-portal-gnome
+gnome-keyring                     # optional for gnome-session
 gnome-logs
 >extra gnome-maps
 #gnome-menus                       # required by gnome-shell-extension-arc-menu
