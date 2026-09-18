@@ -136,20 +136,7 @@ gnome-tweaks
 #sysprof                           # developer tools
 
 
-## GNOME Extra games
-
->extra gnome-chess
->extra gnome-mines
-#gnome-nibbles
-#gnome-robots
-#gnome-sudoku
->extra iagno
-#lightsoff
->extra quadrapassel
-#swell-foop
-
-
-## GNOME Circle group
+## GNOME Circle applications
 
 #amberol
 #apostrophe
@@ -180,7 +167,6 @@ gnome-tweaks
 >extra fragments
 #fretboard
 #gaphor
-#gnome-mahjongg
 #gnome-podcasts
 #gradia
 #graphs
@@ -213,6 +199,20 @@ gnome-tweaks
 #warp
 #webfont-kit-generator
 #wike
+
+
+## GNOME Extra / Circle games
+
+>extra gnome-chess
+#gnome-mahjongg
+>extra gnome-mines
+#gnome-nibbles
+#gnome-robots
+#gnome-sudoku
+>extra iagno
+#lightsoff
+>extra quadrapassel
+#swell-foop
 
 
 ## GNOME Shell Extensions
