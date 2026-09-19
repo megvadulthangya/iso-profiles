@@ -78,12 +78,18 @@ cinnamon-translations              # optional for various cinnamon packages
 ## X-Apps group
 
 >extra bulky
+clockenstein
 fingwit
 gnome-online-accounts-gtk
+#hypnotix
 >extra pix
 #sticky
 #thingy
+#warpinator
+>extra webapp-manager
 xed
+>extra xepub
+>extra xapp-aiff-thumbnailer
 >extra xapp-appimage-thumbnailer
 >extra xapp-epub-thumbnailer
 >extra xapp-gimp-thumbnailer
@@ -93,6 +99,7 @@ xed
 >extra xapp-raw-thumbnailer
 >extra xapp-vorbiscomment-thumbnailer
 >extra xreader
+xviewer
 >extra xviewer-plugins
 
 
@@ -180,7 +187,6 @@ tree
 vi
 >extra vivaldi                     # firefox included in minimal edition
 >extra vivaldi-ffmpeg-codecs       # optional for vivaldi
->extra webapp-manager
 xdg-utils
 zensu                              # Why?
 
@@ -222,4 +228,3 @@ xorg-server
 xorg-xhost
 xorg-xkill
 >extra xorg-xrandr                 # optional for inxi
-

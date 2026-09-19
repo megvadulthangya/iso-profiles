@@ -74,10 +74,10 @@ gnome-console
 gnome-control-center
 gnome-disk-utility
 >extra gnome-font-viewer
-#gnome-keyring                     # required by xdg-desktop-portal-gnome
+gnome-keyring                      # optional for gnome-session
 gnome-logs
 >extra gnome-maps
-#gnome-menus                       # required by gnome-shell-extension-arc-menu
+#gnome-menus                       # required by gnome-shell-extension-arc-menu, optional for gnome-shell-extensions
 gnome-music
 >extra gnome-remote-desktop        # optional for gnome-control-center
 #gnome-session                     # required by gdm & gnome-shell
@@ -91,10 +91,11 @@ gnome-user-docs
 >extra gnome-user-share            # optional for gnome-control-center
 gnome-weather
 #>extra grilo-plugins               # required by gnome-music, optional for totem
+gst-thumbnailers
 gvfs
 >extra gvfs-afc
 >extra gvfs-dnssd
->extra gvfs-goa                   # optional for gnome-online-accounts
+>extra gvfs-goa                   # required by gvfs-onedrive, optional for gnome-online-accounts
 >extra gvfs-gphoto2
 >extra gvfs-mtp
 >extra gvfs-nfs
@@ -132,33 +133,21 @@ file-roller
 #gnome-sound-recorder
 gnome-tweaks
 #gnome-usage
+#manuals
 #sysprof                           # developer tools
 
 
-## GNOME Extra games
-
->extra gnome-chess
-#gnome-mahjongg
->extra gnome-mines
-#gnome-nibbles
-#gnome-robots
-#gnome-sudoku
-#lightsoff
->extra quadrapassel
-#swell-foop
-
-
-## GNOME Circle group
+## GNOME Circle applications
 
 #amberol
 #apostrophe
 #audio-sharing
 #authenticator
+#bazaar
 #biblioteca
 #binary
 #blanket
 #bustle
-#cartridges
 #chess-clock
 #citations
 #clairvoyant
@@ -170,6 +159,7 @@ gnome-tweaks
 #dialect
 #eartag
 #elastic
+#emblem
 #errands
 #eyedropper
 #emblem
@@ -179,15 +169,14 @@ gnome-tweaks
 #fretboard
 #gaphor
 #gnome-podcasts
+#gradia
 #graphs
-#health
 #hieroglyphic
 #identity
 #impression
 #iotas
 #junction
 #komikku
-#letterpress
 #lorem
 #mousai
 #newsflash
@@ -211,6 +200,20 @@ gnome-tweaks
 #warp
 #webfont-kit-generator
 #wike
+
+
+## GNOME Extra / Circle games
+
+>extra gnome-chess
+#gnome-mahjongg
+>extra gnome-mines
+#gnome-nibbles
+#gnome-robots
+#gnome-sudoku
+>extra iagno
+#lightsoff
+>extra quadrapassel
+#swell-foop
 
 
 ## GNOME Shell Extensions
@@ -242,7 +245,7 @@ manjaro-gnome-backgrounds
 #>extra manjaro-wallpapers-18.0
 papirus-icon-theme
 plymouth-theme-manjaro
-qt5ct
+#qt5ct                             # optional for manjaro-gnome-settings
 qt6ct
 #>extra wallpapers-2018
 #>extra wallpapers-juhraya
@@ -253,8 +256,8 @@ qt6ct
 >extra apparmor
 #evince                            # required by sushi
 #evolution                         # thunderbird included instead
->extra ffmpegthumbnailer
->extra ffmpeg-audio-thumbnailer
+#>extra ffmpegthumbnailer          # Using gst-thumbnailers
+#>extra ffmpeg-audio-thumbnailer   # Using gst-thumbnailers
 firefox
 fprintd                            # needed for fingerprint reader, optional for gdm
 #fwupd                             # required by gnome-firmware, optional for gnome-control-center
@@ -270,16 +273,14 @@ gnome-firmware
 >extra gtksourceview-pkgbuild      # syntax highlighting for PKGBUILDs
 >extra gufw
 htop
->extra iagno
 #ibus                              # required by gnome-shell
 inxi
-#>extra libappindicator-gtk3       # no longer required?
 #lollypop
 manjaro-application-utility        # optional for manjaro-hello
 #manjaro-gnome-vanilla             # unmaintained, needs updating
 manjaro-hello
-manjaro-settings-manager
-manjaro-settings-manager-notifier
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 #mousetweaks
 >extra nautilus-admin
 nautilus-empty-file
@@ -323,5 +324,3 @@ manjaro-browser-settings
 >extra manjaro-gnome-extension-settings
 manjaro-gnome-settings
 >extra manjaro-settings-samba
-
-
