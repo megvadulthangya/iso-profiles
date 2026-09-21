@@ -203,7 +203,7 @@ jobs:
       SF_USER: ${{ secrets.SF_USERNAME }}
       SF_KEY: ${{ secrets.SF_SSH_KEY }}
       SF_PROJECT: "manjaro-awesome-iso"
-      STACK_SLUG: testing-nvidia-stack
+      STACK_SLUG: testing-legacy340nvidia-stack
     steps:
       - name: Prune old releases
         shell: bash
