@@ -219,6 +219,7 @@ gnome-tweaks
 ## GNOME Shell Extensions
 
 gnome-shell-extensions
+gnome-extensions-app
 >extra gnome-shell-extension-appindicator
 >extra gnome-shell-extension-arc-menu
 >extra gnome-shell-extension-dash-to-dock
