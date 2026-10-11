@@ -132,7 +132,6 @@ file-roller
 #gnome-calls                       # gnome-mobile
 #gnome-sound-recorder
 gnome-tweaks
-#gnome-usage
 #manuals
 #sysprof                           # developer tools
 
@@ -269,6 +268,7 @@ gnome-firmware
 >extra gnome-layout-switcher
 #gnome-photos
 #gnome-terminal
+#gnome-usage
 >extra gnuchess                    # optional for gnome-chess to play against computer
 #>extra gthumb
 >extra gtksourceview-pkgbuild      # syntax highlighting for PKGBUILDs
