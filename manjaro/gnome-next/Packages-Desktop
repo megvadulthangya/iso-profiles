@@ -236,7 +236,7 @@ gnome-extensions-app               # optional for gnome-shell
 
 adw-gtk-theme
 bibata-cursor-theme                # TODO: replace with SVG cursor theme
-gnome-themes-extra
+#gnome-themes-extra
 #gnome-wallpapers
 grub-theme-manjaro
 kvantum-manjaro
