@@ -218,7 +218,7 @@ gnome-tweaks
 ## GNOME Shell Extensions
 
 gnome-shell-extensions
-gnome-extensions-app
+gnome-extensions-app               # optional for gnome-shell
 >extra gnome-shell-extension-appindicator
 >extra gnome-shell-extension-arc-menu
 >extra gnome-shell-extension-dash-to-dock
@@ -235,7 +235,7 @@ gnome-extensions-app
 ## Themes
 
 adw-gtk-theme
-bibata-cursor-theme
+bibata-cursor-theme                # TODO: replace with SVG cursor theme
 gnome-themes-extra
 #gnome-wallpapers
 grub-theme-manjaro
