@@ -236,7 +236,7 @@ gnome-shell-extensions
 
 adw-gtk-theme
 bibata-cursor-theme
-gnome-themes-extra
+#gnome-themes-extra
 #gnome-wallpapers
 grub-theme-manjaro
 kvantum-manjaro
