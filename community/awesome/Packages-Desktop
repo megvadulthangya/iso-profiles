@@ -207,7 +207,7 @@ brave-browser
 gcolor3
 gghelper
 gpick
-gthumb
+#gthumb
 gparted
 gufw
 >extra audacious
@@ -243,7 +243,7 @@ dmenu
 rofi
 flameshot
 picom-pijulius-next-git
-scrot
+#scrot
 unclutter
 xorg-xbacklight
 arandr
