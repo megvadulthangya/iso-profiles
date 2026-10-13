@@ -215,6 +215,9 @@ btop
 fastfetch
 mc
 inxi
+cpu-x
+gpu-viewer
+
 ##kdeconnect
 ##manjaro-hello
 awesome-welcome
