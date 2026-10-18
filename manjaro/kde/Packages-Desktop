@@ -81,8 +81,7 @@ pamac-cli
 >extra python-pysmbc          # SMB browser support
 
 ## Display manager
-sddm
-sddm-kcm
+plasma-login-manager
 
 ## Plasma5
 audiocd-kio
@@ -118,7 +117,6 @@ plasma-thunderbolt
 gnome-themes-extra
 #oxygen # needed to provide KDE system sounds
 #oxygen-icons
-sddm-breath-theme
 grub-theme-manjaro
 breeze5 # Fore Qt5 Breeze style
 breeze-gtk
@@ -203,7 +201,7 @@ kaccounts-providers                # required by kio-gdrive
 manjaro-hello
 manjaro-application-utility
 #manjaro-settings-manager-kcm
-manjaro-settings-manager-knotifier
+manjaro-settings-manager-kstatus-notifier
 plasma-systemmonitor
 powertop
 #>extra qbittorrent
