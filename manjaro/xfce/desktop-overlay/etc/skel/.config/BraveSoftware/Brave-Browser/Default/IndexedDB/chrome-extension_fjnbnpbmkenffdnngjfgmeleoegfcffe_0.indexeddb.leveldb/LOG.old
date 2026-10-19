@@ -1,0 +1,6 @@
+2025/10/24-12:15:21.626 3b04 Creating DB /home/gabi/.config/BraveSoftware/Brave-Browser/Default/IndexedDB/chrome-extension_fjnbnpbmkenffdnngjfgmeleoegfcffe_0.indexeddb.leveldb since it was missing.
+2025/10/24-12:15:21.657 3b04 Reusing MANIFEST /home/gabi/.config/BraveSoftware/Brave-Browser/Default/IndexedDB/chrome-extension_fjnbnpbmkenffdnngjfgmeleoegfcffe_0.indexeddb.leveldb/MANIFEST-000001
+2025/10/24-12:15:40.832 3b04 Level-0 table #5: started
+2025/10/24-12:15:40.837 3b04 Level-0 table #5: 934 bytes OK
+2025/10/24-12:15:40.845 3b04 Delete type=0 #3
+2025/10/24-12:15:40.846 3b04 Manual compaction at level-0 from (begin) .. (end); will stop at (end)

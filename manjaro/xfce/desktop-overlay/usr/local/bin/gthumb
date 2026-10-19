@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# ===============================================================
+# gThumb Wrapper for Legacy Intel Support
+# Csak a gThumb-ot kényszerítjük szoftveres módba, 
+# minden más (MPV, Játékok) használhatja a GPU-t.
+# ===============================================================
+
+# 1. Detektálás: Van-e "rossz" Intel kártya?
+HAS_BAD_INTEL=$(lspci | grep -E -i "Mobile 4 Series|GMA 3100|GMA 950|GMA 900|Pineview")
+
+# 2. Detektálás: Van-e mellette "jó" kártya (eGPU)?
+HAS_DEDICATED_GPU=$(lspci | grep -E -i "NVIDIA|Radeon|AMD")
+
+# 3. Döntés
+if [ -n "$HAS_BAD_INTEL" ] && [ -z "$HAS_DEDICATED_GPU" ]; then
+    # Ha ez egy Potato PC, akkor a gThumbnak mankót adunk
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export COGL_DRIVER=gl
+    export COGL_DEBUG=disable-atlas
+fi
+
+# 4. Az igazi gThumb indítása (a paraméterek átadásával)
+exec /usr/bin/gthumb "$@"

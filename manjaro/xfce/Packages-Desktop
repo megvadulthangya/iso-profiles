@@ -11,9 +11,14 @@ modemmanager
 openssh
 samba
 usb_modeswitch
+ethtool
+wavemon
+openbsd-netcat
 
 ## Btrfs
 grub-btrfs
+btrfs-assistant
+btrfsmaintenance
 >extra timeshift-autosnap-manjaro
 
 ## Libraries for Sound/Audio/Video
@@ -30,6 +35,10 @@ manjaro-alsa
 manjaro-gstreamer
 >extra manjaro-modem
 manjaro-pipewire
+mpd
+mpc
+mpv
+playerctl
 
 ## Connect Packages
 android-tools
@@ -43,22 +52,32 @@ gvfs-smb
 mtpfs
 udiskie
 udisks2
+gsconnect
 
 ## Fonts
 ttf-dejavu
-# cantarell-fonts        # Installed as gnome-themes-standard dependency
 noto-fonts               # default font
 noto-fonts-cjk           # asian fonts - needed big package, ~76 mb compressed
+>extra noto-fonts-emoji  # optional for noto-fonts
+>extra noto-fonts-extra  # additional languages, optional for noto-fonts
 adobe-source-sans-pro-fonts
 # adobe-source-han-sans-jp-fonts
 # adobe-source-han-sans-kr-fonts
 # adobe-source-han-sans-cn-fonts
 # >extra noto-fonts-emoji
 terminus-font
+ttf-hack-nerd                      # default monospace font
+ttf-meslo-nerd-font-powerlevel10k  # default font for manjaro-zsh-config
 >extra ttf-inconsolata
 >extra ttf-indic-otf
 >extra ttf-liberation
 >extra ttf-droid
+ttf-roboto
+woff2-font-awesome
+ttf-firacode-nerd
+xorg-fonts-misc
+ttf-font-awesome-5
+tamzen-font
 
 ## Package management
 >extra apparmor
@@ -68,6 +87,8 @@ pamac-gtk3
 >extra snapd-glib
 >extra pamac-snap-plugin
 >extra pamac-flatpak-plugin
+manjaro-awesome-keyring
+xlibre-keyring
 
 ## Printing
 >extra manjaro-printer
@@ -89,10 +110,11 @@ xfce4-panel
 xfce4-power-manager
 xfce4-session
 xfce4-settings
-xfce4-terminal
+###xfce4-terminal
 xfconf
 xfdesktop
 xfwm4
+gtkhash-thunar-git
 
 ## XFCE Extras
 blueman
@@ -108,12 +130,10 @@ menulibre
 poppler-glib       # tumbler - for PDF thumbnails
 thunar-archive-plugin
 thunar-media-tags-plugin
-# >extra xfce4-artwork
 xfce4-battery-plugin
 xfce4-clipman-plugin
 >extra xfce4-cpufreq-plugin
 >extra xfce4-cpugraph-plugin
-# xfce4-datetime-plugin
 >extra xfce4-dict
 >extra xfce4-diskperf-plugin
 >extra xfce4-fsguard-plugin
@@ -124,8 +144,8 @@ xfce4-clipman-plugin
 >extra xfce4-netload-plugin
 >extra xfce4-notes-plugin
 xfce4-notifyd
-xfce4-screenshooter
->extra xfce4-sensors-plugin
+##xfce4-screenshooter
+###>extra xfce4-sensors-plugin
 >extra xfce4-smartbookmark-plugin
 >extra xfce4-systemload-plugin
 xfce4-taskmanager
@@ -138,57 +158,134 @@ xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
 xfce4-pulseaudio-plugin
 pavucontrol
+raw-thumbnailer
 
 ## Themes
+nordic-wallpaper-default
 >extra manjaro-wallpapers-18.0
->extra wallpapers-2018
->extra wallpapers-juhraya
-gnome-themes-standard
-grub-theme-manjaro
-matcha-gtk-theme
-xcursor-simpleandsoft
-xcursor-vanilla-dmz-aa
+##---> >extra wallpapers-2018 <---
+##---> >extra wallpapers-juhraya <---
+##---> grub-theme-manjaro <---
+##---> matcha-gtk-theme <---
+##xcursor-simpleandsoft
+##xcursor-vanilla-dmz-aa
+capitaine-cursors-nord-git
 plymouth
 plymouth-theme-manjaro
+illyria-wallpaper
+awesome-rofi
+manjaro-distro-grub-theme
+#nordic-theme
+#nordic-darker-theme
+#nordic-darker-standard-buttons-theme
+#nordic-polar-standard-buttons-theme
+nordic-standard-buttons-theme-git
+#nordic-standard-buttons-theme
+#nordic-bluish-accent-theme
+#nordic-bluish-accent-standard-buttons-theme
+geany-nord-theme
+nordzy-icon-theme
 
 ## Applications
 bash-completion
 >extra catfish
 dmidecode # optional dependency inxi
 engrampa
-firefox
+##---> firefox <---
 # >extra flashplugin
 >extra galculator
-gcolor3
->extra gimp
+##---> gcolor3 <---
+##>extra gimp
 gparted
 gufw
 >extra audacious
-htop
+##---> htop <---
 inxi
 #>extra libreoffice-still
 #>extra microsoft-office-online-jak
 #>extra freeoffice
 #>extra onlyoffice-desktopeditors
-manjaro-hello
+##manjaro-hello
 manjaro-application-utility
 manjaro-settings-manager
 manjaro-settings-manager-notifier
 >extra mlocate
 mousepad
 mugshot
->basic parole # media player
->extra pidgin
+##---> >basic parole <--- # media player
 powertop
-screenfetch
+##---> screenfetch <---
 evince
 >extra poppler-data  # CKJ support for pdf
 #>basic sylpheed # mail client
->extra thunderbird
+##---> >extra thunderbird <---
 #>extra vlc
->extra viewnior
+##---> >extra viewnior <---
 >extra xfburn
 >extra yelp
+brave-browser
+gghelper
+gpick
+gthumb
+btop
+fastfetch
+mc
+awesome-welcome
+##>extra pidgin
+##---> dmenu <---
+rofi
+flameshot
+##---> picom-pijulius-next-git <---
+scrot
+##---> unclutter <---
+##---> xorg-xbacklight <---
+arandr
+lxappearance
+kvantum
+polkit-gnome
+##lxqt-policykit
+xorg-xev
+##---> xss-lock <---
+##---> feh <---
+qt5ct
+qt5-styleplugins
+kvantum-qt5
+qt6ct
+##---> xsettingsd <---
+geany
+fish
+##starship
+bat
+eza
+jq
+fzf
+zoxide
+##---> dex <---
+nano-syntax-highlighting
+>extra grayjay-bin
+tilix-git
+rxvt-unicode
+xsel
+urxvt-perls
+urxvt-resize-font-git
+##---> i3lock-fancy-git <---
+##---> betterlockscreen <---
+oh-my-posh-bin
+fish-done
+find-the-command
+p7zip-gui
+ugrep
+expac
+meld
+tldr
+fd
+ripgrep
+ripgrep-all
+terminal-tutor
+compiz-easy-patch-git
+
+
+
 
 # Optional dependencies engrampa
 p7zip  # 7Z and ARJ archive support
@@ -200,14 +297,15 @@ unrar  # RAR archive support
 
 ## Settings packages
 >extra manjaro-xfce-settings
->basic manjaro-xfce-minimal-settings
-manjaro-browser-settings
+#>basic manjaro-xfce-minimal-settings
+##manjaro-browser-settings
 
 ## Xorg Input Drivers
-xf86-input-elographics
-xf86-input-evdev
-xf86-input-libinput
-xf86-input-void
+##nvidia-driver-assistant
+xlibre-input-elographics
+xlibre-input-evdev
+xlibre-input-libinput
+xlibre-input-void
 
 ## Xorg Server and Graphics
 >multilib lib32-libva-intel-driver
@@ -218,7 +316,7 @@ mesa-utils
 >multilib lib32-mesa-utils
 numlockx
 xdg-user-dirs
-xorg-server
+xlibre-xserver-legacyabi
 xorg-twm
 xorg-xinit
 xorg-xkill
@@ -235,3 +333,5 @@ xdg-utils
 ## Misc
 xiccd # enable color profile settings
 #tlp
+zram-generator
+libinput-gestures
