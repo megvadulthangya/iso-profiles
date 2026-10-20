@@ -40,7 +40,7 @@ jobs:
           - edition: xfce
             sf_project: manjaro-xfce-respin
             readme_template: README-xfce-nvidia340.md
-            build_mirror: https://cofractal-ewr.mm.fcix.net/manjaro/
+            build_mirror: https://mirrors.manjaro.org/repo
 
     steps:
       - name: Free Disk Space (Ubuntu)
