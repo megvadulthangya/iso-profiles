@@ -439,7 +439,7 @@ jobs:
 
       - name: Publish to Pabbly (single webhook)
         env:
-          PABBLY_WEBHOOK_URL: ${{ secrets.PABBLY_WEBHOOK_URL }}
+          PABBLY_WEBHOOK_URL: ${{ secrets.PABBLY_WEBHOOK_URL_LEGACY }}
         run: |
           set -euo pipefail
           if [ -z "${PABBLY_WEBHOOK_URL:-}" ]; then
