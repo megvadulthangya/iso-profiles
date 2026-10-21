@@ -4,7 +4,7 @@ on:
 
 env:
   STACK_SLUG: testing-nvidia-stack
-  VERSION_SUFFIX: Respin
+  VERSION_SUFFIX: respin
   ISO_PROFILES_BRANCH: modern-xlibre
   BUILD_MIRROR: https://mirrors.manjaro.org/repo
   KERNEL: linux618
@@ -72,11 +72,6 @@ jobs:
           mkdir -p /tmp/readme-templates
           cp templates/*.md /tmp/readme-templates/
 
-      - id: time
-        uses: nanzm/get-time-action@v2.0
-        with:
-          format: 'YYYY-MM'
-
       - name: image-build-upload
         uses: megvadulthangya/manjaro-iso-action@awesome
         with:
@@ -87,14 +82,14 @@ jobs:
           edition: ${{ matrix.edition }}
           branch: testing
           scope: full
-          version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          version: ${{ env.VERSION_SUFFIX }}
           kernel: ${{ env.KERNEL }}
           code-name: "Nordic"
 
       - name: Prepare release dir + README from template
         id: prepare-release-dir
         env:
-          VERSION: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          VERSION: ${{ env.VERSION_SUFFIX }}
           STACK_SLUG: ${{ env.STACK_SLUG }}
           EDITION: ${{ matrix.edition }}
           TEMPLATE_FILE: ${{ matrix.readme_template }}
