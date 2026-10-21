@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=GSConnect Preferences
+Name[hu]=GSConnect Beállítások
+Comment=GSConnect extension configuration
+Comment[hu]=GSConnect kiegészítő beállításai
+Exec=/usr/bin/gapplication action org.gnome.Shell.Extensions.GSConnect preferences
+Terminal=false
+X-GNOME-Autostart-enabled=true
+Icon=org.gnome.Shell.Extensions.GSConnect
+Categories=Network;Settings;
+Path=
+StartupNotify=false
+NoDisplay=false
