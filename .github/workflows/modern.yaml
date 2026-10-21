@@ -38,12 +38,15 @@ jobs:
           - edition: gnome
             sf_project: manjaro-gnome-respin
             readme_template: README-gnome.md
+            sf_folder_url: "https://sourceforge.net/projects/manjaro-gnome-respin/files/Releases/testing-nvidia-stack/"
           - edition: awesome
             sf_project: manjaro-awesome-iso
             readme_template: README-awesome.md
+            sf_folder_url: "https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/testing-nvidia-stack/"
           - edition: xfce
             sf_project: manjaro-xfce-respin
             readme_template: README-xfce.md
+            sf_folder_url: "https://sourceforge.net/projects/manjaro-xfce-respin/files/Releases/testing-nvidia-stack/"
 
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -98,11 +101,18 @@ jobs:
           RELEASE_DIR="release"
           mkdir -p "$RELEASE_DIR"
 
-          ISO_FILE=$(find . -maxdepth 1 -name "*.iso" -type f | head -n 1)
-          if [ -z "$ISO_FILE" ]; then
-            echo "HIBA: Nem található ISO fájl!"
+          # Pontosan egy ISO-t várunk. Ha 0 vagy >1, a job meghiúsul,
+          # hogy ne hirdessünk részleges/hibás release-t.
+          mapfile -t ISO_FILES < <(find . -maxdepth 1 -name "*.iso" -type f)
+          ISO_COUNT=${#ISO_FILES[@]}
+          if [ "$ISO_COUNT" -ne 1 ]; then
+            echo "HIBA: Pontosan 1 ISO fájl szükséges, talált: $ISO_COUNT"
+            printf '  %s\n' "${ISO_FILES[@]}"
             exit 1
           fi
+          ISO_FILE="${ISO_FILES[0]}"
+          ISO_FILENAME="$(basename "$ISO_FILE")"
+
           mv "$ISO_FILE" "$RELEASE_DIR/"
           mv "${ISO_FILE}".sha* "$RELEASE_DIR/" 2>/dev/null || true
 
@@ -116,7 +126,8 @@ jobs:
               "/tmp/readme-templates/${TEMPLATE_FILE}" > "$README_PATH"
 
           echo "README generálva: $README_PATH"
-          echo "iso_dir=$RELEASE_DIR" >> $GITHUB_OUTPUT
+          echo "iso_dir=$RELEASE_DIR" >> "$GITHUB_OUTPUT"
+          echo "iso_filename=$ISO_FILENAME" >> "$GITHUB_OUTPUT"
 
       - name: Upload to SourceForge
         if: success()
@@ -202,9 +213,12 @@ jobs:
             rm -f "$BATCH_DEL"
           done
 
+      # FONTOS: continue-on-error ELTÁVOLÍTVA. Ha az IA feltöltés elbukik,
+      # ez a lépés és a teljes matrix tag is elbukik -> a publish-social
+      # downstream job nem fut, Pabbly hívás nem történik.
       - name: Upload to Internet Archive
+        id: upload-internet-archive
         if: success()
-        continue-on-error: true
         uses: nick2bad4u/internet-archive-upload@1cdb640f1bd8b06c29ef86a7d323d8c2e51eda89
         with:
           access-key: ${{ secrets.IA_ACCESS_KEY }}
@@ -217,3 +231,239 @@ jobs:
           language: "eng"
           description: "Custom Manjaro Linux ${{ matrix.edition }} respin with a unified Nordic theme. Based on the Manjaro Testing branch. NVIDIA drivers (Debian-based patchset for 390), BTRFS filesystem, Timeshift snapshots. Version: ${{ env.VERSION_SUFFIX }}. Kernel: ${{ env.KERNEL }}."
           subject: "Linux; Manjaro; ${{ matrix.edition }}; Nordic; Respin"
+
+      # Manifest: stabil SourceForge mappa-URL (nem release_tag-specifikus),
+      # stabil Archive.org item-oldal, tényleges ISO fájlnév.
+      - name: Create per-edition manifest
+        if: success()
+        env:
+          ISO_FILENAME: ${{ steps.prepare-release-dir.outputs.iso_filename }}
+          RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
+          EDITION: ${{ matrix.edition }}
+          SF_PROJECT: ${{ matrix.sf_project }}
+          SF_FOLDER_URL: ${{ matrix.sf_folder_url }}
+          IA_OUTCOME: ${{ steps.upload-internet-archive.outcome }}
+        run: |
+          set -euo pipefail
+          ARCHIVE_ID="manjaro-${EDITION}-respin-${STACK_SLUG}"
+          ARCHIVE_ITEM_URL="https://archive.org/details/${ARCHIVE_ID}"
+
+          mkdir -p /tmp/manifests
+          OUT_FILE="/tmp/manifests/${EDITION}.json"
+
+          jq -n \
+            --arg schema_version "1" \
+            --arg workflow_family "modern" \
+            --arg workflow_run_id "${GITHUB_RUN_ID}" \
+            --arg release_tag "$RELEASE_TAG" \
+            --arg stack_slug "$STACK_SLUG" \
+            --arg version "$VERSION_SUFFIX" \
+            --arg kernel "$KERNEL" \
+            --arg profile_branch "$ISO_PROFILES_BRANCH" \
+            --arg edition "$EDITION" \
+            --arg iso_filename "$ISO_FILENAME" \
+            --arg sourceforge_project "$SF_PROJECT" \
+            --arg sourceforge_upload_outcome "success" \
+            --arg internet_archive_upload_outcome "$IA_OUTCOME" \
+            --arg sourceforge_folder_url "$SF_FOLDER_URL" \
+            --arg archive_identifier "$ARCHIVE_ID" \
+            --arg archive_item_url "$ARCHIVE_ITEM_URL" \
+            '{
+              schema_version: ($schema_version|tonumber),
+              workflow_family: $workflow_family,
+              workflow_run_id: $workflow_run_id,
+              release_tag: $release_tag,
+              stack_slug: $stack_slug,
+              version: $version,
+              kernel: $kernel,
+              profile_branch: $profile_branch,
+              edition: $edition,
+              iso_filename: $iso_filename,
+              sourceforge_project: $sourceforge_project,
+              sourceforge_upload_outcome: $sourceforge_upload_outcome,
+              internet_archive_upload_outcome: $internet_archive_upload_outcome,
+              sourceforge_folder_url: $sourceforge_folder_url,
+              archive_identifier: $archive_identifier,
+              archive_item_url: $archive_item_url
+            }' > "$OUT_FILE"
+
+          cat "$OUT_FILE"
+
+      - name: Upload manifest artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manifest-modern-${{ matrix.edition }}
+          path: /tmp/manifests/${{ matrix.edition }}.json
+          retention-days: 7
+
+  # Egyetlen aggregátor job: a teljes matrix (minden edition) sikeres
+  # lefutása után validál, majd EGYSZER hívja a Pabbly webhookot.
+  publish-social:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, build-release]
+    if: success()
+    steps:
+      - name: Download all manifest artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: manifest-modern-*
+          path: /tmp/manifests
+          merge-multiple: true
+
+      - name: Validate manifests and build aggregate payload
+        env:
+          EXPECTED_RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          MANIFEST_DIR="/tmp/manifests"
+
+          if [ ! -d "$MANIFEST_DIR" ]; then
+            echo "HIBA: Manifest könyvtár nem létezik: $MANIFEST_DIR"
+            exit 1
+          fi
+
+          FILE_COUNT=$(find "$MANIFEST_DIR" -maxdepth 1 -name '*.json' -type f | wc -l)
+          echo "Talált manifest fájlok: $FILE_COUNT"
+
+          # Modern: pontosan 3 manifest (gnome, awesome, xfce)
+          if [ "$FILE_COUNT" -ne 3 ]; then
+            echo "HIBA: Modern workflow pontosan 3 manifest-et vár, talált: $FILE_COUNT"
+            ls -la "$MANIFEST_DIR" || true
+            exit 1
+          fi
+
+          EXPECTED_EDITIONS=(gnome awesome xfce)
+
+          for ed in "${EXPECTED_EDITIONS[@]}"; do
+            mf="$MANIFEST_DIR/${ed}.json"
+            if [ ! -f "$mf" ]; then
+              echo "HIBA: Hiányzó manifest: ${ed}.json"
+              ls -la "$MANIFEST_DIR" || true
+              exit 1
+            fi
+            file_edition=$(jq -r '.edition' "$mf")
+            if [ "$file_edition" != "$ed" ]; then
+              echo "HIBA: ${ed}.json edition mezője: '$file_edition' (várt: '$ed')"
+              exit 1
+            fi
+
+            family=$(jq -r '.workflow_family' "$mf")
+            tag=$(jq -r '.release_tag' "$mf")
+            slug=$(jq -r '.stack_slug' "$mf")
+            sf_out=$(jq -r '.sourceforge_upload_outcome' "$mf")
+            ia_out=$(jq -r '.internet_archive_upload_outcome' "$mf")
+            iso=$(jq -r '.iso_filename' "$mf")
+            folder_url=$(jq -r '.sourceforge_folder_url' "$mf")
+            sf_project=$(jq -r '.sourceforge_project' "$mf")
+            arch_id=$(jq -r '.archive_identifier' "$mf")
+            ia_url=$(jq -r '.archive_item_url' "$mf")
+
+            case "$ed" in
+              gnome)
+                expected_project="manjaro-gnome-respin"
+                expected_folder="https://sourceforge.net/projects/manjaro-gnome-respin/files/Releases/testing-nvidia-stack/"
+                ;;
+              awesome)
+                expected_project="manjaro-awesome-iso"
+                expected_folder="https://sourceforge.net/projects/manjaro-awesome-iso/files/Releases/testing-nvidia-stack/"
+                ;;
+              xfce)
+                expected_project="manjaro-xfce-respin"
+                expected_folder="https://sourceforge.net/projects/manjaro-xfce-respin/files/Releases/testing-nvidia-stack/"
+                ;;
+            esac
+
+            [ "$family" = "modern" ] || { echo "HIBA: $ed workflow_family=$family"; exit 1; }
+            [ "$tag" = "$EXPECTED_RELEASE_TAG" ] || { echo "HIBA: $ed release_tag=$tag != $EXPECTED_RELEASE_TAG"; exit 1; }
+            [ "$slug" = "testing-nvidia-stack" ] || { echo "HIBA: $ed stack_slug=$slug"; exit 1; }
+            [ "$sf_project" = "$expected_project" ] || { echo "HIBA: $ed sourceforge_project='$sf_project' (várt: '$expected_project')"; exit 1; }
+            [ "$folder_url" = "$expected_folder" ] || { echo "HIBA: $ed sourceforge_folder_url='$folder_url' (várt: '$expected_folder')"; exit 1; }
+            [ "$arch_id" = "manjaro-${ed}-respin-testing-nvidia-stack" ] || { echo "HIBA: $ed archive_identifier='$arch_id'"; exit 1; }
+            [ "$sf_out" = "success" ] || { echo "HIBA: $ed sourceforge_upload_outcome=$sf_out"; exit 1; }
+            [ "$ia_out" = "success" ] || { echo "HIBA: $ed internet_archive_upload_outcome=$ia_out"; exit 1; }
+            [ -n "$iso" ] && [ -n "$folder_url" ] && [ -n "$ia_url" ] || {
+              echo "HIBA: $ed hiányzó kötelező mező (iso/url)"
+              exit 1
+            }
+          done
+
+          echo "Minden manifest validálva."
+
+          EDITION_COUNT=3
+          EDITIONS_JSON=$(jq -s '[.[] | {
+            edition: .edition,
+            iso_filename: .iso_filename,
+            sourceforge_project: .sourceforge_project,
+            sourceforge_folder_url: .sourceforge_folder_url,
+            archive_identifier: .archive_identifier,
+            archive_item_url: .archive_item_url,
+            sourceforge_upload_outcome: .sourceforge_upload_outcome,
+            internet_archive_upload_outcome: .internet_archive_upload_outcome
+          }]' \
+            "$MANIFEST_DIR/awesome.json" \
+            "$MANIFEST_DIR/xfce.json" \
+            "$MANIFEST_DIR/gnome.json")
+
+          EVENT_ID="modern:${EXPECTED_RELEASE_TAG}:${GITHUB_RUN_ID}"
+
+          jq -n \
+            --arg schema_version "1" \
+            --arg event_type "iso_release_published" \
+            --arg event_id "$EVENT_ID" \
+            --arg workflow_family "modern" \
+            --arg workflow_name "Modern" \
+            --arg release_tag "$EXPECTED_RELEASE_TAG" \
+            --arg stack_slug "$STACK_SLUG" \
+            --arg version "$VERSION_SUFFIX" \
+            --arg kernel "$KERNEL" \
+            --arg manjaro_branch "testing" \
+            --arg profile_branch "$ISO_PROFILES_BRANCH" \
+            --argjson edition_count "$EDITION_COUNT" \
+            --argjson editions "$EDITIONS_JSON" \
+            '{
+              schema_version: ($schema_version|tonumber),
+              event_type: $event_type,
+              event_id: $event_id,
+              workflow_family: $workflow_family,
+              workflow_name: $workflow_name,
+              release_tag: $release_tag,
+              stack_slug: $stack_slug,
+              version: $version,
+              kernel: $kernel,
+              manjaro_branch: $manjaro_branch,
+              profile_branch: $profile_branch,
+              edition_count: $edition_count,
+              editions: $editions
+            }' > /tmp/aggregate-payload.json
+
+          echo "Aggregát payload:"
+          cat /tmp/aggregate-payload.json
+
+      - name: Publish to Pabbly (single webhook)
+        env:
+          PABBLY_WEBHOOK_URL: ${{ secrets.PABBLY_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PABBLY_WEBHOOK_URL:-}" ]; then
+            echo "HIBA: PABBLY_WEBHOOK_URL secret nincs beállítva"
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl --silent --show-error --max-time 30 \
+            --output /tmp/pabbly-response.txt \
+            --write-out "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data @/tmp/aggregate-payload.json \
+            "$PABBLY_WEBHOOK_URL" || true)
+
+          if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ] || [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "HIBA: Pabbly webhook HTTP: ${HTTP_CODE:-<nincs>}"
+            echo "Válasz törzse:"
+            cat /tmp/pabbly-response.txt 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Pabbly webhook sikeres: HTTP $HTTP_CODE"
+          cat /tmp/pabbly-response.txt 2>/dev/null || true
