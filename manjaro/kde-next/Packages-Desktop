@@ -81,8 +81,7 @@ pamac-cli
 >extra python-pysmbc          # SMB browser support
 
 ## Display manager
-sddm                          ## TODO plasma-login-manager
-sddm-kcm
+plasma-login-manager
 
 ## Plasma5
 audiocd-kio
@@ -117,7 +116,6 @@ plasma-thunderbolt
 gnome-themes-extra
 #oxygen # needed to provide KDE system sounds
 #oxygen-icons
-sddm-breath-theme
 grub-theme-manjaro
 breeze5 # Fore Qt5 Breeze style
 breeze-gtk
