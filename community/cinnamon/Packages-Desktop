@@ -108,7 +108,7 @@ xviewer
 >extra baobab
 >extra gnome-disk-utility
 gnome-keyring
->extra gnome-system-monitor
+>extra gnome-system-monitor        ##TODO: Replace with superlight
 gvfs-afc
 gvfs-goa
 gvfs-gphoto2
