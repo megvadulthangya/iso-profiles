@@ -88,6 +88,7 @@ gnome-online-accounts-gtk
 #thingy
 #warpinator
 >extra webapp-manager
+#unfold                            ## TODO
 #velocitty                         ## TODO
 xed
 >extra xepub
@@ -150,7 +151,7 @@ qt6ct                              # required by manjaro-cinnamon settings
 >extra celluloid
 >extra deluge
 >extra ffmpegthumbnailer
-file-roller
+file-roller                        ## TODO: Replace with unfold?
 >basic firefox                     # vivaldi included in full edition
 flatpak
 >extra galculator
