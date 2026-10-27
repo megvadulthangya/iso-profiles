@@ -84,9 +84,12 @@ gnome-online-accounts-gtk
 #hypnotix
 >extra pix
 #sticky
+#superlight                        ## TODO
 #thingy
 #warpinator
 >extra webapp-manager
+#unfold                            ## TODO
+#velocitty                         ## TODO
 xed
 >extra xepub
 >extra xapp-aiff-thumbnailer
@@ -108,7 +111,7 @@ xviewer
 >extra baobab
 >extra gnome-disk-utility
 gnome-keyring
->extra gnome-system-monitor
+>extra gnome-system-monitor        ##TODO: Replace with superlight
 gvfs-afc
 gvfs-goa
 gvfs-gphoto2
@@ -121,7 +124,7 @@ yelp
 ## GNOME Extra
 
 >extra dconf-editor                # developer tools
-gnome-terminal
+gnome-terminal                     ## TODO: Replace with velocitty
 
 
 ## Themes
@@ -148,7 +151,7 @@ qt6ct                              # required by manjaro-cinnamon settings
 >extra celluloid
 >extra deluge
 >extra ffmpegthumbnailer
-file-roller
+file-roller                        ## TODO: Replace with unfold?
 >basic firefox                     # vivaldi included in full edition
 flatpak
 >extra galculator
