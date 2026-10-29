@@ -1,8 +1,12 @@
 export QT_QPA_PLATFORMTHEME="qt5ct"
 export XDG_CURRENT_DESKTOP=Awesome
+
+# Cursor theme and size (must match .Xresources, GTK settings.ini, and LightDM)
+export XCURSOR_THEME="Capitaine Nord Dark"
+export XCURSOR_SIZE=30
+
 # Monitor setup
 if [ -f "$HOME/.screenlayout/layout.sh" ]; then
     # Mivel ez az X session indításakor fut, a DISPLAY már elérhető
     bash "$HOME/.screenlayout/layout.sh" &
 fi
-

@@ -16,7 +16,6 @@ for arg in "$@"; do
     esac
 done
 
-# --- színek ---
 R='\033[0;31m'; G='\033[0;32m'; Y='\033[1;33m'; B='\033[0;34m'; N='\033[0m'
 info()  { echo -e "${B}[*]${N} $*"; }
 ok()    { echo -e "${G}[+]${N} $*"; }
@@ -45,12 +44,9 @@ confirm() {
 }
 
 # ============================================================
-# 1) Csomagok eltávolítása (340xx ÉS 390xx, minden variáns)
-# ============================================================
 cleanup_packages() {
     info "Telepített nvidia 340xx/390xx csomagok keresése..."
 
-    # Összes releváns csomag begyűjtése, ami ténylegesen telepítve van
     local pkgs
     pkgs=$(pacman -Qq 2>/dev/null | grep -E \
         '^(nvidia-(340xx|390xx).*|opencl-nvidia-(340xx|390xx).*|lib32-(nvidia|opencl-nvidia)-(340xx|390xx).*|mhwd.*|nvidia-utils-(340xx|390xx).*)$' \
@@ -67,7 +63,6 @@ cleanup_packages() {
         fi
     fi
 
-    # Maradék, "orphan" függőségek takarítása
     if confirm "Orphan csomagok törlése (pacman -Qtdq)?"; then
         local orphans
         orphans=$(pacman -Qtdq 2>/dev/null || true)
@@ -81,8 +76,6 @@ cleanup_packages() {
     fi
 }
 
-# ============================================================
-# 2) DKMS modulok eltávolítása
 # ============================================================
 cleanup_dkms() {
     info "DKMS modulok takarítása (340 + 390)..."
@@ -106,13 +99,10 @@ cleanup_dkms() {
 }
 
 # ============================================================
-# 3) Fájlrendszer maradványok
-# ============================================================
 cleanup_files() {
     info "Fájlrendszer maradványok törlése..."
 
     local paths=(
-        # DKMS / source
         /usr/src/nvidia-340.108
         /usr/src/nvidia-390.157
         /usr/src/nvidia-340xx-utils
@@ -121,23 +111,19 @@ cleanup_files() {
         /var/lib/dkms/nvidia-340xx
         /var/lib/dkms/nvidia-390xx
 
-        # OpenGL / Vulkan ICD-k (ha ottmaradtak)
         /usr/share/vulkan/icd.d/nvidia_icd.json
         /usr/share/vulkan/icd.d/nvidia_layers.json
         /usr/share/glvnd/egl_vendor.d/10_nvidia.json
         /etc/ld.so.conf.d/nvidia*.conf
 
-        # modprobe konfigok, blacklistek
         /etc/modprobe.d/nvidia*.conf
         /etc/modprobe.d/blacklist-nvidia*.conf
         /etc/modules-load.d/nvidia.conf
         /etc/modules-load.d/nvidia-utils.conf
 
-        # Xorg
         /etc/X11/xorg.conf.d/20-nvidia.conf
         /etc/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf
 
-        # mhwd
         /etc/mhwd.d/nvidia*.conf
     )
 
@@ -148,7 +134,6 @@ cleanup_files() {
         fi
     done
 
-    # libGL / libnvidia maradványok az /usr/lib-ben (mélyebb takarítás)
     find /usr/lib /usr/lib32 -maxdepth 2 \( \
         -name 'libnvidia*' -o \
         -name 'libcuda*' -o \
@@ -165,13 +150,9 @@ cleanup_files() {
 }
 
 # ============================================================
-# 4) Build könyvtárak tisztítása (felhasználói home alatt)
-# ============================================================
 cleanup_build_dirs() {
     info "Build könyvtárak tisztítása..."
 
-    # A scriptet símán user-ként futtathatod a build dir tisztításhoz,
-    # de root-ként is működik, ezért a valódi usert megnézzük.
     local target_user="${SUDO_USER:-$USER}"
     local home
     home=$(getent passwd "$target_user" | cut -d: -f6)
@@ -185,10 +166,9 @@ cleanup_build_dirs() {
     for d in "${dirs[@]}"; do
         if [[ -d "$d" ]]; then
             info "  takarítás: $d"
-            # Csak a build szemét, a PKGBUILD-et NE bántsuk
             find "$d" -maxdepth 1 -type d -name 'src'  -exec rm -rf {} + 2>/dev/null
             find "$d" -maxdepth 1 -type d -name 'pkg'  -exec rm -rf {} + 2>/dev/null
-            find "$d" -maxdepth 1 -type f -name '*.pkg.tar.zst'  -delete 2>/dev/null
+            find "$d" -maxdepth 1 -type f -name '*.pkg.tar.zst'      -delete 2>/dev/null
             find "$d" -maxdepth 1 -type f -name '*.pkg.tar.zst.sig'  -delete 2>/dev/null
             ok "  kész: $d"
         else
@@ -198,7 +178,36 @@ cleanup_build_dirs() {
 }
 
 # ============================================================
-# 5) Kernel modul cache + initramfs újragenerálás
+# Nested build dirs: ~/NVIDIA-390XX-UTILS/build/nvidia-390xx-utils
+#                    ~/NVIDIA-340XX-UTILS/build/nvidia-340xx-utils
+# Itt a `src` MARAD, csak `pkg` + .zst törlődik.
+# ============================================================
+cleanup_nested_build_dirs() {
+    info "Nested build könyvtárak tisztítása (src MEGMARAD)..."
+
+    local target_user="${SUDO_USER:-$USER}"
+    local home
+    home=$(getent passwd "$target_user" | cut -d: -f6)
+    [[ -z "$home" ]] && home="$HOME"
+
+    local dirs=(
+        "$home/NVIDIA-390XX-UTILS/build/nvidia-390xx-utils"
+        "$home/NVIDIA-340XX-UTILS/build/nvidia-340xx-utils"
+    )
+
+    for d in "${dirs[@]}"; do
+        if [[ -d "$d" ]]; then
+            info "  takarítás: $d"
+            find "$d" -maxdepth 1 -type d -name 'pkg' -exec rm -rf {} + 2>/dev/null
+            find "$d" -maxdepth 1 -type f -name '*.pkg.tar.zst'      -delete 2>/dev/null
+            find "$d" -maxdepth 1 -type f -name '*.pkg.tar.zst.sig'  -delete 2>/dev/null
+            ok "  kész: $d (src megtartva)"
+        else
+            warn "  nincs: $d"
+        fi
+    done
+}
+
 # ============================================================
 refresh_initramfs() {
     if ! confirm "Initramfs újragenerálása (mkinitcpio -P)?"; then
@@ -208,6 +217,55 @@ refresh_initramfs() {
         run mkinitcpio -P || warn "mkinitcpio hibázott"
     else
         warn "mkinitcpio nincs telepítve."
+    fi
+}
+
+# ============================================================
+report() {
+    local target_user="${SUDO_USER:-$USER}"
+    local home
+    home=$(getent passwd "$target_user" | cut -d: -f6)
+    [[ -z "$home" ]] && home="$HOME"
+
+    echo
+    ok "Kész. Ellenőrzés (tényleges kimenet):"
+
+    info "dkms status:"
+    if (( DRY_RUN )); then
+        echo -e "${Y}[dry]${N} dkms status"
+    else
+        dkms status 2>/dev/null || echo "  (nincs találat / dkms nem elérhető)"
+    fi
+
+    info "Telepített 340xx/390xx csomagok:"
+    if (( DRY_RUN )); then
+        echo -e "${Y}[dry]${N} pacman -Qq | grep -E 'nvidia-(340xx|390xx)'"
+    else
+        local found
+        found=$(pacman -Qq 2>/dev/null | grep -E \
+            '^(nvidia-(340xx|390xx).*|opencl-nvidia-(340xx|390xx).*|lib32-(nvidia|opencl-nvidia)-(340xx|390xx).*|nvidia-utils-(340xx|390xx).*)$' \
+            || true)
+        if [[ -n "$found" ]]; then
+            echo "$found"
+        else
+            echo "  (egy sem — OK)"
+        fi
+    fi
+
+    info "/usr/src és /var/lib/dkms nvidia maradványok:"
+    if (( DRY_RUN )); then
+        echo -e "${Y}[dry]${N} ls -d /usr/src/*nvidia* /var/lib/dkms/*nvidia*"
+    else
+        ls -d /usr/src/*nvidia* /var/lib/dkms/*nvidia* 2>/dev/null || echo "  (nincs)"
+    fi
+
+    info "Nested build könyvtárak (src marad):"
+    if (( DRY_RUN )); then
+        echo -e "${Y}[dry]${N} ls -d $home/NVIDIA-{340XX,390XX}-UTILS/build/nvidia-*xx-utils"
+    else
+        ls -d "$home/NVIDIA-390XX-UTILS/build/nvidia-390xx-utils" \
+              "$home/NVIDIA-340XX-UTILS/build/nvidia-340xx-utils" 2>/dev/null \
+              || echo "  (nincs)"
     fi
 }
 
@@ -222,13 +280,9 @@ main() {
     cleanup_dkms
     cleanup_files
     cleanup_build_dirs
+    cleanup_nested_build_dirs
     refresh_initramfs
-
-    echo
-    ok "Kész. Ellenőrzés:"
-    echo "  dkms status"
-    echo "  pacman -Qs 'nvidia-(340|390)'"
-    echo "  ls /usr/src /var/lib/dkms 2>/dev/null"
+    report
 }
 
 main "$@"

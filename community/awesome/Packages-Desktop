@@ -161,11 +161,10 @@ raw-thumbnailer
 pavucontrol
 
 ##Awesome-wm
-awesome54-git
+awesome-git
 awesome-freedesktop-git
 awesome-copycats-manjaro
 awesome-rofi
-lain-git
 rlwrap
 xcb-util-errors
 librsvg
@@ -183,15 +182,16 @@ manjaro-distro-grub-theme
 ##matcha-gtk-theme
 ##xcursor-simpleandsoft
 ##xcursor-vanilla-dmz-aa
+capitaine-cursors-nord-git
 plymouth
 plymouth-theme-manjaro
-nordic-theme
-nordic-darker-theme
-nordic-darker-standard-buttons-theme
-nordic-polar-standard-buttons-theme
+#nordic-theme
+#nordic-darker-theme
+#nordic-darker-standard-buttons-theme
+#nordic-polar-standard-buttons-theme
 nordic-standard-buttons-theme
-nordic-bluish-accent-theme
-nordic-bluish-accent-standard-buttons-theme
+#nordic-bluish-accent-theme
+#nordic-bluish-accent-standard-buttons-theme
 geany-nord-theme
 nordzy-icon-theme
 ##nordic-backgrounds
@@ -217,6 +217,7 @@ mc
 inxi
 cpu-x
 gpu-t-git
+copyq
 ##kdeconnect
 ##manjaro-hello
 awesome-welcome
