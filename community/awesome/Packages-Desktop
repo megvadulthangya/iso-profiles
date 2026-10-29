@@ -161,11 +161,10 @@ raw-thumbnailer
 pavucontrol
 
 ##Awesome-wm
-awesome54-git
+awesome-git
 awesome-freedesktop-git
 awesome-copycats-manjaro
 awesome-rofi
-lain-git
 rlwrap
 xcb-util-errors
 librsvg
@@ -325,6 +324,7 @@ xorg-twm
 xorg-xinit
 xorg-xkill
 xorg-mkfontscale
+xorg-xrandr
 
 ## Desktop Utils
 perl-file-mimeinfo
