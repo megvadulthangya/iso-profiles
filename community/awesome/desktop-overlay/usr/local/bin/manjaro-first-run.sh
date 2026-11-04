@@ -16,7 +16,11 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# 2. UUID Detektálás (Kritikus a Timeshiftnek)
+# 2. Dconf dark default érvényesítése (a fájlok az ISO profilból már bent vannak)
+echo "--> Dconf system-db fordítása..."
+dconf update && dconf read /org/gnome/desktop/interface/color-scheme
+
+# 3. UUID Detektálás (Kritikus a Timeshiftnek)
 echo "--> Root partíció UUID keresése..."
 ROOT_UUID=$(findmnt / -n -o UUID)
 

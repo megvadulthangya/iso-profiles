@@ -1,0 +1,7 @@
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Nordic-standard-buttons'
+icon-theme='Nordzy-dark'
+cursor-theme='Capitaine Nord Dark'
+cursor-size=30
+font-name='FiraCode Nerd Font 12'
