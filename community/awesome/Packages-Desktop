@@ -184,7 +184,7 @@ manjaro-distro-grub-theme
 ##xcursor-vanilla-dmz-aa
 plymouth
 plymouth-theme-manjaro
-#nordic-theme
+nordic-theme
 #nordic-darker-theme
 #nordic-darker-standard-buttons-theme
 #nordic-polar-standard-buttons-theme
@@ -215,7 +215,7 @@ fastfetch
 mc
 inxi
 cpu-x
-gpu-viewer
+gpu-t-git
 copyq
 
 ##kdeconnect

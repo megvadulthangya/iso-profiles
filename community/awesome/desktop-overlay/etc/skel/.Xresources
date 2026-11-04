@@ -3,8 +3,8 @@
 ! ================================
 
 ! Cursor theme and size
-Xcursor.theme: Nordic-cursors
-!Xcursor.size: 24
+Xcursor.theme: Capitaine Nord Dark
+Xcursor.size: 30
 
 ! ================================
 ! FONT RENDERING SETTINGS
