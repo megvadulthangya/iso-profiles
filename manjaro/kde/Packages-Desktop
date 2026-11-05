@@ -88,7 +88,7 @@ audiocd-kio
 bluedevil
 kde-gtk-config
 kdeplasma-addons
-kgamma
+kgamma                             # Drop for Plasma 6.8
 kinfocenter
 kmenuedit
 kscreen
