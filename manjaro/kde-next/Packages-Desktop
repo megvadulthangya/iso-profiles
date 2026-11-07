@@ -83,6 +83,7 @@ plasma-login-manager
 ## Plasma5
 audiocd-kio
 bluedevil
+flatpak-kcm
 kde-gtk-config
 kdeplasma-addons
 kinfocenter

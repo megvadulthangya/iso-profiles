@@ -84,6 +84,7 @@ plasma-login-manager
 ## Plasma5
 audiocd-kio
 bluedevil
+flatpak-kcm
 kde-gtk-config
 kdeplasma-addons
 kgamma                             # Drop for Plasma 6.8
