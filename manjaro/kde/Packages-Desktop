@@ -68,7 +68,6 @@ pamac-cli
 
 ## Printing
 >extra manjaro-printer
->extra gtk3-print-backends
 
 ## Optional dependencies for hplip
 >extra python-pillow
