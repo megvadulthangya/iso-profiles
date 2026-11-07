@@ -45,7 +45,7 @@ jobs:
       - name: Merge Forgejo master into GitHub master
         run: |
           git checkout -B master origin/master
-          git merge forgejo/master --no-edit || true   # Continue even if merge reports "already up to date"
+          git merge forgejo/master --no-edit   # Continue even if merge reports "already up to date"
 
       - name: Push changes to GitHub with retry
         uses: nick-fields/retry@v4
