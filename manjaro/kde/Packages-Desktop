@@ -71,7 +71,6 @@ pamac-cli
 
 ## Optional dependencies for hplip
 >extra python-pillow
->extra python-pip
 >extra python-pyqt5
 >extra python-reportlab
 
