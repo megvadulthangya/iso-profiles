@@ -68,11 +68,9 @@ pamac-cli
 
 ## Printing
 >extra manjaro-printer
->extra gtk3-print-backends
 
 ## Optional dependencies for hplip
 >extra python-pillow
->extra python-pip
 >extra python-pyqt5
 >extra python-reportlab
 
@@ -86,6 +84,7 @@ plasma-login-manager
 ## Plasma5
 audiocd-kio
 bluedevil
+flatpak-kcm
 kde-gtk-config
 kdeplasma-addons
 kgamma                             # Drop for Plasma 6.8
