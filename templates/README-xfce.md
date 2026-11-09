@@ -21,7 +21,7 @@
 
 **A custom Manjaro Linux ISO combining the XFCE desktop with Compiz visual effects and a unified Nordic look. The system is based on the Manjaro TESTING branch.**
 
-This is the single current XFCE ISO. It includes support for both legacy and modern NVIDIA driver branches; a separate NVIDIA 340 legacy ISO is no longer maintained.
+This is the single current XFCE ISO. It includes support for both legacy and modern NVIDIA driver branches. The separate NVIDIA 340 legacy ISO has been retired; the 340 driver is included in this main ISO.
 
 ---
 
@@ -55,47 +55,71 @@ A Compiz által kínált látványos effektekhez megfelelő grafikus gyorsítás
 - **Kernel:** Linux `6.18`
 - **Filesystem:** BTRFS + Timeshift snapshot support
 - **Display Manager:** LightDM with GTK greeter
-- **Shells:** Fish for root; Zsh/Bash for the regular user workflow
+- **Shells:** Fish for root; Zsh and Bash for the regular user workflow
 
 ### 🎮 NVIDIA Driver Support
 
-The ISO includes legacy and modern NVIDIA driver branches:
+The ISO includes the following NVIDIA driver branches:
 
-- **340.108** — legacy
-- **390.157** — legacy
-- **470.xx** — legacy
-- **580.xx** — legacy
-- **Latest available branch**
+- **340.108** — legacy, independently maintained
+- **390.157** — legacy, independently maintained
+- **470.xx** — legacy, provided by the official Manjaro repositories
+- **580.xx** — legacy, provided by the official Manjaro repositories
+- **Latest available branch** — provided by the official Manjaro repositories
 
-The separate NVIDIA 340 legacy ISO has been retired. The 340 driver is now included in the main XFCE ISO.
+### 🧰 NVIDIA 340xx / 390xx Legacy Driver Maintenance
+
+I maintain both the **NVIDIA 340.108 and 390.157 legacy drivers** in my own Manjaro/Arch Linux repositories, including their driver packages and kernel module patchsets.
+
+Both patchsets are based on Debian's NVIDIA kernel patch series, with additional Manjaro/Arch Linux adaptations and ongoing kernel compatibility work.
+
+Build testing on Manjaro has covered the following kernel versions and variants:
+
+- Linux 6.1 / 6.1-rt
+- Linux 6.6 / 6.6-rt
+- Linux 6.12 / 6.12-rt
+- Linux 6.18
+- Linux 7.1
+- Linux 7.2
+- Linux 7.3
+- Linux 7.4-rc
+- Linux 7.4-rc-next
+
+The tested list represents the Manjaro build-test coverage, not a hard upper limit on potential kernel compatibility. The patchsets are adapted to kernel changes as they evolve.
+
+### 🧠 NVIDIA Driver Assistant & MHWD Integration
+
+This ISO includes my Manjaro-specific fork of [nvidia-driver-assistant](https://github.com/megvadulthangya/nvidia-driver-assistant/tree/manjaro), integrated with MHWD.
+
+It detects NVIDIA GPUs, evaluates their architecture and legacy driver requirements, and recommends the appropriate driver branch and kernel module flavour (Open or proprietary).
+
+The integration allows MHWD to use these recommendations when selecting the matching driver configuration and kernel module package.
+
+The assistant supports NVIDIA driver selection across the branches available in this Manjaro setup: the independently maintained **340xx and 390xx legacy branches**, alongside the **470xx, 580xx and latest branches provided by the official Manjaro repositories**.
 
 ### 🧪 NVIDIA Open Kernel Module Testing
 
 If you have a modern NVIDIA GPU that supports the **Open Kernel Module**, please help test the live ISO on bare metal.
 
-After booting, check which NVIDIA kernel module is actually loaded:
+Run the NVIDIA Driver Assistant:
+
+```bash
+nvidia-driver-assistant
+```
+
+It detects your GPU, recommends the appropriate kernel module flavour (Open or proprietary), and displays the corresponding installation instructions.
+
+To verify which NVIDIA kernel module is actually loaded, also run:
 
 ```bash
 cat /proc/driver/nvidia/version
 ```
 
-If the Open Kernel Module was loaded, the output should identify it as **Open Kernel Module**.
+If the Open Kernel Module was loaded, its output should identify it as **Open Kernel Module**.
 
-You can also check the detected driver profile with:
+Please report your GPU model, ISO version, the assistant's recommendation, and the loaded module information.
 
-```bash
-nvidia-driver-assistant --mhwd
-```
-
-Please report whether the expected Open Kernel Module was loaded successfully, together with your GPU model and the command output. This feedback helps verify the NVIDIA driver selection on different hardware.
-
-### 🔧 NVIDIA 390xx Kernel Patch Maintenance
-
-Ongoing maintenance and forward-porting of a Debian-derived kernel patchset for the **NVIDIA 390xx legacy driver**, adapted for Manjaro/Arch Linux.
-
-The patchset work extends through Linux 7.3 and continues into `linux-next`. This refers to the 390xx kernel-patch work, not the kernel bundled with this ISO.
-
-🔗 **Details / Részletek:** [NVIDIA 340.108 / 390.157 Legacy Drivers — Debian-based Patchset](https://forum.manjaro.org/t/nvidia-340-108-390-157-legacy-drivers-debian-based-patchset-complete-package-set-mhwd-integration-and-live-isos)
+This feedback helps verify NVIDIA driver detection and Open Kernel Module selection on real hardware.
 
 ---
 
