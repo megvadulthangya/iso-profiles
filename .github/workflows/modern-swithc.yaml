@@ -429,9 +429,18 @@ jobs:
 
           echo "Minden manifest validálva (${#EXPECTED_EDITIONS[@]} db: ${EXPECTED_EDITIONS[*]})."
 
+          # FONTOS: az eredeti sorrendet (awesome, xfce, gnome) KELL használni,
+          # mert a Pabbly/Facebook sablon POZÍCIÓ alapján rendeli a címkéket
+          # az adatokhoz. Ha ezt megváltoztatod, felcserélődnek a nevek!
+          ORIGINAL_ORDER=(awesome xfce gnome)
           MANIFEST_FILES=()
-          for ed in "${EXPECTED_EDITIONS[@]}"; do
-            MANIFEST_FILES+=("$MANIFEST_DIR/${ed}.json")
+          for ed in "${ORIGINAL_ORDER[@]}"; do
+            for sel in "${EXPECTED_EDITIONS[@]}"; do
+              if [ "$sel" = "$ed" ]; then
+                MANIFEST_FILES+=("$MANIFEST_DIR/${ed}.json")
+                break
+              fi
+            done
           done
 
           EDITIONS_JSON=$(jq -s '[.[] | {
