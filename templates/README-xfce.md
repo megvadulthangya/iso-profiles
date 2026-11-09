@@ -4,10 +4,10 @@
 
 ## 📦 Build Info
 
-- **Date:** {{BUILD_DATE}}
-- **Version:** {{VERSION}}
+- **Date:** `{{BUILD_DATE}}`
+- **Version:** `{{VERSION}}`
 - **Branch:** Manjaro TESTING
-- **Kernel:** linux6.18
+- **Kernel:** `linux6.18`
 - **Desktop:** XFCE 4.x + Compiz
 - **Theme:** Unified Nordic color scheme
 
@@ -15,9 +15,13 @@
 
 ## 🛠️ TESTING KIADÁS / TESTING RELEASE
 
+**EGYSÉGES NVIDIA KIADÁS / UNIFIED NVIDIA RELEASE**
+
 **Ez az egyedi Manjaro Linux ISO az XFCE asztali környezetet a Compiz látványos ablakeffektjeivel és az egységes Nordic megjelenéssel ötvözi. A rendszer a Manjaro TESTING ágra épül.**
 
 **A custom Manjaro Linux ISO combining the XFCE desktop with Compiz visual effects and a unified Nordic look. The system is based on the Manjaro TESTING branch.**
+
+This is the single current XFCE ISO. It includes support for both legacy and modern NVIDIA driver branches; a separate NVIDIA 340 legacy ISO is no longer maintained.
 
 ---
 
@@ -49,10 +53,41 @@ A Compiz által kínált látványos effektekhez megfelelő grafikus gyorsítás
 
 - **Base:** Manjaro TESTING
 - **Kernel:** Linux `6.18`
-- **Display Server:** XLibre X server — standard ABI
 - **Filesystem:** BTRFS + Timeshift snapshot support
 - **Display Manager:** LightDM with GTK greeter
 - **Shells:** Fish for root; Zsh/Bash for the regular user workflow
+
+### 🎮 NVIDIA Driver Support
+
+The ISO includes legacy and modern NVIDIA driver branches:
+
+- **340.108** — legacy
+- **390.157** — legacy
+- **470.xx** — legacy
+- **580.xx** — legacy
+- **Latest available branch**
+
+The separate NVIDIA 340 legacy ISO has been retired. The 340 driver is now included in the main XFCE ISO.
+
+### 🧪 NVIDIA Open Kernel Module Testing
+
+If you have a modern NVIDIA GPU that supports the **Open Kernel Module**, please help test the live ISO on bare metal.
+
+After booting, check which NVIDIA kernel module is actually loaded:
+
+```bash
+cat /proc/driver/nvidia/version
+```
+
+If the Open Kernel Module was loaded, the output should identify it as **Open Kernel Module**.
+
+You can also check the detected driver profile with:
+
+```bash
+nvidia-driver-assistant --mhwd
+```
+
+Please report whether the expected Open Kernel Module was loaded successfully, together with your GPU model and the command output. This feedback helps verify the NVIDIA driver selection on different hardware.
 
 ### 🔧 NVIDIA 390xx Kernel Patch Maintenance
 
@@ -68,6 +103,11 @@ The patchset work extends through Linux 7.3 and continues into `linux-next`. Thi
 
 👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
 
+**Feedback, bug reports & testing:**  
+Found a problem or tested the ISO? Please [open a new issue on GitHub](https://github.com/megvadulthangya/iso-profiles/issues/new).
+
+For NVIDIA Open Kernel Module testing, please include your GPU model, ISO version, and the relevant command outputs.
+
 ---
 
 ## 🧠 Credits / Készítette
@@ -76,4 +116,3 @@ The patchset work extends through Linux 7.3 and continues into `linux-next`. Thi
 - **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
 
 ---
-
