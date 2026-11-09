@@ -8,19 +8,20 @@
 - **Version:** `{{VERSION}}`
 - **Branch:** Manjaro TESTING
 - **Kernel:** `linux6.18`
-- **WM:** Awesome +Picom-pijulius
+- **WM:** Awesome + Picom-pijulius
 - **Theme:** Unified Nordic color scheme
 
 ---
 
 ## 🛠️ TESTING KIADÁS / TESTING RELEASE
 
-### 🚀 NORMÁL NVIDIA VERZIÓ 🚀
-### 🚀 STANDARD NVIDIA VERSION 🚀
+**EGYSÉGES NVIDIA KIADÁS / UNIFIED NVIDIA RELEASE**
 
 **Ez egy egyedi Manjaro Linux ISO, amely az AwesomeWM ablakkezelőre, az egységes Nordic megjelenésre és a gondosan összeállított asztali környezetre épül. A rendszer a Manjaro TESTING ágat használja.**
 
 **A custom Manjaro Linux ISO built around AwesomeWM, a unified Nordic look, and a carefully curated desktop environment. The system tracks the Manjaro TESTING branch.**
+
+This is the single current Awesome ISO. It includes support for both legacy and modern NVIDIA driver branches; a separate NVIDIA 340 legacy ISO is no longer maintained.
 
 ---
 
@@ -50,6 +51,38 @@ This respin brings together a customized AwesomeWM environment, a keyboard-focus
 - **Shells:** Fish for root; Zsh and Bash for the regular user workflow.
 - **Command-line tools:** A curated set including `bat`, `eza`, `fzf`, `zoxide`, `fd`, `ripgrep`, `ripgrep-all`, `jq`, and `tldr`.
 
+### 🎮 NVIDIA Driver Support
+
+The ISO includes legacy and modern NVIDIA driver branches:
+
+- **340.108** — legacy
+- **390.157** — legacy
+- **470.xx** — legacy
+- **580.xx** — legacy
+- **Latest available branch**
+
+The separate NVIDIA 340 legacy ISO has been retired. The 340 driver is now included in the main Awesome ISO.
+
+### 🧪 NVIDIA Open Kernel Module Testing
+
+If you have a modern NVIDIA GPU that supports the **Open Kernel Module**, please help test the live ISO on bare metal.
+
+After booting, check which NVIDIA kernel module is actually loaded:
+
+```bash
+cat /proc/driver/nvidia/version
+```
+
+If the Open Kernel Module was loaded, the output should identify it as **Open Kernel Module**.
+
+You can also check the detected driver profile with:
+
+```bash
+nvidia-driver-assistant --mhwd
+```
+
+Please report whether the expected Open Kernel Module was loaded successfully, together with your GPU model and the command output. This feedback helps verify the NVIDIA driver selection on different hardware.
+
 ### 🧰 NVIDIA Kernel Patch Maintenance
 
 Ongoing maintenance and forward-porting of the **NVIDIA 390xx legacy-driver kernel patchset** for Manjaro/Arch Linux. Based on Debian's kernel patch series, the work extends through Linux 7.3 and continues into `linux-next`.
@@ -76,6 +109,10 @@ The desktop has been tested on an **ASUS Eee PC X101** with a 1.33 GHz CPU and 2
 
 👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
 
+**Feedback, bug reports & testing:**  
+Found a problem or tested the ISO? Please [open a new issue on GitHub](https://github.com/megvadulthangya/iso-profiles/issues/new).
+
+For NVIDIA Open Kernel Module testing, please include your GPU model, ISO version, and the relevant command outputs.
 ---
 
 ## 🧠 Credits / Készítette
