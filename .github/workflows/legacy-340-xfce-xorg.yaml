@@ -61,7 +61,7 @@ jobs:
           format: 'YYYY-MM'
 
       - name: image-build-upload
-        uses: megvadulthangya/manjaro-iso-action@awesome
+        uses: megvadulthangya/manjaro-iso-action@security/replace-unverified-wget-with-git-clone
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: ${{ env.ISO_PROFILES_BRANCH }}
