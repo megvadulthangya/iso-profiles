@@ -38,7 +38,8 @@ lvm2
 man-db
 man-pages
 manjaro-release
-manjaro-settings
+manjaro-system
+##manjaro-settings #new
 manjaro-zsh-config
 mdadm
 memtest86+
