@@ -1,9 +1,9 @@
-name: Vanilla-Xfce-Testing-Xorg
+name: Vanilla-Xfce-Stable-Xorg
 on:
   workflow_dispatch:
 
 env:
-  STACK_SLUG: testing-legacy340-xorg
+  STACK_SLUG: stable-legacy340-xorg
   VERSION_SUFFIX: xorg
   ISO_PROFILES_BRANCH: master
 
@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         EDITION: [xfce]
-        BRANCH: [testing]
+        BRANCH: [stable]
         SCOPE: [full]
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -61,12 +61,12 @@ jobs:
           format: 'YYYY-MM'
 
       - name: image-build-upload
-        uses: megvadulthangya/manjaro-iso-action@security/replace-unverified-wget-with-git-clone
+        uses: megvadulthangya/manjaro-iso-action@awesome
         with:
           iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
           iso-profiles-branch: ${{ env.ISO_PROFILES_BRANCH }}
           build-mirror: https://mirrors.manjaro.org/repo
-          additional-trusted-gpg: ''
+          additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C D1445F51BC0A8969'
           edition: ${{ matrix.edition }}
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
@@ -116,7 +116,7 @@ jobs:
           ## 📦 Build Info
           - **Date:** $BUILD_DATE
           - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
-          - **Branch:** Manjaro TESTING (iso-profiles master, auto-synced from official Manjaro repos)
+          - **Branch:** Manjaro Stable (iso-profiles master, auto-synced from official Manjaro repos)
           - **Kernel:** linux618 (latest LTS, 6.18)
           - **X Server:** Xorg (not XLibre)
           - **Driver Stack:** nvidia-340xx (Debian patchset based, maintained by @megvadulthangya)
@@ -144,7 +144,7 @@ jobs:
           * XFCE 4.x
 
           ### 🛠️ System Core
-          * Base: Manjaro Testing (auto-synced master)
+          * Base: Manjaro Stable (auto-synced master)
           * X Server: **Xorg**
           * Kernel: **linux618** (latest LTS)
 
