@@ -1,0 +1,337 @@
+name: Vanilla-Cinnamon-Stable-Xorg
+on:
+  workflow_dispatch:
+
+env:
+  STACK_SLUG: cinnamon-stable-legacy340-xorg
+  VERSION_SUFFIX: xorg
+  ISO_PROFILES_BRANCH: master
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.13.1
+        with:
+          access_token: ${{ github.token }}
+      - id: time
+        uses: nanzm/get-time-action@v2.0
+        with:
+          format: 'YYYYMMDDHHmm'
+    outputs:
+      release_tag: ${{ steps.time.outputs.time }}
+
+  build-release:
+    runs-on: ubuntu-latest
+    needs: [prepare-release]
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        EDITION: [cinnamon]
+        BRANCH: [stable]
+        SCOPE: [full]
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: styfle/cancel-workflow-action@0.13.1
+        with:
+          access_token: ${{ github.token }}
+
+      - id: time
+        uses: nanzm/get-time-action@v2.0
+        with:
+          format: 'YYYY-MM'
+
+      - name: image-build-upload
+        uses: megvadulthangya/manjaro-iso-action@awesome
+        with:
+          iso-profiles-repo: 'https://github.com/megvadulthangya/iso-profiles'
+          iso-profiles-branch: ${{ env.ISO_PROFILES_BRANCH }}
+          build-mirror: https://mirrors.manjaro.org/repo
+          additional-trusted-gpg: 'A9A569C8F797B6878E44C4F8FBF4AB57E9BB9D3C D1445F51BC0A8969'
+          edition: ${{ matrix.edition }}
+          branch: ${{ matrix.branch }}
+          scope: ${{ matrix.scope }}
+          version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          kernel: linux618
+          code-name: "Xorg + Legacy NVIDIA"
+
+      - name: Generate README & Upload to SourceForge
+        id: sf-upload
+        if: success()
+        env:
+          SF_USER: ${{ secrets.SF_USERNAME }}
+          SF_KEY: ${{ secrets.SF_SSH_KEY }}
+          SF_PROJECT: "vanilla-manjaro-xfce-xlibre"
+          SF_DIR: "Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}/${{ matrix.scope }}"
+        run: |
+          if [ -z "$SF_USER" ]; then
+            echo "ERROR: SF_USER is empty!"
+            exit 1
+          fi
+
+          RELEASE_DIR="release"
+          mkdir -p "$RELEASE_DIR"
+
+          mkdir -p ~/.ssh
+          echo "$SF_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
+
+          ISO_FILE=$(find . -maxdepth 1 -name "*.iso" | head -n 1)
+          if [ -z "$ISO_FILE" ]; then
+            echo "ERROR: ISO file not found!"
+            exit 1
+          fi
+
+          mv "$ISO_FILE" "$RELEASE_DIR/"
+          mv "${ISO_FILE}".sha* "$RELEASE_DIR/" 2>/dev/null || true
+
+          README_PATH="$RELEASE_DIR/README.md"
+          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
+
+          cat <<EOF > "$README_PATH"
+          # 🏔️ Manjaro Cinnamon Respin — Xorg + NVIDIA Legacy Drivers
+
+          ![Maintenance Status](https://img.shields.io/badge/Maintenance-Actively%20maintained%20by%20%40megvadulthangya-brightgreen)
+
+          ## 📦 Build Info
+          - **Date:** $BUILD_DATE
+          - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
+          - **Branch:** Manjaro Stable (iso-profiles master, auto-synced from official Manjaro repos)
+          - **Kernel:** linux618 (latest LTS, 6.18)
+          - **Desktop:** Cinnamon (latest Manjaro Cinnamon edition)
+          - **X Server:** Xorg (not XLibre)
+          - **Driver Stack:** nvidia-340xx (Debian patchset based, maintained by @megvadulthangya)
+
+          ---
+
+          ## 🎯 Purpose
+
+          This ISO exists primarily to test the **NVIDIA 340.108** legacy driver
+          under **plain Xorg** (not XLibre) on top of the **Cinnamon** desktop.
+          It is built from the \`master\` branch of the iso-profiles fork, which
+          auto-syncs from the official Manjaro repositories. The only modification
+          on top of the auto-synced base is the addition of the **legacy340**
+          driver stack.
+
+          > **Note:** This driver revival is **not** a community effort. It is
+          > maintained solely by [@megvadulthangya](https://github.com/megvadulthangya).
+          > No other contributors are involved in the packaging, patchset, or
+          > testing.
+
+          ---
+
+          ## 🚀 Key Features
+
+          ### 🖥️ Desktop Environment
+          * Cinnamon (Manjaro official edition)
+
+          ### 🛠️ System Core
+          * Base: Manjaro Stable (auto-synced master)
+          * X Server: **Xorg**
+          * Kernel: **linux618** (latest LTS)
+
+          ### 🎮 NVIDIA Legacy Drivers
+          * **nvidia-340xx** — personal revival by @megvadulthangya, Debian patchset based
+          * **nvidia-390xx** — Debian patchset based alternative build (same maintainer)
+          * DKMS-based, mhwd-integrated
+          * Kernel support: 6.1.x / 6.1-rt, 6.6.x / 6.6-rt, 6.12.x / 6.12-rt,
+            6.18.x, 7.1.x, 7.2.x, 7.3.x-rc, **linux-next**
+
+          ### 🔀 Xorg vs XLibre — important note
+          The XLibre ABI split (\`legacyabi\` vs normal) does **not** apply here.
+          With plain **Xorg**, a single X server works with all NVIDIA driver
+          generations (340 / 390 / 470 / 580 / latest). In theory, the 340.108
+          driver should load and work on plain Xorg without any additional handling.
+          This is exactly what this ISO is meant to validate.
+
+          ### 🧩 Package Set (340xx branch)
+          * \`nvidia-340xx-utils\`
+          * \`opencl-nvidia-340xx\`
+          * \`lib32-nvidia-340xx-utils\`
+          * \`lib32-opencl-nvidia-340xx\`
+          * \`nvidia-340xx-dkms\`
+          * \`nvidia-340xx-settings\` (legacy settings tool)
+          * \`mhwd-nvidia-340xx\`
+          * \`mhwd-db\` fork with \`video-nvidia-340xx\` and
+            \`hybrid-intel-nvidia-340xx-bumblebee\` profiles
+          * Per-kernel prebuilt module packages for current Manjaro kernels
+          * Meta packages for \`linux\` and \`linux-lts\`
+
+          The same package set exists for \`nvidia-390xx-*\`.
+
+          ---
+
+          ## 🔐 Security Backports (340.108)
+
+          | Patch | CVE |
+          |-------|-----|
+          | \`cve-2022-34670-nv-h-IS-OFFSET.patch\` | CVE-2022-34670, 34677, 34680, 42257, 42258, 42259 |
+          | \`cve-2022-34674-vma-size.patch\` | CVE-2022-34674 |
+          | \`cve-2022-34670-nv-c-usage-count-overflow.patch\` | usage_count overflow hardening |
+
+          More CVE backports are WIP (470 → 390 → 340).
+
+          ---
+
+          ## 🔧 Patchset Base
+
+          * Upstream: \`salsa.debian.org/nvidia-graphics-driver\` (branches \`340xx/main\`, \`390xx/main\`),
+            maintained by Andreas Beckmann (anbe@debian.org)
+          * Manjaro adaptation / fork: Gyöngyösi Gábor (@megvadulthangya) — sole maintainer
+
+          ---
+
+          ## 📚 Repositories
+
+          **340xx branch**
+          * Kernel module: \`github.com/megvadulthangya/nvidia-340xx\`
+          * Driver / utils: \`github.com/megvadulthangya/nvidia-340xx-utils\` (\`develop\`)
+          * Settings tool: \`github.com/megvadulthangya/manjaro-awesome/nvidia-340xx-settings\`
+          * lib32 utils: \`github.com/megvadulthangya/manjaro-awesome/lib32-nvidia-340xx-utils\`
+          * mhwd-db fork: \`github.com/megvadulthangya/mhwd-db\` (\`develop\`)
+
+          **390xx branch**
+          * Kernel module: \`github.com/megvadulthangya/nvidia-390xx\`
+          * Driver / utils: \`github.com/megvadulthangya/nvidia-390xx-utils\` (\`develop\`)
+
+          ---
+
+          ## 🧪 Real Hardware Tests (reference)
+
+          | GPU | Driver | Result |
+          |-----|--------|--------|
+          | GeForce 210 (GT218) | 340xx | kernel module loads, \`nvidia-smi\` OK, hardware OpenGL |
+          | NVS 295 | 340xx | hardware OpenGL, ETLEGACY playable, CUDA 6.0/6.5 samples OK |
+          | GeForce GTS 450 (GF106) | 390xx | hardware OpenGL (4.6.0 NVIDIA 390.157), \`nvidia_drm\` modeset=Y |
+
+          > This Xorg-based Cinnamon ISO is specifically intended to extend these
+          > tests to plain Xorg + Cinnamon. Please report back if you try it.
+
+          ---
+
+          ## ☕ Support / Támogatás
+          👉 [Buy me a coffee](https://buymeacoffee.com/rohambili)
+
+          ---
+
+          ## 🧠 Credits
+          * **Base:** [Manjaro Linux](https://manjaro.org/)
+          * **Driver patchsets:** Debian NVIDIA team (upstream base) +
+            [@megvadulthangya](https://github.com/megvadulthangya) (Manjaro adaptation, follow-up patches, packaging)
+          * **Respin by:** [@megvadulthangya](https://github.com/megvadulthangya)
+
+          ---
+
+          ## 📜 Recent Changes (Git Log)
+          EOF
+
+          git log -n 50 --pretty=format:"* %s (%h) - %ad" --date=short >> "$README_PATH" || echo "Git history not available." >> "$README_PATH"
+          echo "" >> "$README_PATH"
+          echo "README generated: $README_PATH"
+
+          BASE_REMOTE="/home/frs/project/$SF_PROJECT"
+          REMOTE_TARGET="$BASE_REMOTE/$SF_DIR"
+
+          cat > sftp_commands.txt <<SFTP
+          -mkdir $BASE_REMOTE/Releases
+          -mkdir $BASE_REMOTE/Releases/${{ env.STACK_SLUG }}
+          -mkdir $BASE_REMOTE/Releases/${{ env.STACK_SLUG }}/${{ needs.prepare-release.outputs.release_tag }}
+          -mkdir $REMOTE_TARGET
+          SFTP
+
+          sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b sftp_commands.txt $SF_USER@frs.sourceforge.net
+
+          rsync -avP -e "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" \
+            "$RELEASE_DIR"/*.iso "$RELEASE_DIR"/*.sha* "$RELEASE_DIR"/README.md \
+            "$SF_USER@frs.sourceforge.net:$REMOTE_TARGET/"
+
+          echo "iso_dir=$RELEASE_DIR" >> $GITHUB_OUTPUT
+
+      - name: Prune SourceForge – keep only 2 latest releases
+        if: success()
+        env:
+          SF_USER: ${{ secrets.SF_USERNAME }}
+          SF_KEY: ${{ secrets.SF_SSH_KEY }}
+          SF_PROJECT: "vanilla-manjaro-xfce-xlibre"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$SF_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H frs.sourceforge.net shell.sourceforge.net web.sourceforge.net >> ~/.ssh/known_hosts
+
+          BASE_REMOTE="/home/frs/project/$SF_PROJECT"
+          STACK_REMOTE="$BASE_REMOTE/Releases/$STACK_SLUG"
+
+          sftp_run() {
+            sftp -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -b "$1" "$SF_USER@frs.sourceforge.net"
+          }
+
+          sftp_ls_names() {
+            local tmp_batch
+            tmp_batch="$(mktemp)"
+            printf 'ls -1 %s\n' "$1" > "$tmp_batch"
+            sftp_run "$tmp_batch" 2>&1 | sed 's/^sftp> //' | grep -vE '^(Connected to |Fetching |Can.t |No such file|not found|Failure$)' | awk -F'/' 'NF{print $NF}' | sed '/^$/d' || true
+            rm -f "$tmp_batch"
+          }
+
+          mapfile -t TAGS < <(sftp_ls_names "$STACK_REMOTE" | grep -E '^[0-9]{12}$' | sort)
+          TAG_COUNT=${#TAGS[@]}
+
+          if [ "$TAG_COUNT" -le 2 ]; then
+            exit 0
+          fi
+
+          mapfile -t DELETE_TAGS < <(printf '%s\n' "${TAGS[@]}" | head -n -2)
+
+          for old_tag in "${DELETE_TAGS[@]}"; do
+            mapfile -t SCOPES < <(sftp_ls_names "$STACK_REMOTE/$old_tag" | sort)
+            BATCH_DEL="$(mktemp)"
+            for scope in "${SCOPES[@]}"; do
+              mapfile -t FILES < <(sftp_ls_names "$STACK_REMOTE/$old_tag/$scope" || true)
+              for f in "${FILES[@]}"; do
+                printf '%s\n' "-rm $STACK_REMOTE/$old_tag/$scope/$f" >> "$BATCH_DEL"
+              done
+              printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag/$scope" >> "$BATCH_DEL"
+            done
+            printf '%s\n' "-rmdir $STACK_REMOTE/$old_tag" >> "$BATCH_DEL"
+            sftp_run "$BATCH_DEL" || true
+            rm -f "$BATCH_DEL"
+          done
+
+      - name: Upload to Internet Archive
+        if: success()
+        continue-on-error: true
+        uses: nick2bad4u/internet-archive-upload@1cdb640f1bd8b06c29ef86a7d323d8c2e51eda89
+        with:
+          access-key: ${{ secrets.IA_ACCESS_KEY }}
+          secret-key: ${{ secrets.IA_SECRET_KEY }}
+          identifier: vanilla-manjaro-cinnamon-respin-xorg
+          files: ${{ steps.sf-upload.outputs.iso_dir }}
+          title: "Vanilla Manjaro Cinnamon Respin — Xorg + NVIDIA Legacy340"
+          creator: "megvadulthangya"
+          date: ${{ needs.prepare-release.outputs.release_tag }}
+          language: "eng"
+          description: "Vanilla Manjaro Linux Cinnamon respin. Based on the Manjaro Stable branch (iso-profiles master, auto-synced from official Manjaro). Plain Xorg (not XLibre) + personal revival of the NVIDIA 340.108 legacy driver (Debian patchset) maintained solely by @megvadulthangya. Version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}. Kernel: linux618."
+          subject: "Linux; Manjaro; Cinnamon; Xorg; NVIDIA; 340.108; legacy340; Respin"
