@@ -39,7 +39,7 @@ man-db
 man-pages
 manjaro-release
 manjaro-system
-manjaro-settings
+#manjaro-settings #not exist in stable yet
 manjaro-system
 manjaro-zsh-config
 mdadm
