@@ -50,7 +50,6 @@ pamac-gtk
 ## Cinnamon
 
 cinnamon                           # required by manjaro-cinnamon settings & several other packages
-#cinnamon-panel-chooser
 cinnamon-sounds                    # optional for manjaro-cinnamon-settings
 cinnamon-translations              # optional for various cinnamon packages
 >extra cinnamon-wallpapers         # optional for artwork-cinnamon-minimal
@@ -59,7 +58,6 @@ cinnamon-translations              # optional for various cinnamon packages
 ## Nemo extensions
 
 #nemo-audio-tab
-#>extra nemo-bulk-rename
 #nemo-compare                      # AUR
 #nemo-dropbox                      # AUR
 #nemo-emblems
@@ -158,8 +156,6 @@ flatpak
 >extra gcolor3
 >extra gimp
 >extra gnome-screenshot
->extra gparted
-#>extra gprename                    # required by nemo-bulk-rename
 >extra gufw
 htop
 icon-naming-utils
