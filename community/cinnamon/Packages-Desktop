@@ -158,7 +158,6 @@ flatpak
 >extra gnome-screenshot
 >extra gufw
 htop
-icon-naming-utils
 inxi
 >extra libgsf                      # optional for nemo
 lightdm-settings
@@ -186,8 +185,7 @@ tree
 vi
 >extra vivaldi                     # firefox included in minimal edition
 >extra vivaldi-ffmpeg-codecs       # optional for vivaldi
-xdg-utils
-zensu                              # Why?
+
 
 ## Optional dependencies for file-roller
 >extra 7zip
