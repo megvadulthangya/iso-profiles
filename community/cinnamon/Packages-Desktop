@@ -58,16 +58,16 @@ cinnamon-translations              # optional for various cinnamon packages
 ## Nemo extensions
 
 #nemo-audio-tab
-#nemo-compare                      # AUR
+#nemo-compare
 #nemo-dropbox                      # AUR
 #nemo-emblems
-#nemo-media-columns                # pypdf2 in AUR but mostly unmaintained
->extra nemo-fileroller
+nemo-fileroller
 #nemo-image-converter
+#nemo-media-columns
 #nemo-pastebin
 # >extra nemo-preview              # AUR
->extra nemo-python
-#nemo-repairer                     # AUR
+#nemo-python                       # required by other extensions
+#nemo-repairer
 #nemo-seahorse
 >extra nemo-share
 #nemo-terminal
