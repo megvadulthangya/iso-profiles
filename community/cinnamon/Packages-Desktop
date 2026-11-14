@@ -231,3 +231,4 @@ xorg-server
 xorg-xhost
 xorg-xkill
 >extra xorg-xrandr                 # optional for inxi
+manjaro-awesome-keyring
