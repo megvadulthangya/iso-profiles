@@ -78,7 +78,7 @@ nemo-fileroller
 >extra bulky
 clockenstein
 fingwit
-gnome-online-accounts-gtk
+gnome-online-accounts-gtk          # optional for cinnamon
 #hypnotix
 >extra pix
 #sticky
@@ -108,7 +108,7 @@ xviewer
 
 >extra baobab
 >extra gnome-disk-utility
-gnome-keyring
+gnome-keyring                      # optional for cinnamon
 >extra gnome-system-monitor        ##TODO: Replace with superlight
 gvfs-afc
 gvfs-goa
@@ -145,10 +145,10 @@ qt6ct                              # required by manjaro-cinnamon settings
 ## Applications
 
 >extra apparmor
->extra blueman
+>extra blueman                     # optional for cinnamon
 >extra celluloid
 >extra deluge
->extra ffmpegthumbnailer
+>extra ffmpegthumbnailer           # optional for nemo
 file-roller                        ## TODO: Replace with unfold?
 >basic firefox                     # vivaldi included in full edition
 flatpak
@@ -179,7 +179,7 @@ pavucontrol
 screenfetch
 >extra thunderbird
 >extra timeshift
-touchegg                           # optional for cinnamon
+touchegg                           # optional for cinnamon, only works with X11 session
 tree
 >extra udiskie
 vi
