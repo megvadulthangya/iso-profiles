@@ -165,7 +165,8 @@ lightdm-slick-greeter              # required by lightdm-settings
 >extra lollypop
 manjaro-application-utility        # optional for manjaro-hello
 manjaro-hello
-manjaro-settings-manager-notifier  # optional for manjaro-settings-manager
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 mintstick
 >extra mousetweaks                 # optional for onboard
 #>extra mugshot                    # obsolete
