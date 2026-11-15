@@ -71,7 +71,7 @@ jobs:
           branch: ${{ matrix.branch }}
           scope: ${{ matrix.scope }}
           version: ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
-          kernel: linux618
+          kernel: linux612
           code-name: "Xorg + Legacy NVIDIA"
 
       - name: Generate README & Upload to SourceForge
@@ -117,10 +117,10 @@ jobs:
           - **Date:** $BUILD_DATE
           - **Version:** ${{ steps.time.outputs.time }}-${{ env.VERSION_SUFFIX }}
           - **Branch:** Manjaro Stable (iso-profiles master, auto-synced from official Manjaro repos)
-          - **Kernel:** linux618 (latest LTS, 6.18)
+          - **Kernel:** linux612 (LTS, 6.12)
           - **Desktop:** Cinnamon (latest Manjaro Cinnamon edition)
           - **X Server:** Xorg (not XLibre)
-          - **Driver Stack:** nvidia-340xx (Debian patchset based, maintained by @megvadulthangya)
+          - **Driver Stack:** nvidia-340xx and nvidia-390xx (Debian patchset based, maintained by @megvadulthangya)
 
           ---
 
@@ -148,7 +148,7 @@ jobs:
           ### 🛠️ System Core
           * Base: Manjaro Stable (auto-synced master)
           * X Server: **Xorg**
-          * Kernel: **linux618** (latest LTS)
+          * Kernel: **linux612** (LTS)
 
           ### 🎮 NVIDIA Legacy Drivers
           * **nvidia-340xx** — personal revival by @megvadulthangya, Debian patchset based
