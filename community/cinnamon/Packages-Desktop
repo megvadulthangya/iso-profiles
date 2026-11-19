@@ -177,7 +177,6 @@ pavucontrol
 >extra poppler-data                # required by gimp
 >extra powertop
 #>extra pragha
-screenfetch
 >extra thunderbird
 >extra timeshift
 touchegg                           # optional for cinnamon, only works with X11 session
