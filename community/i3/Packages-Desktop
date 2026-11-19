@@ -28,7 +28,6 @@ flex
 >extra gcc
 gcolor3
 #gconf
->extra gimp
 >extra git
 gnome-keyring
 >extra gparted
