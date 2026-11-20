@@ -154,7 +154,6 @@ file-roller                        ## TODO: Replace with unfold?
 flatpak
 >extra galculator
 >extra gcolor3
->extra gimp
 >extra gnome-screenshot
 >extra gufw
 htop
@@ -177,7 +176,6 @@ pavucontrol
 >extra poppler-data                # required by gimp
 >extra powertop
 #>extra pragha
-screenfetch
 >extra thunderbird
 >extra timeshift
 touchegg                           # optional for cinnamon, only works with X11 session
