@@ -68,7 +68,8 @@ manjaro-browser-settings
 manjaro-i3-settings
 >extra manjaro-printer
 manjaro-ranger-settings
->extra manjaro-settings-manager-notifier
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 >extra matcha-gtk-theme
 mesa-utils
 mlocate

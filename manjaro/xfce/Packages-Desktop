@@ -172,8 +172,8 @@ inxi
 #>extra onlyoffice-desktopeditors
 manjaro-hello
 manjaro-application-utility
-manjaro-settings-manager
-manjaro-settings-manager-notifier
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 >extra mlocate
 mousepad
 mugshot
