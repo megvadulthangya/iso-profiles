@@ -50,7 +50,6 @@ pamac-gtk
 ## Cinnamon
 
 cinnamon                           # required by manjaro-cinnamon settings & several other packages
-#cinnamon-panel-chooser
 cinnamon-sounds                    # optional for manjaro-cinnamon-settings
 cinnamon-translations              # optional for various cinnamon packages
 >extra cinnamon-wallpapers         # optional for artwork-cinnamon-minimal
@@ -59,17 +58,16 @@ cinnamon-translations              # optional for various cinnamon packages
 ## Nemo extensions
 
 #nemo-audio-tab
-#>extra nemo-bulk-rename
-#nemo-compare                      # AUR
+#nemo-compare
 #nemo-dropbox                      # AUR
 #nemo-emblems
-#nemo-media-columns                # pypdf2 in AUR but mostly unmaintained
->extra nemo-fileroller
+nemo-fileroller
 #nemo-image-converter
+#nemo-media-columns
 #nemo-pastebin
 # >extra nemo-preview              # AUR
->extra nemo-python
-#nemo-repairer                     # AUR
+#nemo-python                       # required by other extensions
+#nemo-repairer
 #nemo-seahorse
 >extra nemo-share
 #nemo-terminal
@@ -80,7 +78,7 @@ cinnamon-translations              # optional for various cinnamon packages
 >extra bulky
 clockenstein
 fingwit
-gnome-online-accounts-gtk
+gnome-online-accounts-gtk          # optional for cinnamon
 #hypnotix
 >extra pix
 #sticky
@@ -110,7 +108,7 @@ xviewer
 
 >extra baobab
 >extra gnome-disk-utility
-gnome-keyring
+gnome-keyring                      # optional for cinnamon
 >extra gnome-system-monitor        ##TODO: Replace with superlight
 gvfs-afc
 gvfs-goa
@@ -147,22 +145,18 @@ qt6ct                              # required by manjaro-cinnamon settings
 ## Applications
 
 >extra apparmor
->extra blueman
+>extra blueman                     # optional for cinnamon
 >extra celluloid
 >extra deluge
->extra ffmpegthumbnailer
+>extra ffmpegthumbnailer           # optional for nemo
 file-roller                        ## TODO: Replace with unfold?
 >basic firefox                     # vivaldi included in full edition
 flatpak
 >extra galculator
 >extra gcolor3
->extra gimp
 >extra gnome-screenshot
->extra gparted
-#>extra gprename                    # required by nemo-bulk-rename
 >extra gufw
 htop
-icon-naming-utils
 inxi
 >extra libgsf                      # optional for nemo
 lightdm-settings
@@ -170,7 +164,8 @@ lightdm-slick-greeter              # required by lightdm-settings
 >extra lollypop
 manjaro-application-utility        # optional for manjaro-hello
 manjaro-hello
-manjaro-settings-manager-notifier  # optional for manjaro-settings-manager
+manjaro-settings-manager-qt6
+manjaro-settings-manager-notifier-qt6
 mintstick
 >extra mousetweaks                 # optional for onboard
 #>extra mugshot                    # obsolete
@@ -181,17 +176,15 @@ pavucontrol
 >extra poppler-data                # required by gimp
 >extra powertop
 #>extra pragha
-screenfetch
 >extra thunderbird
 >extra timeshift
-touchegg                           # optional for cinnamon
+touchegg                           # optional for cinnamon, only works with X11 session
 tree
 >extra udiskie
 vi
 >extra vivaldi                     # firefox included in minimal edition
 >extra vivaldi-ffmpeg-codecs       # optional for vivaldi
-xdg-utils
-zensu                              # Why?
+
 
 ## Optional dependencies for file-roller
 >extra 7zip

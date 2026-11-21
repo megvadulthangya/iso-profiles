@@ -161,7 +161,6 @@ firefox
 # >extra flashplugin
 >extra galculator
 gcolor3
->extra gimp
 gparted
 gufw
 >extra audacious
@@ -180,7 +179,6 @@ mousepad
 mugshot
 >basic parole # media player
 powertop
-screenfetch
 evince
 >extra poppler-data  # CKJ support for pdf
 #>basic sylpheed # mail client

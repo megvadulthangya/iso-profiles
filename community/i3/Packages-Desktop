@@ -28,7 +28,6 @@ flex
 >extra gcc
 gcolor3
 #gconf
->extra gimp
 >extra git
 gnome-keyring
 >extra gparted
@@ -104,7 +103,6 @@ qt5ct
 qt6ct
 ranger
 #sbxkb  ## dropped to AUR
-screenfetch
 >extra snapd
 speedtest-cli
 >extra subversion
