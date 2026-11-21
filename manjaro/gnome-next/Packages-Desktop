@@ -254,7 +254,6 @@ qt6ct
 ## Applications
 
 >extra apparmor
-#evince                            # optional for gtk3, xdg-desktop-portal-gnome, xdg-desktop-portal-gtk
 #evolution                         # thunderbird included instead
 #>extra ffmpegthumbnailer          # Using gst-thumbnailers
 #>extra ffmpeg-audio-thumbnailer   # Using gst-thumbnailers
