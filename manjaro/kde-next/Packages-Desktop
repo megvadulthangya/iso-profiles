@@ -55,7 +55,7 @@ terminus-font
 >extra ttf-droid
 
 ## Package management
-pamac-gtk3
+pamac-gtk
 pamac-tray-icon-plasma
 pamac-cli
 #>extra apparmor
@@ -193,7 +193,7 @@ kaccounts-providers                # required by kio-gdrive
 #>extra libreoffice-still
 manjaro-hello
 manjaro-application-utility
-#manjaro-settings-manager-kcm
+manjaro-settings-manager-qt6
 manjaro-settings-manager-kstatus-notifier
 plasma-systemmonitor
 powertop
