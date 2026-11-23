@@ -61,7 +61,7 @@ cinnamon-translations              # optional for various cinnamon packages
 #nemo-compare
 #nemo-dropbox                      # AUR
 #nemo-emblems
-nemo-fileroller
+#nemo-fileroller
 #nemo-image-converter
 #nemo-media-columns
 #nemo-pastebin
@@ -82,12 +82,12 @@ gnome-online-accounts-gtk          # optional for cinnamon
 #hypnotix
 >extra pix
 #sticky
-#superlight                        ## TODO
+superlight
 #thingy
 #warpinator
 >extra webapp-manager
-#unfold                            ## TODO
-#velocitty                         ## TODO
+unfold
+velocitty
 xed
 >extra xepub
 >extra xapp-aiff-thumbnailer
@@ -109,7 +109,7 @@ xviewer
 >extra baobab
 >extra gnome-disk-utility
 gnome-keyring                      # optional for cinnamon
->extra gnome-system-monitor        ##TODO: Replace with superlight
+#>extra gnome-system-monitor       # replaced with superlight
 gvfs-afc
 gvfs-goa
 gvfs-gphoto2
@@ -149,7 +149,7 @@ qt6ct                              # required by manjaro-cinnamon settings
 >extra celluloid
 >extra deluge
 >extra ffmpegthumbnailer           # optional for nemo
-file-roller                        ## TODO: Replace with unfold?
+#file-roller                       # replaced with unfold
 >basic firefox                     # vivaldi included in full edition
 flatpak
 >extra galculator
@@ -187,12 +187,12 @@ vi
 
 
 ## Optional dependencies for file-roller
->extra 7zip
->extra squashfs-tools
->extra unace
->extra unrar
->extra unzip
->extra zip
+#>extra 7zip
+#>extra squashfs-tools
+#>extra unace
+#>extra unrar
+#>extra unzip
+#>extra zip
 
 
 ## Optional dependencies for inxi
