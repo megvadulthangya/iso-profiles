@@ -64,7 +64,6 @@ pamac-cli
 #>extra pamac-snap-plugin
 >extra pamac-flatpak-plugin
 >extra fwupd
-#manjaro-application-utility
 
 ## Printing
 >extra manjaro-printer
@@ -87,7 +86,6 @@ bluedevil
 flatpak-kcm
 kde-gtk-config
 kdeplasma-addons
-kgamma                             # Drop for Plasma 6.8
 kinfocenter
 kmenuedit
 kscreen
@@ -121,10 +119,6 @@ breeze5 # Fore Qt5 Breeze style
 breeze-gtk
 plymouth
 plymouth-theme-manjaro
-
-# needed by manjaro-application-utility
-# category icons(Browsers, Backup,etc)
-papirus-icon-theme
 
 ## KDE Applications
 ark
@@ -217,32 +211,18 @@ yakuake
 manjaro-kde-settings
 manjaro-browser-settings
 
-## Xorg Input Drivers
-xf86-input-elographics
-xf86-input-evdev
-xf86-input-libinput
-xf86-input-void
-
-## Xorg Server and Graphics
+## Graphics
 >multilib lib32-libva-intel-driver
 >multilib lib32-libva-mesa-driver
 libva-intel-driver
 libva-mesa-driver
 mesa-utils
 >multilib lib32-mesa-utils
-numlockx
-xdg-user-dirs
-xorg-server
-xorg-twm
-xorg-xinit
-xorg-xkill
-xorg-mkfontscale
 
 ## Desktop Utils
 perl-file-mimeinfo
 xdg-utils
 >extra timeshift
-#>extra kernel-alive
 power-profiles-daemon
 
 ## Misc
