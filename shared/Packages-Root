@@ -64,7 +64,6 @@ sudo
 sysfsutils
 texinfo
 update-grub
-udev-usb-sync
 usbutils
 vi
 wget
