@@ -31,6 +31,9 @@ manjaro-gstreamer
 >extra manjaro-modem
 manjaro-pipewire
 
+# ffmpeg depends on jack and pulls in jack2 instead of pipewire-jack
+pipewire-jack
+
 ## Connect Packages
 android-tools
 android-udev
