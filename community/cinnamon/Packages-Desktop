@@ -110,6 +110,7 @@ xviewer
 ## GNOME group
 
 >extra baobab
+gnome-calculator
 >extra gnome-disk-utility
 gnome-keyring                      # optional for cinnamon
 #>extra gnome-system-monitor       # replaced with superlight
