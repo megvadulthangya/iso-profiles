@@ -20,6 +20,9 @@ manjaro-alsa
 manjaro-gstreamer
 manjaro-pipewire
 
+# ffmpeg depends on jack and pulls in jack2 instead of pipewire-jack
+pipewire-jack
+
 
 ## Fonts
 
