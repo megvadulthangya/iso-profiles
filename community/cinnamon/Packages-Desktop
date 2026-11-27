@@ -20,6 +20,9 @@ manjaro-alsa
 manjaro-gstreamer
 manjaro-pipewire
 
+# ffmpeg depends on jack and pulls in jack2 instead of pipewire-jack
+pipewire-jack
+
 
 ## Fonts
 
@@ -107,6 +110,7 @@ xviewer
 ## GNOME group
 
 >extra baobab
+gnome-calculator
 >extra gnome-disk-utility
 gnome-keyring                      # optional for cinnamon
 #>extra gnome-system-monitor       # replaced with superlight
